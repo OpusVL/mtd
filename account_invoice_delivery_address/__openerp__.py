@@ -26,11 +26,11 @@
     'version': '0.1',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
-    'summary': 'Add a delivery_partner_id field to account.invoice',
+    'summary': 'Add a partner_shipping_id field to account.invoice',
     
     'category': 'Accounting',
     
-    'description': """Add a delivery_partner_id field to account.invoice,
+    'description': """Add a partner_shipping_id field to account.invoice,
 """,
     'images': [
     ],

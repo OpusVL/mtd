@@ -25,7 +25,7 @@ from openerp import models, fields, api
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    delivery_partner_id = fields.Many2one(
+    partner_shipping_id = fields.Many2one(
         comodel_name='res.partner',
         string='Delivery Address',
         readonly=True,
