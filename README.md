@@ -4,6 +4,8 @@ Add delivery address field to Invoices.
 
 Note this exposes it in the UI, and makes it available, but does not add it to the printouts.
 
+The technical name of the field is `partner_shipping_id` on model `account.invoice`.
+
 # account\_invoice\_delivery\_address\_sale
 
 Copy delivery address when creating an invoice from a Sale Order.
