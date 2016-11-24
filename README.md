@@ -4,6 +4,18 @@ Add delivery address field to Invoices.
 
 Note this exposes it in the UI, and makes it available, but does not add it to the printouts.
 
+# account\_invoice\_delivery\_address\_sale
+
+Copy delivery address when creating an invoice from a Sale Order.
+
+Installed automatically if `account_invoice_delivery_address` and `sale` are installed together.
+
+# account\_invoice\_delivery\_address\_stock
+
+Copy delivery address when creating an invoice from a Delivery Order.
+
+Installed automatically if `account_invoice_delivery_address` and `stock` are installed together.
+
 # Copyright and License
 
 Copyright (C) 2016 OpusVL
