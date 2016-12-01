@@ -18,6 +18,13 @@ Copy delivery address when creating an invoice from a Delivery Order.
 
 Installed automatically if `account_invoice_delivery_address` and `stock` are installed together.
 
+# account\_invoice\_line\_edit\_form
+
+In the invoice form, force the form to be used when the user adds or edits an invoice line, rather than
+editing inline.
+
+This enables you to add richer fields and features to the invoice line GUI than can be achieved in the tree view.
+
 # Copyright and License
 
 Copyright (C) 2016 OpusVL
