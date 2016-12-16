@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <template id="report_journal" inherit_id="account.report_journal">
+            <xpath expr="//table/tbody/tr/td/t[contains(@t-esc, 'line.partner_id')]" position="attributes">
+                <attribute name="t-esc">line.partner_id and line.partner_id.name[:23] or ''</attribute>
+            </xpath>
+        </template>
+    </data>
+</openerp>
