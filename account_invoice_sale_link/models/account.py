@@ -25,7 +25,7 @@ from openerp import models, fields, api
 class AccountInvoice(models.Model):
     _inherit = 'account.invoice'
 
-    sale_order_id = fields.Many2one(
+    source_sale_order_id = fields.Many2one(
         string='Sales Order',
         comodel_name='sale.order',
         readonly=True,

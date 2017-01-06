@@ -30,7 +30,7 @@ class SaleOrder(models.Model):
     @api.model
     def _prepare_invoice(self, order, lines):
         res = super(SaleOrder, self)._prepare_invoice(order, lines)
-        res.update({'sale_order_id': order.id})
+        res.update({'source_sale_order_id': order.id})
         return res
 
 
