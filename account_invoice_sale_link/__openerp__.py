@@ -28,7 +28,7 @@
     'website': 'http://opusvl.com/',
     'summary': 'Add a link to the originating Sales Order from an Invoice',
     
-    'category': 'Sales',
+    'category': 'Accounting',
     
     'description': """Add a link to the originating Sales Order from an Invoice,
 """,
