@@ -37,6 +37,7 @@
     'depends': [
         'account',
         'stock',
+        'sale_stock',
     ],
     'data': [
         'views/account.xml',
