@@ -25,6 +25,12 @@ from openerp import models, fields, api
 class StockPicking(models.Model):
     _inherit = 'stock.picking'
 
+    created_invoice_ids = fields.One2many(
+        comodel_name='account.invoice',
+        inverse_name='source_stock_picking_id',
+        readonly=True,
+    )
+
     @api.model
     def _create_invoice_from_picking(self, picking, vals):
         vals = vals.copy()

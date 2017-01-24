@@ -26,6 +26,12 @@ from openerp import models, fields, api
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
+    created_invoice_ids = fields.One2many(
+        comodel_name='account.invoice',
+        inverse_name='source_sale_order_id',
+        readonly=True,
+    )
+
 
     @api.model
     def _prepare_invoice(self, order, lines):
