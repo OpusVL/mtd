@@ -7,7 +7,7 @@
             <field name="type">form</field>
             <field name="inherit_id" ref="account.invoice_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='invoice_line']/tree" position="attributes">
+                <xpath expr="//field[@name='invoice_line_ids']/tree" position="attributes">
                     <attribute name="editable"/>
                 </xpath>
             </field>
@@ -18,7 +18,7 @@
             <field name="type">form</field>
             <field name="inherit_id" ref="account.invoice_supplier_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='invoice_line']/tree" position="attributes">
+                <xpath expr="//field[@name='invoice_line_ids']/tree" position="attributes">
                     <attribute name="editable"/>
                 </xpath>
             </field>
