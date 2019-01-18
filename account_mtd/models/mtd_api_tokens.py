@@ -9,3 +9,5 @@ class MtdApiTokens(models.Model):
     authorisation_code = fields.Char('Authorisation Code', required=True)
     access_token = fields.Char('Access Token')
     refresh_token = fields.Char('Refresh Token')
+    expires_in = fields.Char('Expires In')
+    access_token_recieved_date = fields.Datetime()
