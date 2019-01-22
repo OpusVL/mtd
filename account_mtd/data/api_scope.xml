@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <!-- API and its associated Scopes -->
+    <data>
+        <record model="mtd.api" id="mtd_api_hello_world">
+            <field name="name">Hello World</field>
+            <field name="scope">hello</field>
+        </record>
+    </data>
+    <!-- /API and its associated Scopes-->
+    
+    
+    <!-- Hello World End points -->
+    <data>
+        <record model="mtd.hello_world" id="mtd_hello_world_endpoint">
+            <field name="name">Hello World</field>
+            <field name="api_name" ref="mtd_api_hello_world"/>
+        </record>
+        <record model="mtd.hello_world" id="mtd_hello_application_endpoint">
+            <field name="name">Hello Application</field>
+            <field name="api_name" ref="mtd_api_hello_world"/>
+        </record>
+        <record model="mtd.hello_world" id="mtd_hello_user_endpoint">
+            <field name="name">Hello User</field>
+            <field name="api_name" ref="mtd_api_hello_world"/>
+        </record>
+    </data>
+    <!--/ Hello World End points -->
+</odoo>
