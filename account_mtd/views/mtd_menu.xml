@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>  
-    <act_window id="action_mtd_hmrc_dredentials"
-        name="HMRC Credentials"
-        res_model="mtd.hmrc_credentials"
-        view_mode="tree,form" />
-        
-    <act_window id="action_mtd_hello_world"
-        name="Hello World"
-        res_model="mtd.hello_world"
-        view_mode="tree,form" />
-        
+<odoo>
+    <!-- Main menu -->
+    <menuitem id="mtd_menu"
+        name="MTD"/>
+
     <!-- sub menu -->
     <menuitem id="submenu_mtd_hmrc_dredential"
         name="HMRC Credentials"
-        parent="menu_mtd"
+        parent="mtd_menu"
         sequence="1"
         action="action_mtd_hmrc_dredentials"/>
     <menuitem id="submenu_mtd_hello_world"
         name="Hello World"
-        parent="menu_mtd"
+        parent="mtd_menu"
         sequence="10"
         action="action_mtd_hello_world"/>
         
-    <!-- Main menu -->
-    <menuitem id="menu_mtd"
-        name="MTD"
-        />
+    <act_window id="action_mtd_hmrc_dredentials"
+        name="HMRC Credentials"
+        res_model="mtd.hmrc_credentials"
+        view_mode="tree,form" />
+
+    <act_window id="action_mtd_hello_world"
+        name="Hello World"
+        res_model="mtd.hello_world"
+        view_mode="tree,form" />
 </odoo>

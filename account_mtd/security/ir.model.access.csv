@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_hmrc_credentials_admin,access_hmrc_credentials_admin,model_mtd_hmrc_credentials,mtd_admin,1,1,1,1,
+access_hmrc_credentials_user,access_hmrc_credentials_user,model_mtd_hmrc_credentials,mtd_user,1,1,0,0,
+access_hmrc_hello_world_admin,access_hmrc_hello_world_admin,model_mtd_hello_world,mtd_admin,1,1,1,1,
+access_hmrc_hello_world_user,access_hmrc_hello_world_user,model_mtd_hello_world,mtd_user,1,1,0,0,
+access_hmrc_api_tokens_user,access_hmrc_api_tokens_user,model_mtd_api_tokens,mtd_user,1,1,0,0,
+access_hmrc_api_tokens_admin,access_hmrc_api_tokens_admin,model_mtd_api_tokens,mtd_admin,1,1,1,1,
+access_hmrc_api_request_tracker_user,access_hmrc_api_request_tracker_user,model_mtd_api_request_tracker,mtd_user,1,1,0,0,
+access_hmrc_api_request_tracker_admin,access_hmrc_api_request_tracker_admin,model_mtd_api_request_tracker,mtd_admin,1,1,1,1,
+access_hmrc_api_user,access_hmrc_api_user,model_mtd_api,mtd_user,1,1,0,0
+access_hmrc_api_admin,access_hmrc_api_admin,model_mtd_api,mtd_admin,1,1,1,1

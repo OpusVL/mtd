@@ -6,28 +6,20 @@
         <field name="arch" type="xml">
             <form string="Hello World">
                 <sheet>
-                    <header>
-                <button name="action_hello_world_connect" 
-                    type="object"
-                    string="Hello World"
-                    class="oe_highlight"/>
-                <button name="action_hello_application_connection" 
-                    type="object"
-                    string="Hello Application"
-                    class="oe_highlight"/>
-                <button name="action_hello_user_connection" 
-                    type="object"
-                    string="Hello User"
-                    class="oe_highlight"/>
-            </header>
                     <group>
-                        <field name="name" string="Endpoint"/>
-                        <field name="api_name"/>
+                        <field name="name" string="Endpoint" readonly="1"/>
+                        <field name="api_name" invisible="1"/>
                         <field name="hmrc_credential"/>
                         <field name="scope" invisible="1"/>
                         <field name="which_button_type_clicked" invisible="1"/>
                         <field name="path" invisible="1"/>
                         <field name="current_record" invisible="1"/>
+                    </group>
+                    <group>
+                        <button name="action_hello_world_connection"
+                                type="object"
+                                string="Connect to HMRC"
+                                class="oe_highlight"/>
                     </group>
                     <group>
                         <field name="response_from_hmrc"/>
