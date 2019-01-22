@@ -2,8 +2,8 @@
 
 ##############################################################################
 #
-# Mtd tax
-# Copyright (C) 2017 OpusVL (<http://opusvl.com/>)
+# Making Tax Digital for VAT
+# Copyright (C) 2019 OpusVL (<http://opusvl.com/>)
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
