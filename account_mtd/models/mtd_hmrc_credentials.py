@@ -25,4 +25,3 @@ class MtdHmrcCredentials(models.Model):
     access_token = fields.Char('Access Token')
     refresh_token = fields.Char('Refresh Token')
     state = fields.Char('State')
-    

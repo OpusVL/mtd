@@ -10,4 +10,3 @@ class MtdApiRequestTracker(models.Model):
     endpoint_id = fields.Char('Endpoint Id', required=True)
     request_sent = fields.Boolean('Request Sent', required=True)
     request_received = fields.Boolean('Request Received')
-    
