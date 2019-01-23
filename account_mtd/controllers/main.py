@@ -15,17 +15,15 @@ class Authorize(http.Controller):
             ('response_received', '=', False)
         ])
         if len(api_tracker) > 1:
+            pass
             # We should never be in position in the first place as when the tokens are requested we are checking to see
             # whether there is already a request in process if so then we have to wait 
             # to work out which record we need to use, make sure the record was created within the last 10 mins
-            pass
-            now_datetime = datetime.now()
-            time_10_mins_ago = now_datetime - timedelta(minutes=10)
             time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
-            format_time_10_mins_ago = time_10_mins_ago.isoformat()
+            format_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S,%f')
 
-#             for record in api_tracker:
-#                 if
+            # for record in api_tracker:
+            #      if
 
             ################################################
             # 

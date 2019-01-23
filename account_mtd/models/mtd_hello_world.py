@@ -20,7 +20,7 @@ class MtdHelloWorld(models.Model):
     
     name = fields.Char('Name', required=True)
     api_name = fields.Many2one(comodel_name="mtd.api", required=True)
-    hmrc_credential = fields.Many2one(comodel_name="mtd.hmrc_credentials", string='HMRC Credentials', required=True)
+    hmrc_credential = fields.Many2one(comodel_name="mtd.hmrc_credentials", string='HMRC Credentials')
     scope = fields.Char(related="api_name.scope")
     response_from_hmrc = fields.Text(string="Response From HMRC")
     which_button_type_clicked = fields.Char(string="which_button")
@@ -30,6 +30,8 @@ class MtdHelloWorld(models.Model):
     
     @api.multi
     def action_hello_world_connection(self):
+        if not self.hmrc_credential:
+            raise exceptions.Warning("Please select hmrc configuration before continuing!")
         if self.name == "Hello World":
             self.which_button_type_clicked = "helloworld"
             self.path = "/hello/world"
@@ -47,7 +49,6 @@ class MtdHelloWorld(models.Model):
                 "redirect URL:- {}, Path url:- {}".format(self.hmrc_credential.redirect_url, self.path)
             )
         elif self.name == "Hello User":
-            import pdb; pdb.set_trace()
             self.which_button_type_clicked = "user"
             self.path = "/hello/user"
             self._logger.info(
@@ -90,6 +91,9 @@ class MtdHelloWorld(models.Model):
                     "We have access token and refresh token"
                 )
                 version = self._json_command('version')
+                return version
+        else:
+            raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid end point")
     
     def _json_command(self, command, timeout=3, record_id=None):
         # this will determine where we have come from
@@ -149,11 +153,11 @@ class MtdHelloWorld(models.Model):
                 self._logger.info(
                     "-------Redirect is:- " +
                     "/web#id={}&view_type=form&model=mtd.hello_world&".format(record_id) +
-                    "menu_id={}&action={}".format(menu_id, action)
+                    "menu_id={}&action={}".format(menu_id.id, action.id)
                 )
                 return werkzeug.utils.redirect(
                     '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                    'menu_id={}&action={}'.format(menu_id, action)
+                    'menu_id={}&action={}'.format(menu_id.id, action.id)
                 )
             return True
             
@@ -183,7 +187,7 @@ class MtdHelloWorld(models.Model):
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 return werkzeug.utils.redirect(
                     '/web#id={}&view_type=form&model=mtd.hello_world'.format(record_id) +
-                    '&menu_id={}&action={}'.format(menu_id, action)
+                    '&menu_id={}&action={}'.format(menu_id.id, action.id)
                 )
             return True
     
@@ -218,10 +222,9 @@ class MtdHelloWorld(models.Model):
             "used to send request:- {}".format(authorisation_url)
         )
         req = requests.get(authorisation_url, timeout=3)
-        response_token = json.loads(req.text)
+        #response_token = json.loads(req.text)
         self._logger.info(
-            "(Step 1) Get authorisation - received response of the " +
-            "request:- {}, and its text:- {}".format(req, response_token)
+            "(Step 1) Get authorisation - received response of the request:- {}".format(req)
         )
         if req.ok:
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
@@ -243,7 +246,7 @@ class MtdHelloWorld(models.Model):
             menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
             return werkzeug.utils.redirect(
                 '/web#id={}&view_type=form&model=mtd.hello_world'.format(self.id) +
-                '&menu_id={}&action={}'.format(menu_id, action))
+                '&menu_id={}&action={}'.format(menu_id.id, action.id))
             
     @api.multi        
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
@@ -327,11 +330,11 @@ class MtdHelloWorld(models.Model):
             self._logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
                 "/web#id={}&view_type=form&model=mtd.hello_world".format(record_id) +
-                "&menu_id=72&action={}".format(menu_id, action)
+                "&menu_id=72&action={}".format(menu_id.id, action.id)
             )
             return werkzeug.utils.redirect(
                 '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                'menu_id=72&action={}'.format(menu_id, action)
+                'menu_id=72&action={}'.format(menu_id.id, action.id)
             )
 
     def refresh_user_authorisation(self, token_record=None):
