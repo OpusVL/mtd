@@ -2,27 +2,25 @@
 <odoo>
     <!-- Main menu -->
     <menuitem id="mtd_menu"
-        name="MTD"/>
+        name="Making Tax Digital"/>
+    <act_window id="action_mtd_hmrc_credentials"
+        name="HMRC Credentials"
+        res_model="mtd.hmrc_credentials"
+        view_mode="tree,form" />
+    <act_window id="action_mtd_hello_world"
+        name="Hello World"
+        res_model="mtd.hello_world"
+        view_mode="tree,form" />
 
     <!-- sub menu -->
     <menuitem id="submenu_mtd_hmrc_dredential"
         name="HMRC Credentials"
         parent="mtd_menu"
         sequence="1"
-        action="action_mtd_hmrc_dredentials"/>
+        action="action_mtd_hmrc_credentials"/>
     <menuitem id="submenu_mtd_hello_world"
         name="Hello World"
         parent="mtd_menu"
         sequence="10"
         action="action_mtd_hello_world"/>
-        
-    <act_window id="action_mtd_hmrc_dredentials"
-        name="HMRC Credentials"
-        res_model="mtd.hmrc_credentials"
-        view_mode="tree,form" />
-
-    <act_window id="action_mtd_hello_world"
-        name="Hello World"
-        res_model="mtd.hello_world"
-        view_mode="tree,form" />
 </odoo>
