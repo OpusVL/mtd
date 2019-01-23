@@ -35,6 +35,8 @@
         'base',
     ],
     'data': [
+        'data/api_scope.xml',
+
         'views/mtd_menu.xml',
         'views/hmrc_credentials_view.xml',
         'views/hello_world_view.xml',
