@@ -1,5 +1,6 @@
 from odoo import models, fields, api
 
+
 class MtdApiTokens(models.Model):
     _name = 'mtd.api_tokens'
     _description = "api token table"
