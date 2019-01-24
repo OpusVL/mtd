@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
 
 import requests
-import os
 import json
 import logging
 import werkzeug
+import urllib
 
 from odoo import models, fields, api, exceptions
-from urllib.request import urlopen
 from datetime import datetime, timedelta
-from werkzeug import utils
 
 
 class MtdHelloWorld(models.Model):
@@ -22,7 +20,7 @@ class MtdHelloWorld(models.Model):
     api_name = fields.Many2one(comodel_name="mtd.api", required=True)
     hmrc_credential = fields.Many2one(comodel_name="mtd.hmrc_credentials", string='HMRC Credentials')
     scope = fields.Char(related="api_name.scope")
-    response_from_hmrc = fields.Text(string="Response From HMRC")
+    response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     which_button_type_clicked = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
     current_record = fields.Char()
@@ -66,7 +64,7 @@ class MtdHelloWorld(models.Model):
                     "Connection button Clicked - endpoint name {0}, No access token ".format(self.name) +
                     "found and no refresh_token found from the token record table."
                 )
-                record = self.env['mtd.api_request_tracker'].search([
+                api_tracker = self.env['mtd.api_request_tracker'].search([
                     ('request_sent', '=', True),
                     ('response_received', '=', False)
                 ])
@@ -74,17 +72,24 @@ class MtdHelloWorld(models.Model):
                     "Connection button Clicked - endpoint name {}, ".format(self.name) +
                     "Checking to see if a request is in process"
                 )
-                if record:
-                    raise exceptions.Warning(
-                        "An authorisation request is already in process!!!\n " +
-                        "Please try again later"
-                    )
-                else:
+                time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
+                format_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
+                if format_time_10_mins_ago >= api_tracker.create_date:
+                    # this means that time is more than 10 minutes a go so we can place a new request
+                    # and close this request.
+                    api_tracker.response_received = True
                     self._logger.info(
                         "Connection button Clicked - endpoint name {}, ".format(self.name) +
                         "no Pending requests"
                     )
                     return self.get_user_authorisation()
+                else:
+                    # THe request made was within 10 mins so the user has to wait.
+                    test = True
+                    raise exceptions.Warning(
+                        "An authorisation request is already in process!!!\n " +
+                        "Please try again later"
+                    )
             else:
                 self._logger.info(
                     "Connection button Clicked - endpoint name {}, ".format(self.name) +
@@ -201,7 +206,7 @@ class MtdHelloWorld(models.Model):
             'api_id': self.api_name.id,
             'api_name': self.api_name.name,
             'endpoint_id': self.id,
-            'request_sent': True
+            'request_sent': True,
             })
 
         redirect_uri = "{}/auth-redirect".format(self.hmrc_credential.redirect_url)
@@ -212,9 +217,12 @@ class MtdHelloWorld(models.Model):
         if self.hmrc_credential.state:
             # header_items["state"] = self.hmrc_credential.state
             state = "&state={}".format(self.hmrc_credential.state)
-        
+        #scope needs to be percent encoded
+        import pdb; pdb.set_trace()
+        scope = urllib.parse.quote_plus(self.scope)
+
         authorisation_url += (
-            "response_type=code&client_id={}&scope={}".format(self.hmrc_credential.client_id, self.scope) +
+            "response_type=code&client_id={}&scope={}".format(self.hmrc_credential.client_id, scope) +
             "{}&redirect_uri={}".format(state, redirect_uri)
         )
         self._logger.info(
@@ -229,6 +237,7 @@ class MtdHelloWorld(models.Model):
         if req.ok:
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
+            response_token = json.loads(req.text)
             construct_text = (
                     "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
                     "Sorry. The connection failed ! \n" +

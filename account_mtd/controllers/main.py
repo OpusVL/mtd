@@ -1,5 +1,5 @@
 import base64
-from odoo import http
+from odoo import http, exceptions
 from datetime import datetime, timedelta
 from werkzeug.utils import redirect
 
@@ -15,23 +15,16 @@ class Authorize(http.Controller):
             ('response_received', '=', False)
         ])
         if len(api_tracker) > 1:
-            pass
-            # We should never be in position in the first place as when the tokens are requested we are checking to see
-            # whether there is already a request in process if so then we have to wait 
-            # to work out which record we need to use, make sure the record was created within the last 10 mins
-            time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
-            format_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S,%f')
-
-            # for record in api_tracker:
-            #      if
-
-            ################################################
-            # 
-            # TO DO - should never be in this postion but if for any
-            # reason user is in this position we need to fix this 
-            #
-            ################################################
-            pass 
+            # User should never be in thias state
+            # if the user some how managed to get in this state we need to reset the tracker table
+            # and let user make new connection
+            for record in api_tracker:
+                record.response_received = True
+            werkzeug.utils.redirect('/web')
+            raise exceptions.Warning(
+                "No connection request made Please try to connect again!"
+            )
+            # This should then return to the home page
         else:
             # search for the method which we need to invoke to get to exchange the authorisation code with access token
             return (http.request.env['mtd.hello_world'].exchange_user_authorisation(
