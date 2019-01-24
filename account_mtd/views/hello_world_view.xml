@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="mtd_hello_world_view" model="ir.ui.view">
-        <field name="name">Hello World form</field>
+        <field name="name">validate connection to hmrc form</field>
         <field name="model">mtd.hello_world</field>
         <field name="arch" type="xml">
-            <form string="Hello World">
+            <form string="Validate Connection to HMRC">
                 <sheet>
+                    <div>
+                        <h2>
+                            <field name="name"/>
+                        </h2>
+                    </div>
                     <group>
-                        <field name="name" string="Endpoint" readonly="1"/>
                         <field name="api_name" invisible="1"/>
-                        <field name="hmrc_credential"/>
+                        <field name="hmrc_configuration"/>
                         <field name="scope" invisible="1"/>
                         <field name="which_button_type_clicked" invisible="1"/>
                         <field name="path" invisible="1"/>
@@ -21,9 +25,12 @@
                                 string="Connect to HMRC"
                                 class="oe_highlight"/>
                     </group>
-                    <group>
-                        <field name="response_from_hmrc"/>
-                    </group>
+                    <div>
+                        <div>
+                            <h1><label for="response_from_hmrc"/></h1>
+                        </div>
+                        <field name="response_from_hmrc" string=""/>
+                    </div>
                 </sheet>
             </form>
         </field>
