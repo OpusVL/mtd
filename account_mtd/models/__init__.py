@@ -22,7 +22,7 @@
 
 from . import (
     
-    mtd_hmrc_credentials,
+    mtd_hmrc_configuration,
     mtd_api_request_tracker,
     mtd_api_tokens,
     mtd_api,

@@ -16,9 +16,9 @@ class MtdHelloWorld(models.Model):
     
     _logger = logging.getLogger(__name__)
     
-    name = fields.Char('Name', required=True)
+    name = fields.Char('Name', required=True, readonly=True)
     api_name = fields.Many2one(comodel_name="mtd.api", required=True)
-    hmrc_credential = fields.Many2one(comodel_name="mtd.hmrc_credentials", string='HMRC Credentials')
+    hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     scope = fields.Char(related="api_name.scope")
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     which_button_type_clicked = fields.Char(string="which_button")
@@ -28,30 +28,33 @@ class MtdHelloWorld(models.Model):
     
     @api.multi
     def action_hello_world_connection(self):
-        if not self.hmrc_credential:
+        if not self.hmrc_configuration:
             raise exceptions.Warning("Please select hmrc configuration before continuing!")
-        if self.name == "Hello World":
+        # making sure that the endpoint is what we have used in the data file as the name can be changed anytime.
+        endpoint_record = self.env['ir.model.data'].search([('res_id','=',self.id), ('model', '=', 'mtd.hello_world')])
+
+        if endpoint_record.name == "mtd_hello_world_endpoint":
             self.which_button_type_clicked = "helloworld"
             self.path = "/hello/world"
             version = self._json_command('version')
             self._logger.info(
                 "Connection button Clicked - endpoint name {}, ".format(self.name) +
-                "redirect URL:- {}, Path url:- {}".format(self.hmrc_credential.redirect_url, self.path)
+                "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
             )
-        elif self.name == "Hello Application":
+        elif endpoint_record.name == "mtd_hello_application_endpoint":
             self.which_button_type_clicked = "application"
             self.path = "/hello/application"
             version = self._json_command('version')
             self._logger.info(
                 "Connection button Clicked - endpoint name {},".format(self.name) +
-                "redirect URL:- {}, Path url:- {}".format(self.hmrc_credential.redirect_url, self.path)
+                "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
             )
-        elif self.name == "Hello User":
+        elif endpoint_record.name == "mtd_hello_user_endpoint":
             self.which_button_type_clicked = "user"
             self.path = "/hello/user"
             self._logger.info(
                 "Connection button Clicked - endpoint name {}, ".format(self.name) +
-                "redirect URL:- {}, Path url:- {}".format(self.hmrc_credential.redirect_url, self.path)
+                "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
             )
             # search for token record for the API
             token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
@@ -119,13 +122,13 @@ class MtdHelloWorld(models.Model):
         
         header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
         if self.which_button_type_clicked == "application":
-            header_items["authorization"] = ("Bearer "+self.hmrc_credential.server_token)
+            header_items["authorization"] = ("Bearer "+self.hmrc_configuration.server_token)
         elif self.which_button_type_clicked == "user":
             # need to first check if the user has any accessToken and refreshtoken
             # If not we need to proceed to the first and second step and then come to this step.
             header_items["authorization"] = ("Bearer "+str(access_token))
 
-        hmrc_connection_url = "{}{}".format(self.hmrc_credential.hmrc_url, self.path)
+        hmrc_connection_url = "{}{}".format(self.hmrc_configuration.hmrc_url, self.path)
         self._logger.info(
             "_json_command - hmrc connection url:- {}, ".format(hmrc_connection_url) +
             "headers:- {}".format(header_items)
@@ -209,20 +212,19 @@ class MtdHelloWorld(models.Model):
             'request_sent': True,
             })
 
-        redirect_uri = "{}/auth-redirect".format(self.hmrc_credential.redirect_url)
+        redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
         authorisation_url = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
         self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url))
         state = ""
         # State is optional
-        if self.hmrc_credential.state:
-            # header_items["state"] = self.hmrc_credential.state
-            state = "&state={}".format(self.hmrc_credential.state)
+        if self.hmrc_configuration.state:
+            state = "&state={}".format(self.hmrc_configuration.state)
         #scope needs to be percent encoded
         import pdb; pdb.set_trace()
         scope = urllib.parse.quote_plus(self.scope)
 
         authorisation_url += (
-            "response_type=code&client_id={}&scope={}".format(self.hmrc_credential.client_id, scope) +
+            "response_type=code&client_id={}&scope={}".format(self.hmrc_configuration.client_id, scope) +
             "{}&redirect_uri={}".format(state, redirect_uri)
         )
         self._logger.info(
@@ -274,8 +276,8 @@ class MtdHelloWorld(models.Model):
         # self.current_record = record_id
         record = self.env['mtd.hello_world'].search([('id', '=', record_id)])
         token_location_uri = "https://test-api.service.hmrc.gov.uk/oauth/token"
-        client_id = record.hmrc_credential.client_id
-        client_secret = record.hmrc_credential.client_secret
+        client_id = record.hmrc_configuration.client_id
+        client_secret = record.hmrc_configuration.client_secret
         redirect_uri = "http://localhost:8090{}".format('/auth-redirect')
 
         data_user_info = {
@@ -349,14 +351,14 @@ class MtdHelloWorld(models.Model):
     def refresh_user_authorisation(self, token_record=None):
         self._logger.info("(Step 4) refresh_user_authorisation - token_record:- {}".format(token_record))
         api_token = self.env['mtd.api_tokens'].search([('id', '=', token_record.id)])
-        hmrc_authorisation_url = "{}{}".format(self.hmrc_credential.hmrc_url, '/oauth/token')
+        hmrc_authorisation_url = "{}{}".format(self.hmrc_configuration.hmrc_url, '/oauth/token')
         self._logger.info(
             "(Step 4) refresh_user_authorisation - hmrc authorisation url:- {}".format(hmrc_authorisation_url)
         )
 
         data_user_info = {
-            'client_secret': self.hmrc_credential.client_secret,
-            'client_id': self.hmrc_credential.client_id,
+            'client_secret': self.hmrc_configuration.client_secret,
+            'client_id': self.hmrc_configuration.client_id,
             'grant_type': 'refresh_token',
             'refresh_token': api_token.refresh_token
             }

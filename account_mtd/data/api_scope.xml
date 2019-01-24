@@ -14,15 +14,15 @@
     <!-- Hello World End points -->
     <data>
         <record model="mtd.hello_world" id="mtd_hello_world_endpoint">
-            <field name="name">Hello World</field>
+            <field name="name">Basic Connection Test</field>
             <field name="api_name" ref="mtd_api_hello_world"/>
         </record>
         <record model="mtd.hello_world" id="mtd_hello_application_endpoint">
-            <field name="name">Hello Application</field>
+            <field name="name">Application authentication Test</field>
             <field name="api_name" ref="mtd_api_hello_world"/>
         </record>
         <record model="mtd.hello_world" id="mtd_hello_user_endpoint">
-            <field name="name">Hello User</field>
+            <field name="name">User Authentication Test</field>
             <field name="api_name" ref="mtd_api_hello_world"/>
         </record>
     </data>
