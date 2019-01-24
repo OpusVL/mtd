@@ -22,7 +22,7 @@
 
 
 {
-    'name': 'Mcking Tax Digital',
+    'name': 'Making Tax Digital',
     'version': '0.1',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
