@@ -13,7 +13,7 @@
                         <field name="server_token"/>
                         <field name="client_id"/>
                         <field name="client_secret"/>
-                        <field name="Environment" widget="radio" options="{'horizontal': true}"/>
+                        <field name="environment" widget="radio" options="{'horizontal': true}"/>
                         <field name="hmrc_url"/>
                         <field name="redirect_url"/>
                         <field name="access_token" invisible="1"/>
