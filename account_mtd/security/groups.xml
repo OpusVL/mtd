@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mtd_gorups_category" model="ir.module.category">
+            <field name="name">MTD user group</field>
+        </record>
+        <record id="mtd_admin" model="res.groups">
+            <field name="category_id" ref="mtd_gorups_category"/>
+            <field name="name">Administrator</field>
+        </record>
+        <record id="mtd_user" model="res.groups">
+            <field name="category_id" ref="mtd_gorups_category"/>
+            <field name="name">User</field>
+        </record>
+    </data>
+</odoo>
