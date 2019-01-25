@@ -77,22 +77,24 @@ class MtdHelloWorld(models.Model):
                 )
                 time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
                 format_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
-                if format_time_10_mins_ago >= api_tracker.create_date:
-                    # this means that time is more than 10 minutes a go so we can place a new request
-                    # and close this request.
-                    api_tracker.response_received = True
-                    self._logger.info(
-                        "Connection button Clicked - endpoint name {}, ".format(self.name) +
-                        "no Pending requests"
-                    )
-                    return self.get_user_authorisation()
+                if api_tracker:
+                    if format_time_10_mins_ago >= api_tracker.create_date:
+                        # this means that time is more than 10 minutes a go so we can place a new request
+                        # and close this request.
+                        api_tracker.response_received = True
+                        self._logger.info(
+                            "Connection button Clicked - endpoint name {}, ".format(self.name) +
+                            "no Pending requests"
+                        )
+                        return self.get_user_authorisation()
+                    else:
+                        # The request made was within 10 mins so the user has to wait.
+                        raise exceptions.Warning(
+                            "An authorisation request is already in process!!!\n " +
+                            "Please try again later"
+                        )
                 else:
-                    # THe request made was within 10 mins so the user has to wait.
-                    test = True
-                    raise exceptions.Warning(
-                        "An authorisation request is already in process!!!\n " +
-                        "Please try again later"
-                    )
+                    return self.get_user_authorisation()
             else:
                 self._logger.info(
                     "Connection button Clicked - endpoint name {}, ".format(self.name) +
@@ -186,7 +188,7 @@ class MtdHelloWorld(models.Model):
                 "Connection Status Details: \n" +
                 "Request Sent: \n{} \n\n".format(hmrc_connection_url) +
                 "Error Code:\n{} \n\n".format(req.status_code) +
-                "Response Received: \n{}".format(response_token['message'])
+                "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self._logger.info("_json_command - other error found:- {} ".format(construct_text))
             self.response_from_hmrc = construct_text
@@ -201,15 +203,22 @@ class MtdHelloWorld(models.Model):
     
     @api.multi
     def get_user_authorisation(self):
+        # get the action id and menu id and store it in the tracker table
+        # if we get an error on authorisation or while exchanging tokens we need to use these to redirect.
+        action = self.env.ref('account_mtd.action_mtd_hello_world')
+        menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
+
         # Update the information in the api tracker table
         self._logger.info("(Step 1) Get authorisation")
         tracker_api = self.env['mtd.api_request_tracker']
-        tracker_api.create({
+        tracker_api = tracker_api.create({
             'user_id': self._uid,
             'api_id': self.api_name.id,
             'api_name': self.api_name.name,
             'endpoint_id': self.id,
             'request_sent': True,
+            'action': action.id,
+            'menu_id': menu_id.id,
             })
 
         redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
@@ -219,8 +228,7 @@ class MtdHelloWorld(models.Model):
         # State is optional
         if self.hmrc_configuration.state:
             state = "&state={}".format(self.hmrc_configuration.state)
-        #scope needs to be percent encoded
-        import pdb; pdb.set_trace()
+        # scope needs to be percent encoded
         scope = urllib.parse.quote_plus(self.scope)
 
         authorisation_url += (
@@ -232,7 +240,7 @@ class MtdHelloWorld(models.Model):
             "used to send request:- {}".format(authorisation_url)
         )
         req = requests.get(authorisation_url, timeout=3)
-        #response_token = json.loads(req.text)
+        # response_token = json.loads(req.text)
         self._logger.info(
             "(Step 1) Get authorisation - received response of the request:- {}".format(req)
         )
@@ -247,17 +255,16 @@ class MtdHelloWorld(models.Model):
                     "Connection Status Details: \n" +
                     "Request Sent: \n{} \n\n".format(authorisation_url) +
                     "Error Code:\n{} \n\n".format(req.status_code) +
-                    "Response Received: \n{}".format(response_token['message'])
+                    "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self.response_from_hmrc = construct_text
             # We need to set the response received in tracker to be True 
             # even if we receive negetive response.
             tracker_api.response_received = True
-            action = self.env.ref('account_mtd.action_mtd_hello_world')
-            menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
+
             return werkzeug.utils.redirect(
                 '/web#id={}&view_type=form&model=mtd.hello_world'.format(self.id) +
-                '&menu_id={}&action={}'.format(menu_id.id, action.id))
+                '&menu_id={}&action={}'.format(tracker_api.menu_id, tracker_api.action))
             
     @api.multi        
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
@@ -278,7 +285,7 @@ class MtdHelloWorld(models.Model):
         token_location_uri = "https://test-api.service.hmrc.gov.uk/oauth/token"
         client_id = record.hmrc_configuration.client_id
         client_secret = record.hmrc_configuration.client_secret
-        redirect_uri = "http://localhost:8090{}".format('/auth-redirect')
+        redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
 
         data_user_info = {
             'grant_type': 'authorization_code',
@@ -331,7 +338,7 @@ class MtdHelloWorld(models.Model):
                     "Connection Status Details: \n" +
                     "Request Sent: \n{} \n\n".format(token_location_uri) +
                     "Error Code:\n{} \n\n".format(req.status_code) +
-                    "Response Received: \n{}".format(response_token['message'])
+                    "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self._logger.info(
                 "(Step 2) exchange authorisation code - log:- {}".format(construct_text)
@@ -341,11 +348,11 @@ class MtdHelloWorld(models.Model):
             self._logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
                 "/web#id={}&view_type=form&model=mtd.hello_world".format(record_id) +
-                "&menu_id=72&action={}".format(menu_id.id, action.id)
+                "&menu_id=72&action={}".format(api_tracker.menu_id, api_tracker.action)
             )
             return werkzeug.utils.redirect(
                 '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                'menu_id=72&action={}'.format(menu_id.id, action.id)
+                'menu_id=72&action={}'.format(api_tracker.menu_id, api_tracker.action)
             )
 
     def refresh_user_authorisation(self, token_record=None):
