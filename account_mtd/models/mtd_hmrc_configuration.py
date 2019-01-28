@@ -11,10 +11,10 @@ class MtdHmrcConfiguration(models.Model):
     server_token = fields.Char('Server Token', required=True)
     client_id = fields.Char('Client ID', required=True)
     client_secret = fields.Char('Client Secret', required=True)
-    Environment = fields.Selection([
+    environment = fields.Selection([
         ('sandbox', 'Sandbox'),
         ('live', 'Live'),
-    ],  string="HMRC Selection",
+    ],  string="HMRC Environment",
         required=True)
     hmrc_url = fields.Char('HMRC URL', required=True)
     redirect_url = fields.Char('Redirect URL', required=True)
