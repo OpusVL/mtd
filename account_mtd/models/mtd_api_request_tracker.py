@@ -1,5 +1,14 @@
 from odoo import models, fields, api
 
+################################################################
+#
+# This module is created to keep track of any pending requests
+# for access token. If one request is in process we can not
+# send a request for a new one. This also contains information
+# regarding where the request was sent from so when redirected
+# back to Odoo we redirect user back to where they started from
+#
+#################################################################
 
 class MtdApiRequestTracker(models.Model):
     _name = 'mtd.api_request_tracker'
