@@ -1,10 +1,12 @@
 import base64
+import logging
 from odoo import http, exceptions
 from datetime import datetime, timedelta
 from werkzeug.utils import redirect
 
 
 class Authorize(http.Controller):
+    _logger = logging.getLogger(__name__)
     
     @http.route('/auth-redirect', type='http', methods=['GET'])
     def get_user_authorization(self, **args):
@@ -14,10 +16,16 @@ class Authorize(http.Controller):
             ('request_sent', '=', True),
             ('response_received', '=', False)
         ])
-        if len(api_tracker) > 1:
-            # User should never be in thias state
-            # if the user some how managed to get in this state we need to reset the tracker table
-            # and let user make new connection
+        if len(api_tracker) != 1:
+            # user should never be in a state where they found no tracker record.
+            # They can be in a position where they may find more than one record,
+            # in either case we need to then get user to reconnect
+            self._logger.info(
+                "Found either none or more than one pending tracker request. " +
+                "\nShould never find none, something seriously has gone wrong if found none."+
+                "\nWe can have more than one if there was an initial request and authorisation it was never completed."+
+                "\nIf in this state we need to reset the tracker and get user to create a new connection " +
+                "\napi_tracer = {}".format(api_tracker))
             for record in api_tracker:
                 record.response_received = True
             werkzeug.utils.redirect('/web')
