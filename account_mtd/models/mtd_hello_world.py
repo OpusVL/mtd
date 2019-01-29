@@ -235,7 +235,6 @@ class MtdHelloWorld(models.Model):
             })
 
         redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
-        authorisation_url = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
         self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url))
         state = ""
         # State is optional
@@ -243,10 +242,14 @@ class MtdHelloWorld(models.Model):
             state = "&state={}".format(self.hmrc_configuration.state)
         # scope needs to be percent encoded
         scope = urllib.parse.quote_plus(self.scope)
-
-        authorisation_url += (
-            "response_type=code&client_id={}&scope={}".format(self.hmrc_configuration.client_id, scope) +
-            "{}&redirect_uri={}".format(state, redirect_uri)
+        authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
+        authorisation_url = (
+            "{}".format(authorisation_url_prefix)
+            + "response_type=code&"
+            + "client_id={}".format(self.hmrc_configuration.client_id)
+            + "&scope={}".format(scope)
+            + "{}".format(state)
+            + "&redirect_uri={}".format(redirect_uri)
         )
         self._logger.info(
             "(Step 1) Get authorisation - authorisation URI " +
