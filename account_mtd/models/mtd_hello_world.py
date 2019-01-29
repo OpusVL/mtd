@@ -31,7 +31,9 @@ class MtdHelloWorld(models.Model):
         if not self.hmrc_configuration:
             raise exceptions.Warning("Please select HMRC configuration before continuing!")
         # making sure that the endpoint is what we have used in the data file as the name can be changed anytime.
-        endpoint_record = self.env['ir.model.data'].search([('res_id','=', self.id), ('model', '=', 'mtd.hello_world')])
+        endpoint_record = self.env['ir.model.data'].search([
+            ('res_id', '=', self.id), ('model', '=', 'mtd.hello_world')
+        ])
 
         if endpoint_record.name == "mtd_hello_world_endpoint":
             return self._handle_mtd_hello_world_endpoint()
@@ -153,15 +155,15 @@ class MtdHelloWorld(models.Model):
             "and its text:- {}".format(response_token)
         )
         if req.ok:
-            construct_text = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
-                    "Congratulations ! The connection succeeded. \n" +
-                    "Please check the log below for details. \n\n" +
-                    "Connection Status Details: \n" +
-                    "Request Sent: \n{} \n\n".format(hmrc_connection_url) +
-                    "Response Received: \n{}".format(response_token['message'])
+            success_message = (
+                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                    + "Congratulations ! The connection succeeded. \n"
+                    + "Please check the log below for details. \n\n"
+                    + "Connection Status Details: \n"
+                    + "Request Sent: \n{} \n\n".format(hmrc_connection_url)
+                    + "Response Received: \n{}".format(response_token['message'])
             )
-            self.response_from_hmrc = construct_text
+            self.response_from_hmrc = success_message
             if record_id:
                 self._logger.info(
                     "_json_command - response received ok we have record id so we " +
@@ -192,17 +194,17 @@ class MtdHelloWorld(models.Model):
             return self.refresh_user_authorisation(token_record)
             
         else:
-            construct_text = (
-                "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
-                "Sorry. The connection failed ! \n" +
-                "Please check the log below for details. \n\n" +
-                "Connection Status Details: \n" +
-                "Request Sent: \n{} \n\n".format(hmrc_connection_url) +
-                "Error Code:\n{} \n\n".format(req.status_code) +
-                "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+            error_message = (
+                "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{} \n\n".format(hmrc_connection_url)
+                + "Error Code:\n{} \n\n".format(req.status_code)
+                + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
-            self._logger.info("_json_command - other error found:- {} ".format(construct_text))
-            self.response_from_hmrc = construct_text
+            self._logger.info("_json_command - other error found:- {} ".format(error_message))
+            self.response_from_hmrc = error_message
             if record_id:
                 action = self.env.ref('account_mtd.action_mtd_hello_world')
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
@@ -259,16 +261,16 @@ class MtdHelloWorld(models.Model):
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
             response_token = json.loads(req.text)
-            construct_text = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
-                    "Sorry. The connection failed ! \n" +
-                    "Please check the log below for details. \n\n" +
-                    "Connection Status Details: \n" +
-                    "Request Sent: \n{} \n\n".format(authorisation_url) +
-                    "Error Code:\n{} \n\n".format(req.status_code) +
-                    "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+            error_message = (
+                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                    + "Sorry. The connection failed ! \n"
+                    + "Please check the log below for details. \n\n"
+                    + "Connection Status Details: \n"
+                    + "Request Sent: \n{} \n\n".format(authorisation_url)
+                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
-            self.response_from_hmrc = construct_text
+            self.response_from_hmrc = error_message
             # We need to set the response received in tracker to be True 
             # even if we receive negetive response.
             tracker_api.response_received = True
@@ -342,17 +344,17 @@ class MtdHelloWorld(models.Model):
             version = self._json_command('version', record_id=record_id)
             return version
         else:
-            construct_text = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
-                    "Sorry. The connection failed ! \n" +
-                    "Please check the log below for details. \n\n" +
-                    "Connection Status Details: \n" +
-                    "Request Sent: \n{} \n\n".format(token_location_uri) +
-                    "Error Code:\n{} \n\n".format(req.status_code) +
-                    "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+            error_message = (
+                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                    + "Sorry. The connection failed ! \n"
+                    + "Please check the log below for details. \n\n"
+                    + "Connection Status Details: \n"
+                    + "Request Sent: \n{} \n\n".format(token_location_uri)
+                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self._logger.info(
-                "(Step 2) exchange authorisation code - log:- {}".format(construct_text)
+                "(Step 2) exchange authorisation code - log:- {}".format(error_message)
             )
             action = self.env.ref('account_mtd.action_mtd_hello_world')
             menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
@@ -407,18 +409,18 @@ class MtdHelloWorld(models.Model):
             )
             self.get_user_authorisation()
         else:
-            construct_text = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
-                    "Sorry. The connection failed ! \n" +
-                    "Please check the log below for details. \n\n" +
-                    "Connection Status Details: \n" +
-                    "Request Sent: \n{} \n\n".format(hmrc_authorisation_url) +
-                    "Error Code:\n{} \n\n".format(req.status_code) +
-                    "Response Received: \n{}".format(response_token['message'])
+            error_message = (
+                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                    + "Sorry. The connection failed ! \n"
+                    + "Please check the log below for details. \n\n"
+                    + "Connection Status Details: \n"
+                    + "Request Sent: \n{} \n\n".format(hmrc_authorisation_url)
+                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Response Received: \n{}".format(response_token['message'])
             )
 
             self._logger.info(
-                "(Step 4) refresh_user_authorisation - other error:- {}".format(construct_text)
+                "(Step 4) refresh_user_authorisation - other error:- {}".format(error_message)
             )
-            self.response_from_hmrc = construct_text
+            self.response_from_hmrc = error_message
             return True
