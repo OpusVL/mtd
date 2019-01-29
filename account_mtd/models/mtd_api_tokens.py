@@ -1,5 +1,16 @@
 from odoo import models, fields, api
 
+##############################################################
+#
+# This module is created to store access token, authorisation
+# code and refresh_token for each api. Access token expires
+# after every 4 hours which need to be refreshed using the
+# refresh token. Further, the access token becomes invalid
+# after 18 months of it being issued or if revoked manually
+# by the user or for any other reason, at which point it
+# will need to be reissued by granting authority.
+#
+##############################################################
 
 class MtdApiTokens(models.Model):
     _name = 'mtd.api_tokens'
