@@ -148,13 +148,13 @@ class MtdHelloWorld(models.Model):
             "_json_command - hmrc connection url:- {}, ".format(hmrc_connection_url) +
             "headers:- {}".format(header_items)
         )
-        req = requests.get(hmrc_connection_url, timeout=3, headers=header_items)
-        response_token = json.loads(req.text)
+        response = requests.get(hmrc_connection_url, timeout=3, headers=header_items)
+        response_token = json.loads(response.text)
         self._logger.info(
-            "_json_command - received respponse of the request:- {}, ".format(req) +
+            "_json_command - received respponse of the request:- {}, ".format(response) +
             "and its text:- {}".format(response_token)
         )
-        if req.ok:
+        if response.ok:
             success_message = (
                     "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
                     + "Congratulations ! The connection succeeded. \n"
@@ -184,7 +184,7 @@ class MtdHelloWorld(models.Model):
                 )
             return True
             
-        elif (req.status_code == 401 and
+        elif (response.status_code == 401 and
               self.which_button_type_clicked == "user" and
               response_token['message'] == "Invalid Authentication information provided"):
             self._logger.info(
@@ -200,7 +200,7 @@ class MtdHelloWorld(models.Model):
                 + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
                 + "Request Sent: \n{} \n\n".format(hmrc_connection_url)
-                + "Error Code:\n{} \n\n".format(req.status_code)
+                + "Error Code:\n{} \n\n".format(response.status_code)
                 + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self._logger.info("_json_command - other error found:- {} ".format(error_message))
@@ -235,7 +235,6 @@ class MtdHelloWorld(models.Model):
             })
 
         redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
-        self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url))
         state = ""
         # State is optional
         if self.hmrc_configuration.state:
@@ -243,6 +242,7 @@ class MtdHelloWorld(models.Model):
         # scope needs to be percent encoded
         scope = urllib.parse.quote_plus(self.scope)
         authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
+        self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
         authorisation_url = (
             "{}".format(authorisation_url_prefix)
             + "response_type=code&"
@@ -255,22 +255,22 @@ class MtdHelloWorld(models.Model):
             "(Step 1) Get authorisation - authorisation URI " +
             "used to send request:- {}".format(authorisation_url)
         )
-        req = requests.get(authorisation_url, timeout=3)
+        response = requests.get(authorisation_url, timeout=3)
         # response_token = json.loads(req.text)
         self._logger.info(
-            "(Step 1) Get authorisation - received response of the request:- {}".format(req)
+            "(Step 1) Get authorisation - received response of the request:- {}".format(response)
         )
-        if req.ok:
+        if response.ok:
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
-            response_token = json.loads(req.text)
+            response_token = json.loads(response.text)
             error_message = (
                     "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
                     + "Sorry. The connection failed ! \n"
                     + "Please check the log below for details. \n\n"
                     + "Connection Status Details: \n"
                     + "Request Sent: \n{} \n\n".format(authorisation_url)
-                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Error Code:\n{} \n\n".format(response.status_code)
                     + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self.response_from_hmrc = error_message
@@ -321,13 +321,13 @@ class MtdHelloWorld(models.Model):
             "(Step 2) exchange authorisation code - headers which will be "
             "sent in the request:-  {}".format(headers)
         )
-        req = requests.post(token_location_uri, data=json.dumps(data_user_info), headers=headers)
-        response_token = json.loads(req.text)
+        response = requests.post(token_location_uri, data=json.dumps(data_user_info), headers=headers)
+        response_token = json.loads(response.text)
         self._logger.info(
             "(Step 2) exchange authorisation code - received " 
-            "response of the request:- {}, and its text:- {}".format(req, response_token)
+            "response of the request:- {}, and its text:- {}".format(response, response_token)
         )
-        if req.ok:
+        if response.ok:
             # get the record which we created when sending the request and update the response_received column
             # As this determines whether we can place another request or not
             record_tracker = self.env['mtd.api_request_tracker'].search([
@@ -353,7 +353,7 @@ class MtdHelloWorld(models.Model):
                     + "Please check the log below for details. \n\n"
                     + "Connection Status Details: \n"
                     + "Request Sent: \n{} \n\n".format(token_location_uri)
-                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Error Code:\n{} \n\n".format(response.status_code)
                     + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
             )
             self._logger.info(
@@ -394,19 +394,19 @@ class MtdHelloWorld(models.Model):
         self._logger.info(
             "(Step 4) refresh_user_authorisation - headers to send in request:- {}".format(headers)
         )
-        req = requests.post(hmrc_authorisation_url, data=json.dumps(data_user_info), headers=headers)
-        response_token = json.loads(req.text)
+        response = requests.post(hmrc_authorisation_url, data=json.dumps(data_user_info), headers=headers)
+        response_token = json.loads(response.text)
         self._logger.info(
             "(Step 4) refresh_user_authorisation - received response " +
-            "of the request:- {}, and its text:- {}".format(req, response_token)
+            "of the request:- {}, and its text:- {}".format(response, response_token)
         )
-        if req.ok:
+        if response.ok:
             api_token.access_token = response_token['access_token']
             api_token.refresh_token = response_token['refresh_token']
             api_token.expires_in = json.dumps(response_token['expires_in'])
             version = self._json_command('version')
             return version
-        elif req.status_code == 400 and response_token['message'] == "Bad Request":
+        elif response.status_code == 400 and response_token['message'] == "Bad Request":
             self._logger.info(
                 "(Step 4) refresh_user_authorisation - error 400, Need to obtain new access code and refresh token"
             )
@@ -418,7 +418,7 @@ class MtdHelloWorld(models.Model):
                     + "Please check the log below for details. \n\n"
                     + "Connection Status Details: \n"
                     + "Request Sent: \n{} \n\n".format(hmrc_authorisation_url)
-                    + "Error Code:\n{} \n\n".format(req.status_code)
+                    + "Error Code:\n{} \n\n".format(response.status_code)
                     + "Response Received: \n{}".format(response_token['message'])
             )
 
