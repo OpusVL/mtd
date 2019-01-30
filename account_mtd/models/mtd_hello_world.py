@@ -91,23 +91,23 @@ class MtdHelloWorld(models.Model):
                 "Checking to see if a request is in process"
             )
             time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
-            format_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
+            formatted_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
             if api_tracker:
-                if format_time_10_mins_ago >= api_tracker.create_date:
-                    # this means that time is more than 10 minutes a go so we can place a new request
-                    # and close this request.
+                request_still_in_progress = api_tracker.create_date <= formatted_time_10_mins_ago
+                if request_still_in_progress:
+                    # The request made was within 10 mins so the user has to wait.
+                    raise exceptions.Warning(
+                        "An authorisation request is already in process!!!\n " +
+                        "Please try again later"
+                    )
+                else:
+                    # we can place a new request and close this request.
                     api_tracker.response_received = True
                     self._logger.info(
                         "Connection button Clicked - endpoint name {}, ".format(self.name) +
                         "no Pending requests"
                     )
                     return self.get_user_authorisation()
-                else:
-                    # The request made was within 10 mins so the user has to wait.
-                    raise exceptions.Warning(
-                        "An authorisation request is already in process!!!\n " +
-                        "Please try again later"
-                    )
             else:
                 return self.get_user_authorisation()
         else:
