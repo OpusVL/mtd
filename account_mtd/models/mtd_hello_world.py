@@ -49,8 +49,11 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/world"
         version = self._json_command('version')
         self._logger.info(
-            "Connection button Clicked - endpoint name {}, ".format(self.name) +
-            "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
+            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
+                name=self.name,
+                redirect=self.hmrc_configuration.redirect_url,
+                path=self.path
+            )
         )
         return version
 
@@ -59,8 +62,11 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/application"
         version = self._json_command('version')
         self._logger.info(
-            "Connection button Clicked - endpoint name {},".format(self.name) +
-            "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
+            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
+                name=self.name,
+                redirect=self.hmrc_configuration.redirect_url,
+                path=self.path
+            )
         )
         return version
 
@@ -68,18 +74,23 @@ class MtdHelloWorld(models.Model):
         self.which_button_type_clicked = "user"
         self.path = "/hello/user"
         self._logger.info(
-            "Connection button Clicked - endpoint name {}, ".format(self.name) +
-            "redirect URL:- {}, Path url:- {}".format(self.hmrc_configuration.redirect_url, self.path)
+            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
+                name=self.name,
+                redirect=self.hmrc_configuration.redirect_url,
+                path=self.path
+            )
         )
         # search for token record for the API
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
         self._logger.info(
-            "Connection button Clicked - endpoint name {} , ".format(self.name) +
-            "and the api is :- {} ".format(self.api_name)
+            "Connection button Clicked - endpoint name {name}, and the api is :- {api_name} ".format(
+                name=self.name,
+                api_name=self.api_name
+            )
         )
         if not token_record.access_token and not token_record.refresh_token:
             self._logger.info(
-                "Connection button Clicked - endpoint name {0}, No access token ".format(self.name) +
+                "Connection button Clicked - endpoint name {name}, No access token ".format(name=self.name) +
                 "found and no refresh_token found from the token record table."
             )
             api_tracker = self.env['mtd.api_request_tracker'].search([
@@ -87,10 +98,10 @@ class MtdHelloWorld(models.Model):
                 ('response_received', '=', False)
             ])
             self._logger.info(
-                "Connection button Clicked - endpoint name {}, ".format(self.name) +
+                "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "Checking to see if a request is in process"
             )
-            time_10_mins_ago = (datetime.now() - timedelta(minutes=10))
+            time_10_mins_ago = (datetime.utcnow() - timedelta(minutes=10))
             formatted_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
             if api_tracker:
                 request_still_in_progress = api_tracker.create_date <= formatted_time_10_mins_ago
@@ -104,15 +115,14 @@ class MtdHelloWorld(models.Model):
                     # we can place a new request and close this request.
                     api_tracker.response_received = True
                     self._logger.info(
-                        "Connection button Clicked - endpoint name {}, ".format(self.name) +
-                        "no Pending requests"
+                        "Connection button Clicked - endpoint name {name}, no Pending requests".format(name=self.name)
                     )
                     return self.get_user_authorisation()
             else:
                 return self.get_user_authorisation()
         else:
             self._logger.info(
-                "Connection button Clicked - endpoint name {}, ".format(self.name) +
+                "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "We have access token and refresh token"
             )
             version = self._json_command('version')
@@ -122,7 +132,7 @@ class MtdHelloWorld(models.Model):
         # this will determine where we have come from
         # if there is no record_id then we know we already had valid record to gain all the information for hello user
         self._logger.info(
-            "_json_command - has record_id been provided?:- {}".format(record_id)
+            "_json_command - has record_id been provided?:- {record_id}".format(record_id=record_id)
         )
         if record_id:
             self = self.env['mtd.hello_world'].search([('id', '=', record_id)])
@@ -145,23 +155,23 @@ class MtdHelloWorld(models.Model):
 
         hmrc_connection_url = "{}{}".format(self.hmrc_configuration.hmrc_url, self.path)
         self._logger.info(
-            "_json_command - hmrc connection url:- {}, ".format(hmrc_connection_url) +
-            "headers:- {}".format(header_items)
+            "_json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +
+            "headers:- {header}".format(header=header_items)
         )
         response = requests.get(hmrc_connection_url, timeout=3, headers=header_items)
         response_token = json.loads(response.text)
         self._logger.info(
-            "_json_command - received respponse of the request:- {}, ".format(response) +
-            "and its text:- {}".format(response_token)
+            "_json_command - received respponse of the request:- {response}, ".format(response=response) +
+            "and its text:- {response_token}".format(response_token=response_token)
         )
         if response.ok:
             success_message = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
-                    + "Congratulations ! The connection succeeded. \n"
-                    + "Please check the log below for details. \n\n"
-                    + "Connection Status Details: \n"
-                    + "Request Sent: \n{} \n\n".format(hmrc_connection_url)
-                    + "Response Received: \n{}".format(response_token['message'])
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
+                + "Congratulations ! The connection succeeded. \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{connection_url} \n\n".format(connection_url=hmrc_connection_url)
+                + "Response Received: \n{message}".format(message=response_token['message'])
             )
             self.response_from_hmrc = success_message
             if record_id:
@@ -175,12 +185,12 @@ class MtdHelloWorld(models.Model):
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 self._logger.info(
                     "-------Redirect is:- " +
-                    "/web#id={}&view_type=form&model=mtd.hello_world&".format(record_id) +
-                    "menu_id={}&action={}".format(menu_id.id, action.id)
+                    "/web#id={id}&view_type=form&model=mtd.hello_world&".format(id=record_id) +
+                    "menu_id={menu}&action={action}".format(menu=menu_id.id, action=action.id)
                 )
                 return werkzeug.utils.redirect(
-                    '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                    'menu_id={}&action={}'.format(menu_id.id, action.id)
+                    "/web#id={id}&view_type=form&model=mtd.hello_world&".format(id=record_id) +
+                    "menu_id={menu}&action={action}".format(menu=menu_id.id, action=action.id)
                 )
             return True
             
@@ -195,22 +205,25 @@ class MtdHelloWorld(models.Model):
             
         else:
             error_message = (
-                "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
                 + "Sorry. The connection failed ! \n"
                 + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
-                + "Request Sent: \n{} \n\n".format(hmrc_connection_url)
-                + "Error Code:\n{} \n\n".format(response.status_code)
-                + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+                + "Request Sent: \n{request} \n\n".format(request=hmrc_connection_url)
+                + "Error Code:\n{code} \n\n".format(code=response.status_code)
+                + "Response Received: \n{error}\n{message}".format(
+                    error=response_token['error'],
+                    message=response_token['error_description']
+                )
             )
-            self._logger.info("_json_command - other error found:- {} ".format(error_message))
+            self._logger.info("_json_command - other error found:- {error} ".format(error=error_message))
             self.response_from_hmrc = error_message
             if record_id:
                 action = self.env.ref('account_mtd.action_mtd_hello_world')
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 return werkzeug.utils.redirect(
-                    '/web#id={}&view_type=form&model=mtd.hello_world'.format(record_id) +
-                    '&menu_id={}&action={}'.format(menu_id.id, action.id)
+                    '/web#id={id}&view_type=form&model=mtd.hello_world'.format(id=record_id) +
+                    '&menu_id={menu}&action={action}'.format(menu=menu_id.id, action=action.id)
                 )
             return True
     
@@ -244,34 +257,37 @@ class MtdHelloWorld(models.Model):
         authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
         self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
         authorisation_url = (
-            "{}".format(authorisation_url_prefix)
-            + "response_type=code&"
-            + "client_id={}".format(self.hmrc_configuration.client_id)
-            + "&scope={}".format(scope)
-            + "{}".format(state)
-            + "&redirect_uri={}".format(redirect_uri)
+            "{url}response_type=code&client_id={client_id}&scope={scope}{state}&redirect_uri={redirect}".format(
+                url=authorisation_url_prefix,
+                client_id=self.hmrc_configuration.client_id,
+                scope=scope,
+                state=state,
+                redirect=redirect_uri
+            )
         )
         self._logger.info(
             "(Step 1) Get authorisation - authorisation URI " +
-            "used to send request:- {}".format(authorisation_url)
+            "used to send request:- {url}".format(url=authorisation_url)
         )
         response = requests.get(authorisation_url, timeout=3)
         # response_token = json.loads(req.text)
         self._logger.info(
-            "(Step 1) Get authorisation - received response of the request:- {}".format(response)
+            "(Step 1) Get authorisation - received response of the request:- {response}".format(response=response)
         )
         if response.ok:
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
             response_token = json.loads(response.text)
             error_message = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
-                    + "Sorry. The connection failed ! \n"
-                    + "Please check the log below for details. \n\n"
-                    + "Connection Status Details: \n"
-                    + "Request Sent: \n{} \n\n".format(authorisation_url)
-                    + "Error Code:\n{} \n\n".format(response.status_code)
-                    + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+                "Date {date}     Time {time} \n".format(datetime.utcnow().date(), datetime.utcnow().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{auth_url} \n\n".format(auth_url=authorisation_url)
+                + "Error Code:\n{code} \n\n".format(code=response.status_code)
+                + "Response Received: \n{error}\n{message}".format(
+                    error=response_token['error'],
+                    message=response_token['error_description'])
             )
             self.response_from_hmrc = error_message
             # We need to set the response received in tracker to be True 
@@ -279,8 +295,12 @@ class MtdHelloWorld(models.Model):
             tracker_api.response_received = True
 
             return werkzeug.utils.redirect(
-                '/web#id={}&view_type=form&model=mtd.hello_world'.format(self.id) +
-                '&menu_id={}&action={}'.format(tracker_api.menu_id, tracker_api.action))
+                '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
+                    id=self.id,
+                    menu=tracker_api.menu_id,
+                    action=tracker_api.action
+                )
+            )
             
     @api.multi        
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
@@ -314,20 +334,21 @@ class MtdHelloWorld(models.Model):
         }
         self._logger.info(
             "(Step 2) exchange authorisation code - Data which will be " +
-            "sent in the request:-  {}".format(json.dumps(data_user_info))
+            "sent in the request:- {}".format(json.dumps(data_user_info))
         )
         headers = {
             'Content-Type': 'application/json',
         }
         self._logger.info(
             "(Step 2) exchange authorisation code - headers which will be "
-            "sent in the request:-  {}".format(headers)
+            "sent in the request:- {}".format(headers)
         )
         response = requests.post(token_location_uri, data=json.dumps(data_user_info), headers=headers)
         response_token = json.loads(response.text)
         self._logger.info(
-            "(Step 2) exchange authorisation code - received " 
-            "response of the request:- {}, and its text:- {}".format(response, response_token)
+            "(Step 2) exchange authorisation code - " +
+            "received response of the request:- {response}, ".format(response=response) +
+            "and its text:- {res_token}".format(res_token=response_token)
         )
         if response.ok:
             # get the record which we created when sending the request and update the response_received column
@@ -346,38 +367,45 @@ class MtdHelloWorld(models.Model):
             api_token.access_token = response_token['access_token']
             api_token.refresh_token = response_token['refresh_token']
             api_token.expires_in = json.dumps(response_token['expires_in'])
-            api_token.access_token_recieved_date = datetime.now()
+            api_token.access_token_recieved_date = datetime.utcnow()
             version = self._json_command('version', record_id=record_id)
             return version
         else:
             error_message = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
-                    + "Sorry. The connection failed ! \n"
-                    + "Please check the log below for details. \n\n"
-                    + "Connection Status Details: \n"
-                    + "Request Sent: \n{} \n\n".format(token_location_uri)
-                    + "Error Code:\n{} \n\n".format(response.status_code)
-                    + "Response Received: \n{}\n{}".format(response_token['error'], response_token['error_description'])
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{location} \n\n".format(location=token_location_uri)
+                + "Error Code:\n{code} \n\n".format(code=response.status_code)
+                + "Response Received: \n{error}\n{message}".format(
+                    error=response_token['error'],
+                    message=response_token['error_description']
+                )
             )
             self._logger.info(
                 "(Step 2) exchange authorisation code - log:- {}".format(error_message)
             )
-            action = self.env.ref('account_mtd.action_mtd_hello_world')
-            menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
             self._logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
-                "/web#id={}&view_type=form&model=mtd.hello_world".format(record_id) +
-                "&menu_id={}&action={}".format(api_tracker.menu_id, api_tracker.action)
+                "/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}".format(
+                    id=record_id,
+                    menu=api_tracker.menu_id,
+                    action=api_tracker.action
+                )
             )
             return werkzeug.utils.redirect(
-                '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                'menu_id={}&action={}'.format(api_tracker.menu_id, api_tracker.action)
+                "/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}".format(
+                    id=record_id,
+                    menu=api_tracker.menu_id,
+                    action=api_tracker.action
+                )
             )
 
     def refresh_user_authorisation(self, token_record=None):
         self._logger.info("(Step 4) refresh_user_authorisation - token_record:- {}".format(token_record))
         api_token = self.env['mtd.api_tokens'].search([('id', '=', token_record.id)])
-        hmrc_authorisation_url = "{}{}".format(self.hmrc_configuration.hmrc_url, '/oauth/token')
+        hmrc_authorisation_url = "{}/oauth/token".format(self.hmrc_configuration.hmrc_url)
         self._logger.info(
             "(Step 4) refresh_user_authorisation - hmrc authorisation url:- {}".format(hmrc_authorisation_url)
         )
@@ -400,8 +428,8 @@ class MtdHelloWorld(models.Model):
         response = requests.post(hmrc_authorisation_url, data=json.dumps(data_user_info), headers=headers)
         response_token = json.loads(response.text)
         self._logger.info(
-            "(Step 4) refresh_user_authorisation - received response " +
-            "of the request:- {}, and its text:- {}".format(response, response_token)
+            "(Step 4) refresh_user_authorisation - received response of the " +
+            "request:- {resp}, and its text:- {resp_token}".format(resp=response, resp_token=response_token)
         )
         if response.ok:
             api_token.access_token = response_token['access_token']
@@ -416,13 +444,13 @@ class MtdHelloWorld(models.Model):
             return self.get_user_authorisation()
         else:
             error_message = (
-                    "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
-                    + "Sorry. The connection failed ! \n"
-                    + "Please check the log below for details. \n\n"
-                    + "Connection Status Details: \n"
-                    + "Request Sent: \n{} \n\n".format(hmrc_authorisation_url)
-                    + "Error Code:\n{} \n\n".format(response.status_code)
-                    + "Response Received: \n{}".format(response_token['message'])
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{auth_url} \n\n".format(auth_url=hmrc_authorisation_url)
+                + "Error Code:\n{code} \n\n".format(code=response.status_code)
+                + "Response Received: \n{message}".format(message=response_token['message'])
             )
 
             self._logger.info(
