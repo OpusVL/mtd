@@ -8,6 +8,7 @@ import urllib
 
 from odoo import models, fields, api, exceptions
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
 
 class MtdHelloWorld(models.Model):
@@ -279,7 +280,7 @@ class MtdHelloWorld(models.Model):
         else:
             response_token = json.loads(response.text)
             error_message = (
-                "Date {date}     Time {time} \n".format(datetime.utcnow().date(), datetime.utcnow().time())
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
                 + "Sorry. The connection failed ! \n"
                 + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
