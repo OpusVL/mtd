@@ -89,46 +89,44 @@ class MtdHelloWorld(models.Model):
                 api_name=self.api_name
             )
         )
-        if not token_record.access_token and not token_record.refresh_token:
-            self._logger.info(
-                "Connection button Clicked - endpoint name {name}, No access token ".format(name=self.name) +
-                "found and no refresh_token found from the token record table."
-            )
-            api_tracker = self.env['mtd.api_request_tracker'].search([
-                ('request_sent', '=', True),
-                ('response_received', '=', False)
-            ])
-            self._logger.info(
-                "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
-                "Checking to see if a request is in process"
-            )
-            time_10_mins_ago = (datetime.utcnow() - timedelta(minutes=10))
-            formatted_time_10_mins_ago = time_10_mins_ago.strftime('%Y-%m-%d- %H:%M:%S')
-            if api_tracker:
-                request_still_in_progress = api_tracker.create_date <= formatted_time_10_mins_ago
-                if request_still_in_progress:
-                    # The request made was within 10 mins so the user has to wait.
-                    raise exceptions.Warning(
-                        "An authorisation request is already in process!!!\n " +
-                        "Please try again later"
-                    )
-                else:
-                    # we can place a new request and close this request.
-                    api_tracker.response_received = True
-                    self._logger.info(
-                        "Connection button Clicked - endpoint name {name}, no Pending requests".format(name=self.name)
-                    )
-                    return self.get_user_authorisation()
-            else:
-                return self.get_user_authorisation()
-        else:
+
+        if token_record.access_token and token_record.refresh_token:
             self._logger.info(
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "We have access token and refresh token"
             )
             version = self._json_command('version')
             return version
-    
+        else:
+            self._logger.info(
+                "Connection button Clicked - endpoint name {name}, No access token ".format(name=self.name) +
+                "found and no refresh_token found from the token record table."
+            )
+            authorisation_tracker = self.env['mtd.api_request_tracker'].search([('closed', '=', False)])
+            self._logger.info(
+                "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
+                "Checking to see if a request is in process"
+            )
+            create_date = fields.Datetime.from_string(authorisation_tracker.create_date)
+            time_10_mins_ago = (datetime.utcnow() - timedelta(minutes=10))
+            if authorisation_tracker:
+                authorised_code_expired = create_date <= time_10_mins_ago
+                if authorised_code_expired:
+                    # we can place a new request and close this request.
+                    authorisation_tracker.closed = 'timed_out'
+                    self._logger.info(
+                        "Connection button Clicked - endpoint name {name}, no Pending requests".format(name=self.name)
+                    )
+                    return self.get_user_authorisation()
+                else:
+                    # The request made was within 10 mins so the user has to wait.
+                    raise exceptions.Warning(
+                        "An authorisation request is already in process!!!\n " +
+                        "Please try again later"
+                    )
+            else:
+                return self.get_user_authorisation()
+
     def _json_command(self, command, timeout=3, record_id=None):
         # this will determine where we have come from
         # if there is no record_id then we know we already had valid record to gain all the information for hello user
@@ -293,7 +291,7 @@ class MtdHelloWorld(models.Model):
             self.response_from_hmrc = error_message
             # We need to set the response received in tracker to be True 
             # even if we receive negetive response.
-            tracker_api.response_received = True
+            tracker_api.closed = 'response'
 
             return werkzeug.utils.redirect(
                 '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
@@ -352,13 +350,10 @@ class MtdHelloWorld(models.Model):
             "and its text:- {res_token}".format(res_token=response_token)
         )
         if response.ok:
-            # get the record which we created when sending the request and update the response_received column
+            # get the record which we created when sending the request and update the closed column
             # As this determines whether we can place another request or not
-            record_tracker = self.env['mtd.api_request_tracker'].search([
-                ('request_sent', '=', True),
-                ('response_received', '=', False)
-            ])
-            record_tracker.response_received = True
+            record_tracker = self.env['mtd.api_request_tracker'].search([('closed', '=', False)])
+            record_tracker.closed = 'response'
             if not api_token:
                 api_token = self.env['mtd.api_tokens'].search([('authorisation_code', '=', auth_code)])
             self._logger.info(

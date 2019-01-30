@@ -12,10 +12,7 @@ class Authorize(http.Controller):
     def get_user_authorization(self, **args):
         
         # to determine which API the authorization code has been received for.
-        api_tracker = http.request.env['mtd.api_request_tracker'].search([
-            ('request_sent', '=', True),
-            ('response_received', '=', False)
-        ])
+        api_tracker = http.request.env['mtd.api_request_tracker'].search([('closed', '=', False)])
         if len(api_tracker) != 1:
             # user should never be in a state where they found no tracker record.
             # They can be in a position where they may find more than one record,

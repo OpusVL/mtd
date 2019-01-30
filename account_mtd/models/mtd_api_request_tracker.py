@@ -19,6 +19,9 @@ class MtdApiRequestTracker(models.Model):
     api_name = fields.Char('API Name', required=True)
     endpoint_id = fields.Char('Endpoint Id', required=True)
     request_sent = fields.Boolean('Request Sent', required=True)
-    response_received = fields.Boolean('Response Received')
+    closed = fields.Selection([
+        ('timed_out', 'Request timed out'),
+        ('response', 'Response received'),
+    ], string='Tracker Closed')
     action = fields.Char('action', required=True)
     menu_id = fields.Char('menu Id', required=True)
