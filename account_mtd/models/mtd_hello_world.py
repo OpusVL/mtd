@@ -411,9 +411,9 @@ class MtdHelloWorld(models.Model):
             return version
         elif response.status_code == 400 and response_token['message'] == "Bad Request":
             self._logger.info(
-                "(Step 4) refresh_user_authorisation - error 400, Need to obtain new access code and refresh token"
+                "(Step 4) refresh_user_authorisation - error 400, obtaining new access code and refresh token"
             )
-            self.get_user_authorisation()
+            return self.get_user_authorisation()
         else:
             error_message = (
                     "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time())
