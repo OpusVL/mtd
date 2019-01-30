@@ -303,6 +303,8 @@ class MtdHelloWorld(models.Model):
         client_secret = record.hmrc_configuration.client_secret
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
 
+        # When exchanging the authorisation code for access token we need to sent a post request
+        # passing in following parameters.
         data_user_info = {
             'grant_type': 'authorization_code',
             'client_id': client_id,
@@ -338,7 +340,8 @@ class MtdHelloWorld(models.Model):
             if not api_token:
                 api_token = self.env['mtd.api_tokens'].search([('authorisation_code', '=', auth_code)])
             self._logger.info(
-                "(Step 2) exchange authorisation code - api_token table id where info is stored:- {}".format(api_token)
+                "(Step 2) exchange authorisation code " +
+                "- api_token table id where info is stored:- {}".format(api_token)
             )
             api_token.access_token = response_token['access_token']
             api_token.refresh_token = response_token['refresh_token']
