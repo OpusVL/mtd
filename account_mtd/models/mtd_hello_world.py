@@ -367,11 +367,11 @@ class MtdHelloWorld(models.Model):
             self._logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
                 "/web#id={}&view_type=form&model=mtd.hello_world".format(record_id) +
-                "&menu_id=72&action={}".format(api_tracker.menu_id, api_tracker.action)
+                "&menu_id={}&action={}".format(api_tracker.menu_id, api_tracker.action)
             )
             return werkzeug.utils.redirect(
                 '/web#id={}&view_type=form&model=mtd.hello_world&'.format(record_id) +
-                'menu_id=72&action={}'.format(api_tracker.menu_id, api_tracker.action)
+                'menu_id={}&action={}'.format(api_tracker.menu_id, api_tracker.action)
             )
 
     def refresh_user_authorisation(self, token_record=None):
