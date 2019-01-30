@@ -232,7 +232,7 @@ class MtdHelloWorld(models.Model):
             'request_sent': True,
             'action': action.id,
             'menu_id': menu_id.id,
-            })
+        })
 
         redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
         state = ""
@@ -294,8 +294,8 @@ class MtdHelloWorld(models.Model):
             api_token.create({
                 'api_id': api_tracker.api_id,
                 'api_name': api_tracker.api_name,
-                'authorisation_code': auth_code
-                })
+                'authorisation_code': auth_code,
+            })
         # self.current_record = record_id
         record = self.env['mtd.hello_world'].search([('id', '=', record_id)])
         token_location_uri = "https://test-api.service.hmrc.gov.uk/oauth/token"
@@ -309,14 +309,14 @@ class MtdHelloWorld(models.Model):
             'client_secret': client_secret,
             'redirect_uri': redirect_uri,
             'code': auth_code
-            }
+        }
         self._logger.info(
             "(Step 2) exchange authorisation code - Data which will be " +
             "sent in the request:-  {}".format(json.dumps(data_user_info))
         )
         headers = {
             'Content-Type': 'application/json',
-            }
+        }
         self._logger.info(
             "(Step 2) exchange authorisation code - headers which will be "
             "sent in the request:-  {}".format(headers)
@@ -384,10 +384,10 @@ class MtdHelloWorld(models.Model):
             'client_id': self.hmrc_configuration.client_id,
             'grant_type': 'refresh_token',
             'refresh_token': api_token.refresh_token
-            }
+        }
         headers = {
             'Content-Type': 'application/json',
-            }
+        }
         self._logger.info(
             "(Step 4) refresh_user_authorisation - data to send in request:- {}".format(data_user_info)
         )
