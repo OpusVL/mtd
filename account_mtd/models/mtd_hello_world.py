@@ -46,8 +46,6 @@ class MtdHelloWorld(models.Model):
         else:
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
 
-
-
     def _handle_mtd_hello_world_endpoint(self):
         self.which_button_type_clicked = "helloworld"
         self.path = "/hello/world"
