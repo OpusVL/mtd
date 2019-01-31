@@ -24,8 +24,7 @@ class MtdHelloWorld(models.Model):
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     which_button_type_clicked = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
-    current_record = fields.Char()
-    # need a variable which will keep the record id so that when we
+
     
     @api.multi
     def action_hello_world_connection(self):
@@ -315,7 +314,6 @@ class MtdHelloWorld(models.Model):
                 'api_name': api_tracker.api_name,
                 'authorisation_code': auth_code,
             })
-        # self.current_record = record_id
         record = self.env['mtd.hello_world'].search([('id', '=', record_id)])
         token_location_uri = "https://test-api.service.hmrc.gov.uk/oauth/token"
         client_id = record.hmrc_configuration.client_id

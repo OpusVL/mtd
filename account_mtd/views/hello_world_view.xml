@@ -17,7 +17,6 @@
                         <field name="scope" invisible="1"/>
                         <field name="which_button_type_clicked" invisible="1"/>
                         <field name="path" invisible="1"/>
-                        <field name="current_record" invisible="1"/>
                     </group>
                     <group>
                         <button name="action_hello_world_connection"
