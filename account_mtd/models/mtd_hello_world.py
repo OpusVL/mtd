@@ -50,38 +50,20 @@ class MtdHelloWorld(models.Model):
         self.which_button_type_clicked = "helloworld"
         self.path = "/hello/world"
         version = self._json_command('version')
-        _logger.info(
-            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
-                name=self.name,
-                redirect=self.hmrc_configuration.redirect_url,
-                path=self.path
-            )
-        )
+        _logger.info(self._connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_application_endpoint(self):
         self.which_button_type_clicked = "application"
         self.path = "/hello/application"
         version = self._json_command('version')
-        _logger.info(
-            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
-                name=self.name,
-                redirect=self.hmrc_configuration.redirect_url,
-                path=self.path
-            )
-        )
+        _logger.info(self._connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_user_endpoint(self):
         self.which_button_type_clicked = "user"
         self.path = "/hello/user"
-        _logger.info(
-            "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
-                name=self.name,
-                redirect=self.hmrc_configuration.redirect_url,
-                path=self.path
-            )
-        )
+        _logger.info(self._connection_button_clicked_log_message())
         # search for token record for the API
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
         _logger.info(
@@ -127,6 +109,13 @@ class MtdHelloWorld(models.Model):
                     )
             else:
                 return self.get_user_authorisation()
+
+    def _connection_button_clicked_log_message(self, name=None, redirect=None, path=None):
+        return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
+                name=self.name,
+                redirect=self.hmrc_configuration.redirect_url,
+                path=self.path
+            )
 
     def _json_command(self, command, timeout=3, record_id=None):
         # this will determine where we have come from
