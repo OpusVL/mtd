@@ -6,6 +6,7 @@ from werkzeug.utils import redirect
 
 _logger = logging.getLogger(__name__)
 
+
 class Authorize(http.Controller):
     
     @http.route('/auth-redirect', type='http', methods=['GET'])
@@ -19,8 +20,8 @@ class Authorize(http.Controller):
             # in either case we need to then get user to reconnect
             _logger.info(
                 "Found either none or more than one pending tracker request. " +
-                "\nShould never find none, something seriously has gone wrong if found none."+
-                "\nWe can have more than one if there was an initial request and authorisation it was never completed."+
+                "\nShould never find none, something seriously has gone wrong if found none." +
+                "\nWe can have more than one if there was a request sent, and authorisation it was never completed." +
                 "\nIf in this state we need to reset the tracker and get user to create a new connection " +
                 "\napi_tracer = {}".format(api_trackers))
             for record in api_trackers:
