@@ -18,8 +18,8 @@ class MtdApiTokens(models.Model):
     
     api_id = fields.Char('API Id', required=True)
     api_name = fields.Char('API Name', required=True)
-    authorisation_code = fields.Char('Authorisation Code', required=True)
-    access_token = fields.Char('Access Token')
-    refresh_token = fields.Char('Refresh Token')
-    expires_in = fields.Char('Expires In')
+    authorisation_code = fields.Char(required=True)
+    access_token = fields.Char()
+    refresh_token = fields.Char()
+    expires_in = fields.Char()
     access_token_recieved_date = fields.Datetime()

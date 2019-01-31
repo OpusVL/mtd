@@ -14,14 +14,14 @@ class MtdApiRequestTracker(models.Model):
     _name = 'mtd.api_request_tracker'
     _description = "authorisation request table"
 
-    user_id = fields.Integer('User Id', required=True)
+    user_id = fields.Integer(required=True)
     api_id = fields.Integer('API Id', required=True)
     api_name = fields.Char('API Name', required=True)
-    endpoint_id = fields.Char('Endpoint Id', required=True)
-    request_sent = fields.Boolean('Request Sent', required=True)
+    endpoint_id = fields.Char(required=True)
+    request_sent = fields.Boolean(required=True)
     closed = fields.Selection([
         ('timed_out', 'Request timed out'),
         ('response', 'Response received'),
     ], string='Tracker Closed')
-    action = fields.Char('action', required=True)
-    menu_id = fields.Char('menu Id', required=True)
+    action = fields.Char(required=True)
+    menu_id = fields.Char(required=True)

@@ -17,7 +17,7 @@ class MtdHelloWorld(models.Model):
     
     _logger = logging.getLogger(__name__)
     
-    name = fields.Char('Name', required=True, readonly=True)
+    name = fields.Char(required=True, readonly=True)
     api_name = fields.Many2one(comodel_name="mtd.api", required=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     scope = fields.Char(related="api_name.scope")
