@@ -12,6 +12,7 @@ from urllib.parse import urlparse
 
 _logger = logging.getLogger(__name__)
 
+
 class MtdHelloWorld(models.Model):
     _name = 'mtd.hello_world'
     _description = "Hello world to test connection between Odoo and HMRC"
@@ -24,7 +25,6 @@ class MtdHelloWorld(models.Model):
     which_button_type_clicked = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
 
-    
     @api.multi
     def action_hello_world_connection(self):
         if not self.hmrc_configuration:
@@ -34,14 +34,15 @@ class MtdHelloWorld(models.Model):
             ('res_id', '=', self.id), ('model', '=', 'mtd.hello_world')
         ])
 
-        if endpoint_record.name == "mtd_hello_world_endpoint":
-            return self._handle_mtd_hello_world_endpoint()
-        elif endpoint_record.name == "mtd_hello_application_endpoint":
-            return self._handle_mtd_hello_application_endpoint()
-        elif endpoint_record.name == "mtd_hello_user_endpoint":
-            return self._handle_mtd_hello_user_endpoint()
-        else:
+        mapping = {
+            "mtd_hello_world_endpoint": "_handle_mtd_hello_world_endpoint",
+            "mtd_hello_application_endpoint": "_handle_mtd_hello_application_endpoint",
+            "mtd_hello_user_endpoint": "_handle_mtd_hello_user_endpoint",
+        }
+        if not mapping.get(endpoint_record.name):
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
+        test = getattr(self, mapping.get(endpoint_record.name))()
+        return test
 
     def _handle_mtd_hello_world_endpoint(self):
         self.which_button_type_clicked = "helloworld"
