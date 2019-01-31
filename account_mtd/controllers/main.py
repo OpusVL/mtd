@@ -24,7 +24,7 @@ class Authorize(http.Controller):
                 "\nIf in this state we need to reset the tracker and get user to create a new connection " +
                 "\napi_tracer = {}".format(api_tracker))
             for record in api_tracker:
-                record.response_received = True
+                record.closed = 'more_than_one'
             werkzeug.utils.redirect('/web')
             raise exceptions.Warning(
                 "No connection request made Please try to connect again!"
