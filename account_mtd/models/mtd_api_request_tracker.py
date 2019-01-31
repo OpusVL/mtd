@@ -13,8 +13,8 @@ class MtdApiRequestTracker(models.Model):
     _description = "authorisation request table"
 
     user_id = fields.Integer(required=True)
-    api_id = fields.Integer('API Id', required=True)
-    api_name = fields.Char('API Name', required=True)
+    api_id = fields.Many2one(comodel_name="mtd.api", required=True)
+    api_name = fields.Char(related="api_id.name")
     endpoint_id = fields.Char(required=True)
     request_sent = fields.Boolean(required=True)
     closed = fields.Selection([

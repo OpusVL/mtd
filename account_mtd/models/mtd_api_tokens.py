@@ -14,8 +14,8 @@ class MtdApiTokens(models.Model):
     _name = 'mtd.api_tokens'
     _description = "api token table"
     
-    api_id = fields.Char('API Id', required=True)
-    api_name = fields.Char('API Name', required=True)
+    api_id = fields.Many2one(comodel_name="mtd.api", required=True)
+    api_name = fields.Char(related="api_id.name")
     authorisation_code = fields.Char(required=True)
     access_token = fields.Char()
     refresh_token = fields.Char()
