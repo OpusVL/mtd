@@ -12,8 +12,8 @@ class Authorize(http.Controller):
     def get_user_authorization(self, **args):
         
         # to determine which API the authorization code has been received for.
-        api_tracker = http.request.env['mtd.api_request_tracker'].search([('closed', '=', False)])
-        if len(api_tracker) != 1:
+        api_trackers = http.request.env['mtd.api_request_tracker'].search([('closed', '=', False)])
+        if len(api_trackers) != 1:
             # user should never be in a state where they found no tracker record.
             # They can be in a position where they may find more than one record,
             # in either case we need to then get user to reconnect
@@ -22,8 +22,8 @@ class Authorize(http.Controller):
                 "\nShould never find none, something seriously has gone wrong if found none."+
                 "\nWe can have more than one if there was an initial request and authorisation it was never completed."+
                 "\nIf in this state we need to reset the tracker and get user to create a new connection " +
-                "\napi_tracer = {}".format(api_tracker))
-            for record in api_tracker:
+                "\napi_tracer = {}".format(api_trackers))
+            for record in api_trackers:
                 record.closed = 'more_than_one'
             werkzeug.utils.redirect('/web')
             raise exceptions.Warning(
@@ -34,7 +34,7 @@ class Authorize(http.Controller):
             # search for the method which we need to invoke to get to exchange the authorisation code with access token
             return (http.request.env['mtd.hello_world'].exchange_user_authorisation(
                 args.get('code'),
-                api_tracker.endpoint_id,
-                api_tracker.id)
+                api_trackers.endpoint_id,
+                api_trackers.id)
             )
         return True
