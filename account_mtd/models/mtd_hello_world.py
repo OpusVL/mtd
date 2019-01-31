@@ -34,15 +34,19 @@ class MtdHelloWorld(models.Model):
             ('res_id', '=', self.id), ('model', '=', 'mtd.hello_world')
         ])
 
-        mapping = {
+        request_handler = {
             "mtd_hello_world_endpoint": "_handle_mtd_hello_world_endpoint",
             "mtd_hello_application_endpoint": "_handle_mtd_hello_application_endpoint",
             "mtd_hello_user_endpoint": "_handle_mtd_hello_user_endpoint",
         }
-        if not mapping.get(endpoint_record.name):
+        handler_name = request_handler.get(endpoint_record.name)
+        if handler_name:
+            handle_request = getattr(self, handler_name)()
+            return handle_request
+        else:
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
-        test = getattr(self, mapping.get(endpoint_record.name))()
-        return test
+
+
 
     def _handle_mtd_hello_world_endpoint(self):
         self.which_button_type_clicked = "helloworld"
