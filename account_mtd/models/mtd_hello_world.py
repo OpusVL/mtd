@@ -10,12 +10,11 @@ from odoo import models, fields, api, exceptions
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 
+_logger = logging.getLogger(__name__)
 
 class MtdHelloWorld(models.Model):
     _name = 'mtd.hello_world'
     _description = "Hello world to test connection between Odoo and HMRC"
-    
-    _logger = logging.getLogger(__name__)
     
     name = fields.Char(required=True, readonly=True)
     api_name = fields.Many2one(comodel_name="mtd.api", required=True)
@@ -48,7 +47,7 @@ class MtdHelloWorld(models.Model):
         self.which_button_type_clicked = "helloworld"
         self.path = "/hello/world"
         version = self._json_command('version')
-        self._logger.info(
+        _logger.info(
             "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
                 name=self.name,
                 redirect=self.hmrc_configuration.redirect_url,
@@ -61,7 +60,7 @@ class MtdHelloWorld(models.Model):
         self.which_button_type_clicked = "application"
         self.path = "/hello/application"
         version = self._json_command('version')
-        self._logger.info(
+        _logger.info(
             "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
                 name=self.name,
                 redirect=self.hmrc_configuration.redirect_url,
@@ -73,7 +72,7 @@ class MtdHelloWorld(models.Model):
     def _handle_mtd_hello_user_endpoint(self):
         self.which_button_type_clicked = "user"
         self.path = "/hello/user"
-        self._logger.info(
+        _logger.info(
             "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
                 name=self.name,
                 redirect=self.hmrc_configuration.redirect_url,
@@ -82,7 +81,7 @@ class MtdHelloWorld(models.Model):
         )
         # search for token record for the API
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
-        self._logger.info(
+        _logger.info(
             "Connection button Clicked - endpoint name {name}, and the api is :- {api_name} ".format(
                 name=self.name,
                 api_name=self.api_name
@@ -90,19 +89,19 @@ class MtdHelloWorld(models.Model):
         )
 
         if token_record.access_token and token_record.refresh_token:
-            self._logger.info(
+            _logger.info(
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "We have access token and refresh token"
             )
             version = self._json_command('version')
             return version
         else:
-            self._logger.info(
+            _logger.info(
                 "Connection button Clicked - endpoint name {name}, No access token ".format(name=self.name) +
                 "found and no refresh_token found from the token record table."
             )
             authorisation_tracker = self.env['mtd.api_request_tracker'].search([('closed', '=', False)])
-            self._logger.info(
+            _logger.info(
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "Checking to see if a request is in process"
             )
@@ -113,7 +112,7 @@ class MtdHelloWorld(models.Model):
                 if authorised_code_expired:
                     # we can place a new request and close this request.
                     authorisation_tracker.closed = 'timed_out'
-                    self._logger.info(
+                    _logger.info(
                         "Connection button Clicked - endpoint name {name}, no Pending requests".format(name=self.name)
                     )
                     return self.get_user_authorisation()
@@ -129,12 +128,12 @@ class MtdHelloWorld(models.Model):
     def _json_command(self, command, timeout=3, record_id=None):
         # this will determine where we have come from
         # if there is no record_id then we know we already had valid record to gain all the information for hello user
-        self._logger.info(
+        _logger.info(
             "_json_command - has record_id been provided?:- {record_id}".format(record_id=record_id)
         )
         if record_id:
             self = self.env['mtd.hello_world'].search([('id', '=', record_id)])
-            self._logger.info(
+            _logger.info(
                 "_json_command - we need to find the record and assign it to self"
             )
         # search the token table to see if we have access token
@@ -152,13 +151,13 @@ class MtdHelloWorld(models.Model):
             header_items["authorization"] = ("Bearer "+str(access_token))
 
         hmrc_connection_url = "{}{}".format(self.hmrc_configuration.hmrc_url, self.path)
-        self._logger.info(
+        _logger.info(
             "_json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +
             "headers:- {header}".format(header=header_items)
         )
         response = requests.get(hmrc_connection_url, timeout=3, headers=header_items)
         response_token = json.loads(response.text)
-        self._logger.info(
+        _logger.info(
             "_json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
@@ -173,7 +172,7 @@ class MtdHelloWorld(models.Model):
             )
             self.response_from_hmrc = success_message
             if record_id:
-                self._logger.info(
+                _logger.info(
                     "_json_command - response received ok we have record id so we " +
                     "return werkzeug.utils.redirect "
                 )
@@ -181,7 +180,7 @@ class MtdHelloWorld(models.Model):
                 action = self.env.ref('account_mtd.action_mtd_hello_world')
                 # menu_id
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
-                self._logger.info(
+                _logger.info(
                     "-------Redirect is:- " +
                     "/web#id={id}&view_type=form&model=mtd.hello_world&".format(id=record_id) +
                     "menu_id={menu}&action={action}".format(menu=menu_id.id, action=action.id)
@@ -195,7 +194,7 @@ class MtdHelloWorld(models.Model):
         elif (response.status_code == 401 and
               self.which_button_type_clicked == "user" and
               response_token['message'] == "Invalid Authentication information provided"):
-            self._logger.info(
+            _logger.info(
                 "_json_command - code 401 found, user button clicked,  " +
                 "and message was:- {} ".format(response_token['message'])
             )
@@ -214,7 +213,7 @@ class MtdHelloWorld(models.Model):
                     message=response_token['error_description']
                 )
             )
-            self._logger.info("_json_command - other error found:- {error} ".format(error=error_message))
+            _logger.info("_json_command - other error found:- {error} ".format(error=error_message))
             self.response_from_hmrc = error_message
             if record_id:
                 action = self.env.ref('account_mtd.action_mtd_hello_world')
@@ -233,7 +232,7 @@ class MtdHelloWorld(models.Model):
         menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
 
         # Update the information in the api tracker table
-        self._logger.info("(Step 1) Get authorisation")
+        _logger.info("(Step 1) Get authorisation")
         tracker_api = self.env['mtd.api_request_tracker']
         tracker_api = tracker_api.create({
             'user_id': self._uid,
@@ -253,7 +252,7 @@ class MtdHelloWorld(models.Model):
         # scope needs to be percent encoded
         scope = urllib.parse.quote_plus(self.scope)
         authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
-        self._logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
+        _logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
         authorisation_url = (
             "{url}response_type=code&client_id={client_id}&scope={scope}{state}&redirect_uri={redirect}".format(
                 url=authorisation_url_prefix,
@@ -263,13 +262,13 @@ class MtdHelloWorld(models.Model):
                 redirect=redirect_uri
             )
         )
-        self._logger.info(
+        _logger.info(
             "(Step 1) Get authorisation - authorisation URI " +
             "used to send request:- {url}".format(url=authorisation_url)
         )
         response = requests.get(authorisation_url, timeout=3)
         # response_token = json.loads(req.text)
-        self._logger.info(
+        _logger.info(
             "(Step 1) Get authorisation - received response of the request:- {response}".format(response=response)
         )
         if response.ok:
@@ -302,7 +301,7 @@ class MtdHelloWorld(models.Model):
             
     @api.multi        
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
-        self._logger.info("(Step 2) exchange authorisation code")
+        _logger.info("(Step 2) exchange authorisation code")
         api_tracker = self.env['mtd.api_request_tracker'].search([('id', '=', tracker_id)])
         api_token = self.env['mtd.api_tokens'].search([('api_id', '=', api_tracker.api_id)])
 
@@ -329,20 +328,20 @@ class MtdHelloWorld(models.Model):
             'redirect_uri': redirect_uri,
             'code': auth_code
         }
-        self._logger.info(
+        _logger.info(
             "(Step 2) exchange authorisation code - Data which will be " +
             "sent in the request:- {}".format(json.dumps(data_user_info))
         )
         headers = {
             'Content-Type': 'application/json',
         }
-        self._logger.info(
+        _logger.info(
             "(Step 2) exchange authorisation code - headers which will be "
             "sent in the request:- {}".format(headers)
         )
         response = requests.post(token_location_uri, data=json.dumps(data_user_info), headers=headers)
         response_token = json.loads(response.text)
-        self._logger.info(
+        _logger.info(
             "(Step 2) exchange authorisation code - " +
             "received response of the request:- {response}, ".format(response=response) +
             "and its text:- {res_token}".format(res_token=response_token)
@@ -354,7 +353,7 @@ class MtdHelloWorld(models.Model):
             record_tracker.closed = 'response'
             if not api_token:
                 api_token = self.env['mtd.api_tokens'].search([('authorisation_code', '=', auth_code)])
-            self._logger.info(
+            _logger.info(
                 "(Step 2) exchange authorisation code " +
                 "- api_token table id where info is stored:- {}".format(api_token)
             )
@@ -377,10 +376,10 @@ class MtdHelloWorld(models.Model):
                     message=response_token['error_description']
                 )
             )
-            self._logger.info(
+            _logger.info(
                 "(Step 2) exchange authorisation code - log:- {}".format(error_message)
             )
-            self._logger.info(
+            _logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
                 "/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}".format(
                     id=record_id,
@@ -397,10 +396,10 @@ class MtdHelloWorld(models.Model):
             )
 
     def refresh_user_authorisation(self, token_record=None):
-        self._logger.info("(Step 4) refresh_user_authorisation - token_record:- {}".format(token_record))
+        _logger.info("(Step 4) refresh_user_authorisation - token_record:- {}".format(token_record))
         api_token = self.env['mtd.api_tokens'].search([('id', '=', token_record.id)])
         hmrc_authorisation_url = "{}/oauth/token".format(self.hmrc_configuration.hmrc_url)
-        self._logger.info(
+        _logger.info(
             "(Step 4) refresh_user_authorisation - hmrc authorisation url:- {}".format(hmrc_authorisation_url)
         )
 
@@ -413,15 +412,15 @@ class MtdHelloWorld(models.Model):
         headers = {
             'Content-Type': 'application/json',
         }
-        self._logger.info(
+        _logger.info(
             "(Step 4) refresh_user_authorisation - data to send in request:- {}".format(data_user_info)
         )
-        self._logger.info(
+        _logger.info(
             "(Step 4) refresh_user_authorisation - headers to send in request:- {}".format(headers)
         )
         response = requests.post(hmrc_authorisation_url, data=json.dumps(data_user_info), headers=headers)
         response_token = json.loads(response.text)
-        self._logger.info(
+        _logger.info(
             "(Step 4) refresh_user_authorisation - received response of the " +
             "request:- {resp}, and its text:- {resp_token}".format(resp=response, resp_token=response_token)
         )
@@ -432,7 +431,7 @@ class MtdHelloWorld(models.Model):
             version = self._json_command('version')
             return version
         elif response.status_code == 400 and response_token['message'] == "Bad Request":
-            self._logger.info(
+            _logger.info(
                 "(Step 4) refresh_user_authorisation - error 400, obtaining new access code and refresh token"
             )
             return self.get_user_authorisation()
@@ -447,7 +446,7 @@ class MtdHelloWorld(models.Model):
                 + "Response Received: \n{message}".format(message=response_token['message'])
             )
 
-            self._logger.info(
+            _logger.info(
                 "(Step 4) refresh_user_authorisation - other error:- {}".format(error_message)
             )
             self.response_from_hmrc = error_message

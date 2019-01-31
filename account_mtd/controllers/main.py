@@ -4,9 +4,9 @@ from odoo import http, exceptions
 from datetime import datetime, timedelta
 from werkzeug.utils import redirect
 
+_logger = logging.getLogger(__name__)
 
 class Authorize(http.Controller):
-    _logger = logging.getLogger(__name__)
     
     @http.route('/auth-redirect', type='http', methods=['GET'])
     def get_user_authorization(self, **args):
@@ -17,7 +17,7 @@ class Authorize(http.Controller):
             # user should never be in a state where they found no tracker record.
             # They can be in a position where they may find more than one record,
             # in either case we need to then get user to reconnect
-            self._logger.info(
+            _logger.info(
                 "Found either none or more than one pending tracker request. " +
                 "\nShould never find none, something seriously has gone wrong if found none."+
                 "\nWe can have more than one if there was an initial request and authorisation it was never completed."+
