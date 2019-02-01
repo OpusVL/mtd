@@ -128,7 +128,6 @@ class MtdHelloWorld(models.Model):
             _logger.info(
                 "_json_command - we need to find the record and assign it to self"
             )
-        # search the token table to see if we have access token
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
         access_token = token_record.access_token if token_record else ""
         # may not newed next line of code will need to look into this further while testing.
