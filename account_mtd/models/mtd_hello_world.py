@@ -50,20 +50,20 @@ class MtdHelloWorld(models.Model):
         self.which_button_type_clicked = "helloworld"
         self.path = "/hello/world"
         version = self._json_command('version')
-        _logger.info(self._connection_button_clicked_log_message())
+        _logger.info(self.connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_application_endpoint(self):
         self.which_button_type_clicked = "application"
         self.path = "/hello/application"
         version = self._json_command('version')
-        _logger.info(self._connection_button_clicked_log_message())
+        _logger.info(self.connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_user_endpoint(self):
         self.which_button_type_clicked = "user"
         self.path = "/hello/user"
-        _logger.info(self._connection_button_clicked_log_message())
+        _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
         _logger.info(
@@ -72,7 +72,6 @@ class MtdHelloWorld(models.Model):
                 api_name=self.api_name
             )
         )
-
         if token_record.access_token and token_record.refresh_token:
             _logger.info(
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
@@ -110,7 +109,7 @@ class MtdHelloWorld(models.Model):
             else:
                 return self.get_user_authorisation()
 
-    def _connection_button_clicked_log_message(self, name=None, redirect=None, path=None):
+    def connection_button_clicked_log_message(self):
         return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
                 name=self.name,
                 redirect=self.hmrc_configuration.redirect_url,
@@ -192,17 +191,12 @@ class MtdHelloWorld(models.Model):
             return self.refresh_user_authorisation(token_record)
             
         else:
-            error_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
-                + "Sorry. The connection failed ! \n"
-                + "Please check the log below for details. \n\n"
-                + "Connection Status Details: \n"
-                + "Request Sent: \n{request} \n\n".format(request=hmrc_connection_url)
-                + "Error Code:\n{code} \n\n".format(code=response.status_code)
-                + "Response Received: \n{error}\n{message}".format(
-                    error=response_token['error'],
-                    message=response_token['error_description']
-                )
+            response_token = json.loads(response.text)
+            error_message = self.consturct_error_message_to_display(
+                url=hmrc_connection_url,
+                code=response.status_code,
+                message=response_token['error_description'],
+                error=response_token['error']
             )
             _logger.info("_json_command - other error found:- {error} ".format(error=error_message))
             self.response_from_hmrc = error_message
@@ -217,24 +211,8 @@ class MtdHelloWorld(models.Model):
     
     @api.multi
     def get_user_authorisation(self):
-        # get the action id and menu id and store it in the tracker table
-        # if we get an error on authorisation or while exchanging tokens we need to use these to redirect.
-        action = self.env.ref('account_mtd.action_mtd_hello_world')
-        menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
 
-        # Update the information in the api tracker table
-        _logger.info("(Step 1) Get authorisation")
-        tracker_api = self.env['mtd.api_request_tracker']
-        tracker_api = tracker_api.create({
-            'user_id': self._uid,
-            'api_id': self.api_name.id,
-            'api_name': self.api_name.name,
-            'endpoint_id': self.id,
-            'request_sent': True,
-            'action': action.id,
-            'menu_id': menu_id.id,
-        })
-
+        tracker_api = self.create_tracker_record()
         redirect_uri = "{}/auth-redirect".format(self.hmrc_configuration.redirect_url)
         state = ""
         # State is optional
@@ -266,20 +244,14 @@ class MtdHelloWorld(models.Model):
             return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
             response_token = json.loads(response.text)
-            error_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
-                + "Sorry. The connection failed ! \n"
-                + "Please check the log below for details. \n\n"
-                + "Connection Status Details: \n"
-                + "Request Sent: \n{auth_url} \n\n".format(auth_url=authorisation_url)
-                + "Error Code:\n{code} \n\n".format(code=response.status_code)
-                + "Response Received: \n{error}\n{message}".format(
-                    error=response_token['error'],
-                    message=response_token['error_description'])
+            error_message = self.consturct_error_message_to_display(
+                url=authorisation_url,
+                code=response.status_code,
+                message=response_token['error_description'],
+                error=response_token['error']
             )
             self.response_from_hmrc = error_message
-            # We need to set the response received in tracker to be True 
-            # even if we receive negetive response.
+            # close the request so a new request can be made.
             tracker_api.closed = 'response'
 
             return werkzeug.utils.redirect(
@@ -289,7 +261,27 @@ class MtdHelloWorld(models.Model):
                     action=tracker_api.action
                 )
             )
-            
+
+    def create_tracker_record(self):
+        # get the action id and menu id and store it in the tracker table
+        # if we get an error on authorisation or while exchanging tokens we need to use these to redirect.
+        action = self.env.ref('account_mtd.action_mtd_hello_world')
+        menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
+
+        # Update the information in the api tracker table
+        _logger.info("(Step 1) Get authorisation")
+        tracker_api = self.env['mtd.api_request_tracker']
+        tracker_api = tracker_api.create({
+            'user_id': self._uid,
+            'api_id': self.api_name.id,
+            'api_name': self.api_name.name,
+            'endpoint_id': self.id,
+            'request_sent': True,
+            'action': action.id,
+            'menu_id': menu_id.id,
+        })
+        return tracker_api
+
     @api.multi        
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
         _logger.info("(Step 2) exchange authorisation code")
@@ -323,9 +315,7 @@ class MtdHelloWorld(models.Model):
             "(Step 2) exchange authorisation code - Data which will be " +
             "sent in the request:- {}".format(json.dumps(data_user_info))
         )
-        headers = {
-            'Content-Type': 'application/json',
-        }
+        headers = {'Content-Type': 'application/json'}
         _logger.info(
             "(Step 2) exchange authorisation code - headers which will be "
             "sent in the request:- {}".format(headers)
@@ -355,18 +345,13 @@ class MtdHelloWorld(models.Model):
             version = self._json_command('version', record_id=record_id)
             return version
         else:
-            error_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
-                + "Sorry. The connection failed ! \n"
-                + "Please check the log below for details. \n\n"
-                + "Connection Status Details: \n"
-                + "Request Sent: \n{location} \n\n".format(location=token_location_uri)
-                + "Error Code:\n{code} \n\n".format(code=response.status_code)
-                + "Response Received: \n{error}\n{message}".format(
-                    error=response_token['error'],
-                    message=response_token['error_description']
-                )
+            error_message = self.consturct_error_message_to_display(
+                url=token_location_uri,
+                code=response.status_code,
+                message=response_token['error_description'],
+                error=response_token['error']
             )
+            record.response_from_hmrc = error_message
             _logger.info(
                 "(Step 2) exchange authorisation code - log:- {}".format(error_message)
             )
@@ -427,14 +412,10 @@ class MtdHelloWorld(models.Model):
             )
             return self.get_user_authorisation()
         else:
-            error_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
-                + "Sorry. The connection failed ! \n"
-                + "Please check the log below for details. \n\n"
-                + "Connection Status Details: \n"
-                + "Request Sent: \n{auth_url} \n\n".format(auth_url=hmrc_authorisation_url)
-                + "Error Code:\n{code} \n\n".format(code=response.status_code)
-                + "Response Received: \n{message}".format(message=response_token['message'])
+            error_message = self.consturct_error_message_to_display(
+                url=hmrc_authorisation_url,
+                code=response.status_code,
+                message=response_token['message']
             )
 
             _logger.info(
@@ -442,3 +423,17 @@ class MtdHelloWorld(models.Model):
             )
             self.response_from_hmrc = error_message
             return True
+
+    def consturct_error_message_to_display(self, url=None, code=None, message=None, error=None):
+        error = "\n{}".format(error)
+        error_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{auth_url} \n\n".format(auth_url=url)
+                + "Error Code:\n{code} \n\n".format(code=code)
+                + "Response Received: {error}\n{message}".format(error=error, message=message)
+        )
+
+        return error_message
