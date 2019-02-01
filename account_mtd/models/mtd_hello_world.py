@@ -18,8 +18,8 @@ class MtdHelloWorld(models.Model):
     _description = "Hello world to test connection between Odoo and HMRC"
     
     name = fields.Char(required=True, readonly=True)
-    api_id = fields.Many2one(comodel_name="mtd.api", required=True)
-    hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
+    api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True)
+    hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string="HMRC Configuration")
     scope = fields.Char(related="api_id.scope")
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     which_button_type_clicked = fields.Char(string="which_button")
