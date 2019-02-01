@@ -18,9 +18,9 @@ class MtdHelloWorld(models.Model):
     _description = "Hello world to test connection between Odoo and HMRC"
     
     name = fields.Char(required=True, readonly=True)
-    api_name = fields.Many2one(comodel_name="mtd.api", required=True)
+    api_id = fields.Many2one(comodel_name="mtd.api", required=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
-    scope = fields.Char(related="api_name.scope")
+    scope = fields.Char(related="api_id.scope")
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     which_button_type_clicked = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
@@ -65,11 +65,12 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/user"
         _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
-        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
+        import pdb; pdb.set_trace()
+        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
         _logger.info(
-            "Connection button Clicked - endpoint name {name}, and the api is :- {api_name} ".format(
+            "Connection button Clicked - endpoint name {name}, and the api is :- {api_id} ".format(
                 name=self.name,
-                api_name=self.api_name
+                api_id=self.api_id
             )
         )
         if token_record.access_token and token_record.refresh_token:
@@ -127,7 +128,7 @@ class MtdHelloWorld(models.Model):
             _logger.info(
                 "_json_command - we need to find the record and assign it to self"
             )
-        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_name.id)])
+        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
         access_token = token_record.access_token if token_record else ""
         # may not newed next line of code will need to look into this further while testing.
         # refresh_token = token_record.refresh_token if token_record else ""
@@ -166,9 +167,7 @@ class MtdHelloWorld(models.Model):
                     "_json_command - response received ok we have record id so we " +
                     "return werkzeug.utils.redirect "
                 )
-                # action_id
                 action = self.env.ref('account_mtd.action_mtd_hello_world')
-                # menu_id
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 _logger.info(
                     "-------Redirect is:- " +
@@ -273,8 +272,8 @@ class MtdHelloWorld(models.Model):
         tracker_api = self.env['mtd.api_request_tracker']
         tracker_api = tracker_api.create({
             'user_id': self._uid,
-            'api_id': self.api_name.id,
-            'api_name': self.api_name.name,
+            'api_id': self.api_id.id,
+            'api_name': self.api_id.name,
             'endpoint_id': self.id,
             'request_sent': True,
             'action': action.id,
@@ -286,13 +285,13 @@ class MtdHelloWorld(models.Model):
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
         _logger.info("(Step 2) exchange authorisation code")
         api_tracker = self.env['mtd.api_request_tracker'].search([('id', '=', tracker_id)])
-        api_token = self.env['mtd.api_tokens'].search([('api_id', '=', api_tracker.api_id)])
+        api_token = self.env['mtd.api_tokens'].search([('api_id', '=', api_tracker.api_id.id)])
 
         if api_token:
             api_token.authorisation_code = auth_code
         else:
             api_token.create({
-                'api_id': api_tracker.api_id,
+                'api_id': api_tracker.api_id.id,
                 'api_name': api_tracker.api_name,
                 'authorisation_code': auth_code,
             })
@@ -425,7 +424,8 @@ class MtdHelloWorld(models.Model):
             return True
 
     def consturct_error_message_to_display(self, url=None, code=None, message=None, error=None):
-        error = "\n{}".format(error)
+        if error:
+            error = "\n{}".format(error)
         error_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
                 + "Sorry. The connection failed ! \n"
