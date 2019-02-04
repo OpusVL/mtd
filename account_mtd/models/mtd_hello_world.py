@@ -22,7 +22,7 @@ class MtdHelloWorld(models.Model):
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string="HMRC Configuration")
     scope = fields.Char(related="api_id.scope")
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
-    which_button_type_clicked = fields.Char(string="which_button")
+    endpoint_name = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
 
     @api.multi
@@ -47,21 +47,21 @@ class MtdHelloWorld(models.Model):
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
 
     def _handle_mtd_hello_world_endpoint(self):
-        self.which_button_type_clicked = "helloworld"
+        self.endpoint_name = "helloworld"
         self.path = "/hello/world"
         version = self._json_command('version')
         _logger.info(self.connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_application_endpoint(self):
-        self.which_button_type_clicked = "application"
+        self.endpoint_name = "application"
         self.path = "/hello/application"
         version = self._json_command('version')
         _logger.info(self.connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_user_endpoint(self):
-        self.which_button_type_clicked = "user"
+        self.endpoint_name = "user"
         self.path = "/hello/user"
         _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
@@ -134,9 +134,9 @@ class MtdHelloWorld(models.Model):
         # refresh_token = token_record.refresh_token if token_record else ""
         
         header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
-        if self.which_button_type_clicked == "application":
+        if self.endpoint_name == "application":
             header_items["authorization"] = ("Bearer "+self.hmrc_configuration.server_token)
-        elif self.which_button_type_clicked == "user":
+        elif self.endpoint_name == "user":
             # need to first check if the user has any accessToken and refreshtoken
             # If not we need to proceed to the first and second step and then come to this step.
             header_items["authorization"] = ("Bearer "+str(access_token))
@@ -181,7 +181,7 @@ class MtdHelloWorld(models.Model):
             return True
             
         elif (response.status_code == 401 and
-              self.which_button_type_clicked == "user" and
+              self.endpoint_name == "user" and
               response_token['message'] == "Invalid Authentication information provided"):
             _logger.info(
                 "_json_command - code 401 found, user button clicked,  " +
@@ -430,7 +430,7 @@ class MtdHelloWorld(models.Model):
         if error:
             error = "\n{}".format(error)
         error_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(), time=datetime.now().time())
                 + "Sorry. The connection failed ! \n"
                 + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
