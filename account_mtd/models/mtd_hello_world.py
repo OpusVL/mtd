@@ -239,25 +239,28 @@ class MtdHelloWorld(models.Model):
         _logger.info(
             "(Step 1) Get authorisation - received response of the request:- {response}".format(response=response)
         )
+        return self.handle_user_authorisation_response(response, authorisation_url, tracker_api)
+
+    def handle_user_authorisation_response(self, response=None, url=None, tracker=None):
         if response.ok:
-            return {'url': authorisation_url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
+            return {'url': url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': self.id}
         else:
             response_token = json.loads(response.text)
             error_message = self.consturct_error_message_to_display(
-                url=authorisation_url,
+                url=url,
                 code=response.status_code,
                 message=response_token['error_description'],
                 error=response_token['error']
             )
             self.response_from_hmrc = error_message
             # close the request so a new request can be made.
-            tracker_api.closed = 'response'
+            tracker.closed = 'response'
 
             return werkzeug.utils.redirect(
                 '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
                     id=self.id,
-                    menu=tracker_api.menu_id,
-                    action=tracker_api.action
+                    menu=tracker.menu_id,
+                    action=tracker.action
                 )
             )
 
