@@ -329,11 +329,11 @@ class MtdHelloWorld(models.Model):
             "received response of the request:- {response}, ".format(response=response) +
             "and its text:- {res_token}".format(res_token=response_token)
         )
+        # get the record which we created when sending the request and update the closed column
+        # As this determines whether we can place another request or not
+        record_tracker = self.env['mtd.api_request_tracker'].search([('closed', '=', False)])
+        record_tracker.closed = 'response'
         if response.ok:
-            # get the record which we created when sending the request and update the closed column
-            # As this determines whether we can place another request or not
-            record_tracker = self.env['mtd.api_request_tracker'].search([('closed', '=', False)])
-            record_tracker.closed = 'response'
             if not api_token:
                 api_token = self.env['mtd.api_tokens'].search([('authorisation_code', '=', auth_code)])
             _logger.info(
