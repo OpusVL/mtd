@@ -154,7 +154,7 @@ class MtdHelloWorld(models.Model):
         if response.ok:
             success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.utcnow().date(), time=datetime.utcnow().time())
-                + "Congratulations ! The connection succeeded. \n"
+                + "Congratulations! The connection succeeded. \n"
                 + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
                 + "Request Sent: \n{connection_url} \n\n".format(connection_url=hmrc_connection_url)
@@ -170,12 +170,12 @@ class MtdHelloWorld(models.Model):
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 _logger.info(
                     "-------Redirect is:- " +
-                    "/web#id={id}&view_type=form&model=mtd.hello_world&".format(id=record_id) +
-                    "menu_id={menu}&action={action}".format(menu=menu_id.id, action=action.id)
+                    '/web#id={id}&view_type=form&model=mtd.hello_world'.format(id=record_id) +
+                    '&action={action}'.format(action=action.id)
                 )
                 return werkzeug.utils.redirect(
-                    "/web#id={id}&view_type=form&model=mtd.hello_world&".format(id=record_id) +
-                    "menu_id={menu}&action={action}".format(menu=menu_id.id, action=action.id)
+                    '/web#id={id}&view_type=form&model=mtd.hello_world'.format(id=record_id) +
+                    '&action={action}'.format(action=action.id)
                 )
             return True
             
@@ -203,7 +203,7 @@ class MtdHelloWorld(models.Model):
                 menu_id = self.env.ref('account_mtd.submenu_mtd_hello_world')
                 return werkzeug.utils.redirect(
                     '/web#id={id}&view_type=form&model=mtd.hello_world'.format(id=record_id) +
-                    '&menu_id={menu}&action={action}'.format(menu=menu_id.id, action=action.id)
+                    '&action={action}'.format(action=action.id)
                 )
             return True
     
@@ -253,9 +253,8 @@ class MtdHelloWorld(models.Model):
             tracker_api.closed = 'response'
 
             return werkzeug.utils.redirect(
-                '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
+                '/web#id={id}&view_type=form&model=mtd.hello_world&action={action}'.format(
                     id=self.id,
-                    menu=tracker_api.menu_id,
                     action=tracker_api.action
                 )
             )
@@ -355,17 +354,15 @@ class MtdHelloWorld(models.Model):
             )
             _logger.info(
                 "(Step 2) exchange authorisation code - redirect URI :- " +
-                "/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}".format(
-                    id=record_id,
-                    menu=api_tracker.menu_id,
-                    action=api_tracker.action
+                '/web#id={id}&view_type=form&model=mtd.hello_world&action={action}'.format(
+                    id=self.id,
+                    action=tracker_api.action
                 )
             )
             return werkzeug.utils.redirect(
-                "/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}".format(
-                    id=record_id,
-                    menu=api_tracker.menu_id,
-                    action=api_tracker.action
+                '/web#id={id}&view_type=form&model=mtd.hello_world&action={action}'.format(
+                    id=self.id,
+                    action=tracker_api.action
                 )
             )
 
