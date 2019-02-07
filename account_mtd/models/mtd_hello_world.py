@@ -65,7 +65,6 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/user"
         _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
-        import pdb; pdb.set_trace()
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
         _logger.info(
             "Connection button Clicked - endpoint name {name}, and the api is :- {api_id} ".format(

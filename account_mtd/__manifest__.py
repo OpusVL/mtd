@@ -28,7 +28,7 @@
     'website': 'http://opusvl.com/',
     'summary': '',
     'category': '',
-    'description': 'Making Tax Digital for VAT',
+    'description': 'Making Tax Digital for VAT - 12.0',
     'images': [
     ],
     'depends': [
