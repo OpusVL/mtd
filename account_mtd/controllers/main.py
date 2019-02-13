@@ -1,6 +1,6 @@
 import base64
 import logging
-from odoo import http, exceptions
+from openerp import http, exceptions
 from datetime import datetime, timedelta
 from werkzeug.utils import redirect
 

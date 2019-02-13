@@ -1,33 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <!-- Main menu -->
-    <menuitem id="mtd_menu"
-        name="Making Tax Digital"/>
-    <act_window id="action_mtd_hmrc_configuration"
-        name="HMRC Configuration"
-        res_model="mtd.hmrc_configuration"
-        view_mode="tree,form" />
-    <act_window id="action_mtd_hello_world"
-        name="Validate Connection to HMRC"
-        res_model="mtd.hello_world"
-        view_mode="tree,form" />
+<openerp>
+    <data>
+        <!-- Main menu -->
+        <menuitem id="mtd_menu"
+            name="Making Tax Digital"/>
+        <act_window id="action_mtd_hmrc_configuration"
+            name="HMRC Configuration"
+            res_model="mtd.hmrc_configuration"
+            view_mode="tree,form" />
+        <act_window id="action_mtd_hello_world"
+            name="Validate Connection to HMRC"
+            res_model="mtd.hello_world"
+            view_mode="tree,form" />
 
-    <!-- sub menu -->
-    <menuitem id="submenu_mtd_hmrc_configuration"
-        name="HMRC Configuration"
-        parent="mtd_menu"
-        sequence="1"
-        action="action_mtd_hmrc_configuration"/>
-    <menuitem id="submenu_mtd_hmrc_services"
-        name="HMRC Services"
-        parent="mtd_menu"
-        sequence="10"
-        action="" />
+        <!-- sub menu -->
+        <menuitem id="submenu_mtd_hmrc_configuration"
+            name="HMRC Configuration"
+            parent="mtd_menu"
+            sequence="1"
+            action=""/>
+        <menuitem id="submenu_mtd_hmrc_services"
+            name="HMRC Services"
+            parent="mtd_menu"
+            sequence="10"
+            action="" />
 
-    <!-- sub menu for hmrc services -->
-    <menuitem id="submenu_mtd_hello_world"
-        name="Validate Connection to HMRC"
-        parent="submenu_mtd_hmrc_services"
-        sequence="10"
-        action="action_mtd_hello_world"/>
-</odoo>
+        <!-- sub menu for hmrc services -->
+        <menuitem id="submenu_mtd_hello_world"
+            name="Validate Connection to HMRC"
+            parent="submenu_mtd_hmrc_services"
+            sequence="10"
+            action="action_mtd_hello_world"/>
+        <menuitem id="submenu_hmrc_configuration"
+            name="HMRC Configuration"
+            parent="submenu_mtd_hmrc_configuration"
+            sequence="1"
+            action="action_mtd_hmrc_configuration"/>
+    </data>
+</openerp>

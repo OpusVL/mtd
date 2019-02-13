@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, exceptions
+from openerp import models, fields, api, exceptions
 
 
 class MtdHmrcConfiguration(models.Model):
@@ -12,8 +12,8 @@ class MtdHmrcConfiguration(models.Model):
     client_id = fields.Char(required=True)
     client_secret = fields.Char(required=True)
     environment = fields.Selection([
-        ('sandbox', 'Sandbox'),
-        ('live', 'Live'),
+        ('sandbox', ' Sandbox'),
+        ('live', ' Live'),
     ],  string="HMRC Environment",
         required=True)
     hmrc_url = fields.Char('HMRC URL', required=True)
