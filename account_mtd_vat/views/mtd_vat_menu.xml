@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <act_window id="action_vat_obligations"
+        <act_window id="action_mtd_vat_endpoints"
             name="Vat Obligations"
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
@@ -10,10 +10,10 @@
             parent="account_mtd.mtd_menu"
             sequence="20"
             action=""/>
-        <menuitem id="submenu_vat_hmrc_obligations"
+        <menuitem id="submenu_mtd_vat_endpoints"
             name="VAT Obligations"
             parent="submenu_vat_hmrc"
             sequence="1"
-            action="action_vat_obligations"/>
+            action="action_mtd_vat_endpoints"/>
     </data>
 </openerp>

@@ -25,3 +25,4 @@ class MtdApiRequestTracker(models.Model):
     ], string='Tracker Closed')
     action = fields.Char(required=True)
     menu_id = fields.Char(required=True)
+    module_name = fields.Char(required=True)

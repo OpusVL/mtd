@@ -17,6 +17,7 @@ class MtdExchangeAuthorisation(models.Model):
 
     @api.multi
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
+        import pdb; pdb.set_trace()
         _logger.info("(Step 2) exchange authorisation code")
         api_tracker = self.env['mtd.api_request_tracker'].search([('id', '=', tracker_id)])
         api_token = self.env['mtd.api_tokens'].search([('api_id', '=', api_tracker.api_id.id)])
@@ -67,6 +68,8 @@ class MtdExchangeAuthorisation(models.Model):
 
     def handle_exchange_user_authorisation_response(
             self, response=None, url=None, record=None, api_token=None, auth_code=None, api_tracker=None):
+        import pdb;
+        pdb.set_trace()
         response_token = json.loads(response.text)
         # get the record which we created when sending the request and update the closed column
         # As this determines whether we can place another request or not

@@ -74,8 +74,9 @@ class MtdUserAuthorisation(models.Model):
     def create_tracker_record(self, module_name=None, record=None):
         # get the action id and menu id and store it in the tracker table
         # if we get an error on authorisation or while exchanging tokens we need to use these to redirect.
-        action = self.env.ref('account_mtd.action_mtd_{}'.format(module_name.split('.')[1]))
-        menu_id = self.env.ref('account_mtd.submenu_mtd_{}'.format(module_name.split('.')[1]))
+
+        action = self.env.ref('account_{}.action_mtd_{}'.format(module_name.split('.')[0], module_name.split('.')[1]))
+        menu_id = self.env.ref('account_{}.submenu_mtd_{}'.format(module_name.split('.')[0], module_name.split('.')[1]))
 
         # Update the information in the api tracker table
         _logger.info("(Step 1) Get authorisation")
