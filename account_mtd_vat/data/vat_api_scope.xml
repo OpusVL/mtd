@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+
+    <!-- API and its associated Scopes -->
+    <data>
+        <record model="mtd.api" id="mtd_api_vat">
+            <field name="name">VAT</field>
+            <field name="scope">read:vat+write:vat</field>
+        </record>
+    </data>
+
+    <!-- VAT End points -->
+    <!--<data>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_obligations_endpoint">
+            <field name="name">VAT Obligations</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_returns_endpoint">
+            <field name="name">VAT Returns</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_returns_periodkey_endpoint">
+            <field name="name">VAT Returns PeriodKey</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_liabilities_endpoint">
+            <field name="name">VAT Liabilities</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_payments_endpoint">
+            <field name="name">VAT Payments</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+    </data>-->
+    <!--/ Hello World End points -->
+</openerp>

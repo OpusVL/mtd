@@ -36,6 +36,8 @@
         'account_mtd',
     ],
     'data': [
+        'data/vat_api_scope.xml',
+
         'views/mtd_vat_endpoint_view.xml',
         'views/mtd_vat_menu.xml',
     ],
