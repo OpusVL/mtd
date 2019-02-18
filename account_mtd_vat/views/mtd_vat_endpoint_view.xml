@@ -19,13 +19,11 @@
                             <field name="date_from"/>
                             <field name="date_to"/>
                             <field name="status"/>
-                            <field name="accept"/>
-                            <field name="content_type"/>
                             <field name="gov_test_scenario"/>
-                            <field name="authorisation"/>
                             <field name="x_correlationId"/>
-                            <field name="scope"/> <!--invisible="1"/>-->
+                            <field name="scope" invisible="1"/>
                             <field name="path" invisible="1"/>
+                            <field name="endpoint_name" invisible="1"/>
                         </group>
                         <group>
                             <button name="action_vat_connection"

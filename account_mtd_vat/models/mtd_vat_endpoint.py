@@ -15,23 +15,31 @@ class MtdVATEndpoints(models.Model):
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     scope = fields.Char(related="api_id.scope")
-    vrn = fields.Char('VRN', required=True)
-    date_from = fields.Datetime()
-    date_to = fields.Datetime()
+    vrn = fields.Char('VRN')
+    date_from = fields.Date()
+    date_to = fields.Date()
     status = fields.Char()
-    accept = fields.Char()
-    content_type = fields.Char('Contect-Type')
     gov_test_scenario = fields.Char('Gov-Test-Scenario')
-    authorisation = fields.Char('Authorization')
     x_correlationId = fields.Char('X-CorrelationId')
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
+    endpoint_name = fields.Char(string="which_button")
 
     @api.multi
     def action_vat_connection(self):
         if not self.hmrc_configuration:
             raise exceptions.Warning("Please select HMRC configuration before continuing!")
-        return self._handle_vat_obligations_endpoint()
+        elif not self.vrn:
+            raise exceptions.Warning("Please enter the VRN")
+
+        #return self._handle_vat_obligations_endpoint()
+        import pdb; pdb.set_trace()
+        if self.name == "VAT Liabilitites":
+            return self._handle_vat_liabilities_endpoint()
+        elif self.name == "VAT Obligations":
+            return self._handle_vat_obligations_endpoint()
+        elif self.name == "VAT Payments":
+            return self._handle_vat_payments_endpoint()
         ##################################################################################
         # NEED TO WORK ON THIS AS CURRENTLY THERE ARE NO DATA RECORDS CREATED AUTOMATICALLY
         ##################################################################################
@@ -57,9 +65,24 @@ class MtdVATEndpoints(models.Model):
 
     def _handle_vat_obligations_endpoint(self):
         self.path = "/organisations/vat/{vrn}/obligations".format(vrn=self.vrn)
+        self.endpoint_name = "vat-obligation"
         _logger.info(self.connection_button_clicked_log_message())
 
-        import pdb; pdb.set_trace()
+        return self.process_connection()
+
+    def _handle_vat_liabilities_endpoint(self):
+        self.path = "/organisations/vat/{vrn}/liabilities".format(vrn=self.vrn)
+        self.endpoint_name = "vat-liabilities"
+
+        return self.process_connection()
+
+    def _handle_vat_payments_endpoint(self):
+        self.path = "/organisations/vat/{vrn}/payments".format(vrn=self.vrn)
+        self.endpoint_name = "vat-payments"
+
+        return self.process_connection()
+
+    def process_connection(self):
         # search for token
         token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
         _logger.info(
@@ -73,7 +96,7 @@ class MtdVATEndpoints(models.Model):
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "We have access token and refresh token"
             )
-            version = self._json_command('version')
+            version = self.env['mtd_vat.issue_request'].json_command('version', self._name, self.id)
             return version
         else:
             _logger.info(

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="mtd_vat_obligation_logs_list_view" model="ir.ui.view">
+            <field name="name">vat.obligation.logs</field>
+            <field name="model">mtd_vat.vat_obligations_logs</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false" edit="false">
+                    <field name="start">Start Date</field>
+                    <field name="end">End Date</field>
+                    <field name="due">Due Date</field>
+                    <field name="status">Status</field>
+                    <field name="period_key">Period Key</field>
+                    <field name="received">Received</field>
+                    <field name="create_date">Created</field>
+                    <field name="write_date">Updated</field>
+                </tree>
+            </field>
+        </record>
+    </data>
+</openerp>

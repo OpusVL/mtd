@@ -27,7 +27,7 @@ class MtdUserAuthorisation(models.Model):
                 + "Connection Status Details: \n"
                 + "Request Sent: \n{auth_url} \n\n".format(auth_url=url)
                 + "Error Code:\n{code} \n\n".format(code=code)
-                + "Response Received: {error}\n{message}".format(error=error, message=message)
+                + "Response Received: {error}\n{message}".format(error=resp_error, message=resp_message)
         )
 
         return error_message

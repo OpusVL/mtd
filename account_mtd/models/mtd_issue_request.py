@@ -44,8 +44,6 @@ class MtdIssueRequest(models.Model):
             return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
         except ValueError:
             api_tracker.closed = 'error'
-            import pdb;
-            pdb.set_trace()
 
             if api_tracker:
                 return werkzeug.utils.redirect(
@@ -106,8 +104,7 @@ class MtdIssueRequest(models.Model):
             error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
                 url=url,
                 code=response.status_code,
-                message=response_token['error_description'],
-                error=response_token['error']
+                response_token=response_token
             )
             _logger.info("json_command - other error found:- {error} ".format(error=error_message))
             record.response_from_hmrc = error_message

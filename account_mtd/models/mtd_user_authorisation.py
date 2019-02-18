@@ -17,7 +17,8 @@ class MtdUserAuthorisation(models.Model):
 
     @api.multi
     def get_user_authorisation(self, module_name=None, record=None):
-
+        import pdb;
+        pdb.set_trace()
         tracker_api = self.create_tracker_record(module_name, record)
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
         state = ""
@@ -49,6 +50,7 @@ class MtdUserAuthorisation(models.Model):
         return self.handle_user_authorisation_response(response, authorisation_url, tracker_api, record)
 
     def handle_user_authorisation_response(self, response=None, url=None, tracker=None, record=None):
+
         if response.ok:
             return {'url': url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': record.id}
         else:
@@ -56,8 +58,7 @@ class MtdUserAuthorisation(models.Model):
             error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
                 url=url,
                 code=response.status_code,
-                message=response_token['error_description'],
-                error=response_token['error']
+                response_token=response_token
             )
             record.response_from_hmrc = error_message
             # close the request so a new request can be made.
