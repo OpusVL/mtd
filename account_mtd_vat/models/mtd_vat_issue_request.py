@@ -104,13 +104,6 @@ class MtdVatIssueRequest(models.Model):
             return True
 
     def process_successful_response(self, record=None, api_tracker=None):
-        success_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-                                                        time=datetime.now().time())
-                + "Congratulations ! The connection succeeded. \n"
-                + "Please check the VAT logs. \n"
-        )
-        record.response_from_hmrc = success_message
         if api_tracker:
             _logger.info(
                 "json_command - response received ok we have record id so we " +

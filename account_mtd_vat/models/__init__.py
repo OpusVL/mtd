@@ -24,7 +24,6 @@ from . import (
 
     mtd_vat_endpoint,
     mtd_vat_issue_request,
-    mtd_vat_liabilities_log,
     mtd_vat_obligation_logs,
 
 )

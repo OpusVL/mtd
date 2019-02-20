@@ -68,7 +68,6 @@ class MtdExchangeAuthorisation(models.Model):
 
     def handle_exchange_user_authorisation_response(
             self, response=None, url=None, record=None, api_token=None, auth_code=None, api_tracker=None):
-
         response_token = json.loads(response.text)
         # get the record which we created when sending the request and update the closed column
         # As this determines whether we can place another request or not

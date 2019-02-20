@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import logging
+import urllib
 
 from openerp import models, fields, api, exceptions
 from datetime import datetime, timedelta
