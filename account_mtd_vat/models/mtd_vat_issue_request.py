@@ -122,32 +122,55 @@ class MtdVatIssueRequest(models.Model):
             )
         return True
 
-    def add_liabilities_log(self, response):
+    def add_liabilities_logs(self, response=None, record=None):
         response_logs = json.loads(response.text)
         logs = response_logs['liabilities']
-        for log in logs:
-            liabilities_logs = self.env["mtd_vat.vat_liabilities_log"].search([
-                ('from_date', '=', logs['from']),
-                ('to_date', '=', logs["to"])
-            ])
-            if liabilities_logs:
-                liabilities_logs.from_date = log['from']
-                liabilities_logs.to_date = log['to']
-                liabilities_logs.type = log["type"]
-                liabilities_logs.due = log["due"]
-                liabilities_logs.outstanding_amount = log["outstandingAmount"]
-                liabilities_logs.original_amount = log["originalAmount"]
-            else:
-                liabilities_logs = liabilities_logs.create({
-                    'from_date': log['from'],
-                    'to_date': log['to'],
-                    'type': log["type"],
-                    'due': log["due"],
-                    'outstanding_amount': log["outstandingAmount"],
-                    'original_amount': log["originalAmount"]
-                })
 
-    def add_obligation_logs(self, response=None):
+        display_message = ""
+        for log in logs:
+            tax_periods = log['taxPeriod']
+            display_message += ("\nFrom:- {from_date}\nTo:- {to}\n".format(
+                from_date=tax_periods['from'],
+                to=tax_periods['to'])
+            )
+            display_message += ("type:- {type}\nDue On:- {due}\n".format(type=log["type"], due=log["due"]) +
+                "Amount Outstanding:- {outstanding}\nOriginal Amount:- {original}\n".format(
+                    outstanding=log["outstandingAmount"],
+                    original=log["originalAmount"])
+            )
+
+        success_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+                                                        time=datetime.now().time())
+                + "Congratulations ! The connection succeeded. \n"
+                + "Please check the response below.\n\n {message}".format(message=display_message)
+        )
+        record.response_from_hmrc = success_message
+
+    def add_payments_logs(self, response=None, record=None):
+        response_logs = json.loads(response.text)
+        logs = response_logs['payments']
+        display_message = ''
+        for log in logs:
+            display_message = "Amount:- {}\nReceived:- {}\n\n".format(log["amount"], log["received"])
+
+        success_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+                                                        time=datetime.now().time())
+                + "Congratulations ! The connection succeeded. \n"
+                + "Please check the response below.\n\n {message}".format(message=display_message)
+        )
+        record.response_from_hmrc = success_message
+
+    def add_obligation_logs(self, response=None, record=None):
+        success_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+                                                        time=datetime.now().time())
+                + "Congratulations ! The connection succeeded. \n"
+                + "Please check the VAT logs. \n"
+        )
+        record.response_from_hmrc = success_message
+
         response_logs = json.loads(response.text)
         logs = response_logs['obligations']
         for log in logs:
