@@ -42,10 +42,10 @@ class MtdVatIssueRequest(models.Model):
                 "headers:- {header}".format(header=header_items)
             )
             response = requests.get(hmrc_connection_url, timeout=timeout, headers=header_items)
-            import pdb; pdb.set_trace()
             return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
         except ValueError:
-            api_tracker.closed = 'error'
+            if api_tracker:
+                api_tracker.closed = 'error'
 
             if api_tracker:
                 return werkzeug.utils.redirect(
