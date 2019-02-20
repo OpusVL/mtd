@@ -23,18 +23,13 @@
             <field name="name">VAT Payments</field>
             <field name="api_id" ref="mtd_api_vat"/>
         </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_submit_returns_endpoint">
+            <field name="name">Submit VAT Returns</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_view_returns_endpoint">
+            <field name="name">View VAT Returns</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
     </data>
-    <!--<data>
-
-        <record model="mtd_vat.vat_endpoints" id="mtd_vat_returns_endpoint">
-            <field name="name">VAT Returns</field>
-            <field name="api_id" ref="mtd_api_vat"/>
-        </record>
-        <record model="mtd_vat.vat_endpoints" id="mtd_vat_returns_periodkey_endpoint">
-            <field name="name">VAT Returns PeriodKey</field>
-            <field name="api_id" ref="mtd_api_vat"/>
-        </record>
-
-    </data>-->
-    <!--/ Hello World End points -->
 </openerp>
