@@ -6,6 +6,7 @@
             <field name="model">mtd_vat.vat_obligations_logs</field>
             <field name="arch" type="xml">
                 <tree create="false" delete="false" edit="false">
+                    <field name="name">Name</field>
                     <field name="start">Start Date</field>
                     <field name="end">End Date</field>
                     <field name="due">Due Date</field>
@@ -15,6 +16,28 @@
                     <field name="create_date">Created</field>
                     <field name="write_date">Updated</field>
                 </tree>
+            </field>
+        </record>
+
+        <record id="mtd_vat_obligation_logs_form_view" model="ir.ui.view">
+            <field name="name">vat.obligation.logs.form</field>
+            <field name="model">mtd_vat.vat_obligations_logs</field>
+            <field name="arch" type="xml">
+                <form string="Obligation Logs" > <!--create="false" delete="false" edit="false">-->
+                    <sheet>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="start" readonly="1"/>
+                            <field name="end" readonly="1"/>
+                            <field name="due" readonly="1"/>
+                            <field name="status" readonly="1"/>
+                            <field name="period_key" readonly="1"/>
+                            <field name="received" readonly="1"/>
+                            <field name="create_date" string="Created On" readonly="1"/>
+                            <field name="write_date" string="Last Updated On" readonly="1"/>
+                        </group>
+                    </sheet>
+                </form>
             </field>
         </record>
     </data>

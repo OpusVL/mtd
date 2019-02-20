@@ -11,6 +11,7 @@ class MtdVATObligationLogs(models.Model):
     _name = 'mtd_vat.vat_obligations_logs'
     _description = "Vat Obligations Logs"
 
+    name = fields.Char(string="period")
     start = fields.Date()
     end = fields.Date()
     due = fields.Date()
