@@ -28,9 +28,11 @@ class MtdVatIssueRequest(models.Model):
             # refresh_token = token_record.refresh_token if token_record else ""
 
             header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
-            if record.endpoint_name in ("vat-obligation", "vat-liabilities", "vat-payments"):
+            if record.endpoint_name in ("vat-obligation", "vat-liabilities", "vat-payments", "view-vat-returns"):
                 header_items["authorization"] = ("Bearer " + str(access_token))
                 header_items["Content-Type"] = ("application/json")
+                if record.gov_test_scenario:
+                    header_items["Gov-Test-Scenario"] = (record.gov_test_scenario)
 
             hmrc_connection_url = "{}{}?from={}&to={}".format(
                 record.hmrc_configuration.hmrc_url, record.path, record.date_from, record.date_to)
@@ -62,15 +64,18 @@ class MtdVatIssueRequest(models.Model):
             "json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
-        import pdb;pdb.set_trace()
         if response.ok:
+            record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
-                self.add_obligation_logs(response)
+                self.add_obligation_logs(response, record)
             elif record.endpoint_name == "vat-liabilities":
-                self.add_liabilities_logs(response)
+                self.add_liabilities_logs(response, record)
             elif record.endpoint_name == "vat-payments":
                 self.add_payments_logs(response, record)
+            elif record.endpoint_name == "view-vat-returns":
+                self.display_view_returns(response, record)
             return self.process_successful_response(record, api_tracker)
+
 
         elif (response.status_code == 401 and
               response_token['message'] == "Invalid Authentication information provided"):
@@ -78,11 +83,11 @@ class MtdVatIssueRequest(models.Model):
                 "json_command - code 401 found, user button clicked,  " +
                 "and message was:- {} ".format(response_token['message'])
             )
-
-            import pdb;pdb.set_trace()
+            record.view_vat_flag=False
             return self.env['mtd.refresh_authorisation'].refresh_user_authorisation(record, api_token_record)
 
         else:
+            record.view_vat_flag = False
             response_token = json.loads(response.text)
             error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
                 url=url,
@@ -183,6 +188,7 @@ class MtdVatIssueRequest(models.Model):
                 ('end', '=', log['end'])
             ])
             if obligation_logs:
+                obligation_logs.name = "{} - {}".format(log["start"], log["end"]),
                 obligation_logs.start = log['start']
                 obligation_logs.end = end = log['end']
                 obligation_logs.period_key = log['periodKey']
@@ -191,6 +197,7 @@ class MtdVatIssueRequest(models.Model):
                 obligation_logs.due = due = log['due']
             else:
                 obligation_logs = obligation_logs.create({
+                    'name': "{} - {}".format(log["start"], log["end"]),
                     'start': log['start'],
                     'end': log['end'],
                     'period_key': log['periodKey'],
@@ -199,14 +206,18 @@ class MtdVatIssueRequest(models.Model):
                     'due': log['due']
                 })
 
-    def add_payments_logs(self, response=None, record=None):
+    def display_view_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
-        logs = response_logs['payments']
-        payments_logs = self.env['mtd_vat.vat_obligations_logs']
-        for log in logs:
-            payments_logs = payments_logs.create({
-                'start': record.from_date,
-                'end': record.to_date,
-                'amount': log["amount"],
-                "received": log["received"]
-            })
+        record.view_vat_flag = True
+
+        record.period_key = response_logs['periodKey']
+        record.vat_due_sales = response_logs['vatDueAcquisitions']
+        record.total_vat_due = response_logs['totalVatDue']
+
+        record.vat_reclaimed = response_logs['vatReclaimedCurrPeriod']
+        record.net_vat_due = response_logs['netVatDue']
+        record.total_value_sales = response_logs['totalValueSalesExVAT']
+        record.total_value_purchase = response_logs['totalValuePurchasesExVAT']
+        record.total_value_goods_supplied = response_logs['totalValueGoodsSuppliedExVAT']
+        record.total_acquisitions = response_logs['totalAcquisitionsExVAT']
+

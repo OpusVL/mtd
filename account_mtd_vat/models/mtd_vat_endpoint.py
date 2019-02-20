@@ -11,19 +11,42 @@ class MtdVATEndpoints(models.Model):
     _name = 'mtd_vat.vat_endpoints'
     _description = "Vat endpoints"
 
-    name = fields.Char('Name', required=True) # , readonly=True)
-    api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True)
+    name = fields.Char('Name', required=True, readonly=True)
+    api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     scope = fields.Char(related="api_id.scope")
     vrn = fields.Char('VRN')
     date_from = fields.Date()
     date_to = fields.Date()
-    status = fields.Char()
-    gov_test_scenario = fields.Char('Gov-Test-Scenario')
-    x_correlationId = fields.Char('X-CorrelationId')
+    status = fields.Selection([
+        ('o', ' O'),
+        ('f', ' F'),
+    ])
+    gov_test_scenario = fields.Selection([
+        ('SINGLE_LIABILITY', 'SINGLE_LIABILITY'),
+        ('MULTIPLE_LIABILITIES', 'MULTIPLE_LIABILITIES'),
+        ('DATE_RANGE_TOO_LARGE', 'DATE_RANGE_TOO_LARGE')
+    ],
+        string='Gov-Test-Scenario')
+    x_correlation_id = fields.Char('X-CorrelationId')
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
+    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
+
+    #Fields for Viewing the vat returns
+    # need to display the result in the field rather than in a Text field
+    view_vat_flag = fields.Boolean(default=False)
+    period_key = fields.Char(readonly=True)
+    vat_due_sales = fields.Char(readonly=True)
+    total_vat_due = fields.Char(readonly=True)
+    vat_reclaimed = fields.Char(readonly=True)
+    net_vat_due = fields.Char(readonly=True)
+    total_value_sales = fields.Char(readonly=True)
+    total_value_purchase = fields.Char(readonly=True)
+    total_value_goods_supplied = fields.Char(readonly=True)
+    total_acquisitions = fields.Char(readonly=True)
+
 
     @api.multi
     def action_vat_connection(self):
@@ -32,36 +55,25 @@ class MtdVATEndpoints(models.Model):
         elif not self.vrn:
             raise exceptions.Warning("Please enter the VRN")
 
-        #return self._handle_vat_obligations_endpoint()
-        import pdb; pdb.set_trace()
-        if self.name == "VAT Liabilitites":
-            return self._handle_vat_liabilities_endpoint()
-        elif self.name == "VAT Obligations":
-            return self._handle_vat_obligations_endpoint()
-        elif self.name == "VAT Payments":
-            return self._handle_vat_payments_endpoint()
-        ##################################################################################
-        # NEED TO WORK ON THIS AS CURRENTLY THERE ARE NO DATA RECORDS CREATED AUTOMATICALLY
-        ##################################################################################
+        endpoint_record = self.env['ir.model.data'].search([
+            ('res_id', '=', self.id),
+            ('model', '=', 'mtd_vat.vat_endpoints')
+        ])
 
-        # endpoint_record = self.env['ir.model.data'].search([
-        #     ('res_id', '=', self.id), ('model', '=', 'mtd_vat.vat_endpoints')
-        # ])
+        request_handler = {
+            "mtd_vat_obligations_endpoint": "_handle_vat_obligations_endpoint",
+            "mtd_vat_liabilities_endpoint": "_handle_vat_liabilities_endpoint",
+            "mtd_vat_payments_endpoint": "_handle_vat_payments_endpoint",
+            "mtd_vat_submit_returns_endpoint": "_handle_vat_submit_returns_endpoint",
+            "mtd_vat_view_returns_endpoint": "_handle_vat_returns_view_endpoint",
+        }
 
-        # request_handler = {
-        #     "mtd_vat_obligations_endpoint": "_handle_vat_obligations_endpoint",
-        #     "mtd_vat_returns_endpoint": "_handle_vat_returns_endpoint",
-        #     "mtd_vat_returns_periodkey_endpoint": "_handle_vat_returns_periodkey_endpoint",
-        #     "mtd_vat_liabilities_endpoint": "_handle_vat_liabilities_endpoint",
-        #     "mtd_vat_payments_endpoint": "_handle_vat_payments_endpoint",
-        # }
-        #
-        # handler_name = request_handler.get(endpoint_record.name)
-        # if handler_name:
-        #     handle_request = getattr(self, handler_name)()
-        #     return handle_request
-        # else:
-        #     raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
+        handler_name = request_handler.get(endpoint_record.name)
+        if handler_name:
+            handle_request = getattr(self, handler_name)()
+            return handle_request
+        else:
+            raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
 
     def _handle_vat_obligations_endpoint(self):
         self.path = "/organisations/vat/{vrn}/obligations".format(vrn=self.vrn)
@@ -81,6 +93,14 @@ class MtdVATEndpoints(models.Model):
         self.endpoint_name = "vat-payments"
 
         return self.process_connection()
+
+    def _handle_vat_returns_view_endpoint(self):
+        period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
+        self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=self.vrn, key=period_key)
+        self.endpoint_name = "view-vat-returns"
+
+        return self.process_connection()
+
 
     def process_connection(self):
         # search for token
