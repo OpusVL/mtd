@@ -34,8 +34,15 @@ class MtdVatIssueRequest(models.Model):
                 if record.gov_test_scenario:
                     header_items["Gov-Test-Scenario"] = (record.gov_test_scenario)
 
+            if record.name in ('Submit VAT Returns', 'View VAT Returns'):
+                date_from = record.select_vat_obligation.start
+                date_to = record.select_vat_obligation.end
+            else:
+                date_from = record.date_from
+                date_to = record.date_to
+
             hmrc_connection_url = "{}{}?from={}&to={}".format(
-                record.hmrc_configuration.hmrc_url, record.path, record.date_from, record.date_to)
+                record.hmrc_configuration.hmrc_url, record.path, date_from, date_to)
 
             _logger.info(
                 "json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +

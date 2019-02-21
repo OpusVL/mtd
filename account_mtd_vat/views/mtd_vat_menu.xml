@@ -21,7 +21,7 @@
             parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="30"
             action=""/>
-        
+
         <menuitem id="submenu_mtd_vat_obligation_log"
             name="VAT Obligations Logs"
             parent="submenu_vat_logs_hmrc"
