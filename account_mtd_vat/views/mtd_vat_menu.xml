@@ -10,22 +10,18 @@
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
 
+
         <menuitem id="submenu_vat_hmrc"
             name="VAT"
-            parent="account_mtd.mtd_menu"
+            parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="20"
-            action=""/>
+            action="action_mtd_vat_endpoints"/>
         <menuitem id="submenu_vat_logs_hmrc"
             name="VAT Logs"
-            parent="account_mtd.mtd_menu"
+            parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="30"
             action=""/>
-
-        <menuitem id="submenu_mtd_vat_endpoints"
-            name="VAT Obligations"
-            parent="submenu_vat_hmrc"
-            sequence="1"
-            action="action_mtd_vat_endpoints"/>
+        
         <menuitem id="submenu_mtd_vat_obligation_log"
             name="VAT Obligations Logs"
             parent="submenu_vat_logs_hmrc"

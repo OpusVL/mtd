@@ -13,7 +13,7 @@
                             </h2>
                         </div>
                         <group>
-                            <field name="api_id" /> <!--invisible="1"/>-->
+                            <field name="api_id" invisible="1"/>
                             <field name="hmrc_configuration"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                             <field name="vrn"/>
@@ -33,7 +33,7 @@
                         <group>
                             <button name="action_vat_connection"
                                     type="object"
-                                    string="Get VAT Connection"
+                                    string="Retrive "
                                     class="oe_highlight"/>
                         </group>
                         <div>

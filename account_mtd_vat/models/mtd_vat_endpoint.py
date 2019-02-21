@@ -17,8 +17,8 @@ class MtdVATEndpoints(models.Model):
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     scope = fields.Char(related="api_id.scope")
     vrn = fields.Char('VRN')
-    date_from = fields.Date()
-    date_to = fields.Date()
+    date_from = fields.Date(string='From')
+    date_to = fields.Date(string='To')
     status = fields.Selection([
         ('o', ' O'),
         ('f', ' F'),
