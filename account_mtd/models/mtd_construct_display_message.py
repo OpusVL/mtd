@@ -8,7 +8,7 @@ class MtdUserAuthorisation(models.Model):
     _name = 'mtd.display_message'
     _description = "construct error message to doisplay to the user"
 
-    def consturct_error_message_to_display(self, url=None, code=None, response_token=None):
+    def construct_error_message_to_display(self, url=None, code=None, response_token=None):
         resp_message=''
         resp_error=''
         if 'error_description' in response_token.keys():

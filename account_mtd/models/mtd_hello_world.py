@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import requests
-import json
 import logging
-import werkzeug
-import urllib
 
 from openerp import models, fields, api, exceptions
 from datetime import datetime, timedelta
@@ -48,14 +44,14 @@ class MtdHelloWorld(models.Model):
     def _handle_mtd_hello_world_endpoint(self):
         self.endpoint_name = "helloworld"
         self.path = "/hello/world"
-        version = self._json_command('version')
+        version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
         _logger.info(self.connection_button_clicked_log_message())
         return version
 
     def _handle_mtd_hello_application_endpoint(self):
         self.endpoint_name = "application"
         self.path = "/hello/application"
-        version = self._json_command('version')
+        version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
         _logger.info(self.connection_button_clicked_log_message())
         return version
 
@@ -76,7 +72,7 @@ class MtdHelloWorld(models.Model):
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +
                 "We have access token and refresh token"
             )
-            version = self._json_command('version')
+            version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
             return version
         else:
             _logger.info(
@@ -98,7 +94,7 @@ class MtdHelloWorld(models.Model):
                     _logger.info(
                         "Connection button Clicked - endpoint name {name}, no Pending requests".format(name=self.name)
                     )
-                    return self.get_user_authorisation()
+                    return self.env['mtd.user_authorisation'].get_user_authorisation(self._name, self)
                 else:
                     # The request made was within 10 mins so the user has to wait.
                     raise exceptions.Warning(
@@ -106,7 +102,7 @@ class MtdHelloWorld(models.Model):
                         "Please try again later"
                     )
             else:
-                return self.get_user_authorisation()
+                return self.env['mtd.user_authorisation'].get_user_authorisation(self._name, self)
 
     def connection_button_clicked_log_message(self):
         return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
