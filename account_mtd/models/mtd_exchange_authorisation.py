@@ -17,6 +17,7 @@ class MtdExchangeAuthorisation(models.Model):
 
     @api.multi
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id):
+
         _logger.info("(Step 2) exchange authorisation code")
         api_tracker = self.env['mtd.api_request_tracker'].search([('id', '=', tracker_id)])
         api_token = self.env['mtd.api_tokens'].search([('api_id', '=', api_tracker.api_id.id)])
@@ -85,14 +86,18 @@ class MtdExchangeAuthorisation(models.Model):
             api_token.refresh_token = response_token['refresh_token']
             api_token.expires_in = json.dumps(response_token['expires_in'])
             api_token.access_token_recieved_date = datetime.utcnow()
-            version = self.env['mtd.issue_request'].json_command('version', module_name, record_id, record_tracker)
+            version = self.env['{}.issue_request'.format(record._name.split('.')[0])].json_command(
+                'version',
+                module_name,
+                record_id,
+                record_tracker
+            )
             return version
         else:
-            error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
+            error_message = self.env['mtd.display_message'].construct_error_message_to_display(
                 url=url,
                 code=response.status_code,
-                message=response_token['error_description'],
-                error=response_token['error']
+                response_token=response_token
             )
             record.response_from_hmrc = error_message
             _logger.info(

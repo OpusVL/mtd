@@ -22,7 +22,6 @@ class MtdApiRequestTracker(models.Model):
         ('response', 'Response received'),
         ('more_than_one', 'More than one open tracker found'),
         ('error', 'There was an error')
-
     ], string='Tracker Closed')
     action = fields.Char(required=True)
     menu_id = fields.Char(required=True)

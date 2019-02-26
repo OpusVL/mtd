@@ -17,7 +17,7 @@
         name="HMRC Configuration"
         parent="mtd_menu"
         sequence="1"
-        action="action_mtd_hmrc_configuration"/>
+        action=""/>
     <menuitem id="submenu_mtd_hmrc_services"
         name="HMRC Services"
         parent="mtd_menu"
@@ -30,4 +30,9 @@
         parent="submenu_mtd_hmrc_services"
         sequence="10"
         action="action_mtd_hello_world"/>
+    <menuitem id="submenu_hmrc_configuration"
+        name="HMRC Configuration"
+        parent="submenu_mtd_hmrc_configuration"
+        sequence="1"
+        action="action_mtd_hmrc_configuration"/>
 </odoo>

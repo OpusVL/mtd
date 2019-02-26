@@ -16,7 +16,7 @@ class MtdRefreshAuthorisation(models.Model):
     @api.multi
     def refresh_user_authorisation(self, record=None, token_record=None):
         api_token = self.env['mtd.api_tokens'].search([('id', '=', token_record.id)])
-        hmrc_authorisation_url = "{}/oauth/token".format(self.hmrc_configuration.hmrc_url)
+        hmrc_authorisation_url = "{}/oauth/token".format(record.hmrc_configuration.hmrc_url)
         _logger.info(
             "(Step 4) refresh_user_authorisation - hmrc authorisation url:- {}".format(hmrc_authorisation_url) +
             "token_record:- {}".format(token_record)
@@ -44,22 +44,31 @@ class MtdRefreshAuthorisation(models.Model):
             "(Step 4) refresh_user_authorisation - received response of the " +
             "request:- {resp}, and its text:- {resp_token}".format(resp=response, resp_token=response_token)
         )
+        resp_message = ''
+        resp_error = ''
+        if 'error_description' in response_token.keys():
+            resp_message = response_token['error_description']
+        elif 'message' in response_token.keys():
+            resp_message = response_token['message']
+        if 'error' in response_token.keys():
+            resp_error = response_token['error']
+
         if response.ok:
             api_token.access_token = response_token['access_token']
             api_token.refresh_token = response_token['refresh_token']
             api_token.expires_in = json.dumps(response_token['expires_in'])
             version = self.env['mtd.issue_request'].json_command('version', record._name, record.id)
             return version
-        elif response.status_code == 400 and response_token['message'] == "Bad Request":
+        elif response.status_code == 400: # and resp_message == "Bad Request":
             _logger.info(
                 "(Step 4) refresh_user_authorisation - error 400, obtaining new access code and refresh token"
             )
-            return self.env['mtd.user_authorisation'].get_user_authorisation(record._name, record.id)
+            return self.env['mtd.user_authorisation'].get_user_authorisation(record._name, record)
         else:
-            error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
+            error_message = self.env['mtd.display_message'].construct_error_message_to_display(
                 url=url,
                 code=response.status_code,
-                message=response_token['message']
+                response_token=response_token
             )
 
             _logger.info(
