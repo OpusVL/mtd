@@ -40,7 +40,8 @@
 
         'views/mtd_vat_endpoint_view.xml',
         'views/mtd_vat_menu.xml',
-        'views/mtd_vat_obligation_logs_list_view.xml'
+        'views/mtd_vat_obligation_logs_list_view.xml',
+        'views/mtd_vat_submission_logs_view.xml'
     ],
     'demo': [
     ],

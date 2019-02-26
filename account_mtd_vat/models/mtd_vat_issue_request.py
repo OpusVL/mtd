@@ -4,6 +4,7 @@ import requests
 import json
 import logging
 import werkzeug
+import urllib
 
 from openerp import models, fields, api, exceptions
 from datetime import datetime
@@ -28,18 +29,24 @@ class MtdVatIssueRequest(models.Model):
             # refresh_token = token_record.refresh_token if token_record else ""
 
             header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
-            if record.endpoint_name in ("vat-obligation", "vat-liabilities", "vat-payments", "view-vat-returns"):
+            if record.endpoint_name in ("vat-obligation",
+                "vat-liabilities",
+                "vat-payments",
+                "view-vat-returns",
+                "submit-vat-returns"
+            ):
                 header_items["authorization"] = ("Bearer " + str(access_token))
                 header_items["Content-Type"] = ("application/json")
                 if record.gov_test_scenario:
                     header_items["Gov-Test-Scenario"] = (record.gov_test_scenario)
 
-            if record.name in ('Submit VAT Returns', 'View VAT Returns'):
+            if record.endpoint_name in ('submit-vat-returns', 'view-vat-returns'):
                 date_from = record.select_vat_obligation.start
                 date_to = record.select_vat_obligation.end
             else:
                 date_from = record.date_from
                 date_to = record.date_to
+
 
             hmrc_connection_url = "{}{}?from={}&to={}".format(
                 record.hmrc_configuration.hmrc_url, record.path, date_from, date_to)
@@ -48,7 +55,16 @@ class MtdVatIssueRequest(models.Model):
                 "json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +
                 "headers:- {header}".format(header=header_items)
             )
-            response = requests.get(hmrc_connection_url, timeout=timeout, headers=header_items)
+            if record.endpoint_name == 'submit-vat-returns':
+                params = self.build_submit_vat_params(record)
+                response = requests.post(
+                    hmrc_connection_url,
+                    data=json.dumps(params),
+                    timeout=timeout,
+                    headers=header_items
+                )
+            else:
+                response = requests.get(hmrc_connection_url, timeout=timeout, headers=header_items)
             return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
         except ValueError:
             if api_tracker:
@@ -81,6 +97,8 @@ class MtdVatIssueRequest(models.Model):
                 self.add_payments_logs(response, record)
             elif record.endpoint_name == "view-vat-returns":
                 self.display_view_returns(response, record)
+            elif record.endpoint_name == "submit-vat-returns":
+                self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
 
 
@@ -152,6 +170,42 @@ class MtdVatIssueRequest(models.Model):
         )
         record.response_from_hmrc = success_message
 
+    def add_submit_vat_returns(self, response=None, record=None):
+        response_logs = json.loads(response.text)
+        submission_logs = self.env['mtd_vat.vat_submission_logs']
+
+        charge_Ref_Number=""
+        if 'chargeRefNumber' in response_logs.keys():
+            charge_Ref_Number=response_logs['chargeRefNumber']
+
+        submission_log = submission_logs.create({
+            'name': "{} - {}".format(record.date_from, record.date_to),
+            'start': record.date_from,
+            'end': record.date_to,
+            'submission_status': "Successful",
+            'vrn': record.vrn,
+            'unique_number': response_logs['formBundleNumber'],
+            'payment_indicator': response_logs['paymentIndicator'],
+            'charge_ref_number': charge_Ref_Number,
+            'processing_date': response_logs['processingDate'],
+            'vat_due_sales_submit': record.vat_due_sales_submit,
+            'vat_due_acquisitions_submit': record.vat_due_acquisitions_submit,
+            'total_vat_due_submit': record.total_vat_due_submit,
+            'vat_reclaimed_submit': record.vat_reclaimed_submit,
+            'net_vat_due_submit': record.net_vat_due_submit,
+            'total_value_sales_submit': record.total_value_sales_submit,
+            'total_value_purchase_submit': record.total_value_purchase_submit,
+            'total_value_goods_supplied_submit': record.total_value_goods_supplied_submit,
+            'total_acquisitions_submit': record.total_acquisitions_submit,
+        })
+        success_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+                                                        time=datetime.now().time())
+                + "\nCongratulations ! The submission has been made successfully to HMRC. \n"
+                + "Please check the submission logs for details."
+        )
+        record.response_from_hmrc = success_message
+
     def add_payments_logs(self, response=None, record=None):
         response_logs = json.loads(response.text)
         logs = response_logs['payments']
@@ -220,4 +274,20 @@ class MtdVatIssueRequest(models.Model):
         record.total_value_purchase = response_logs['totalValuePurchasesExVAT']
         record.total_value_goods_supplied = response_logs['totalValueGoodsSuppliedExVAT']
         record.total_acquisitions = response_logs['totalAcquisitionsExVAT']
+
+    def build_submit_vat_params(self, record=None):
+        params = {
+        "periodKey": urllib.quote_plus(record.period_key_submit),
+        "vatDueSales": record.vat_due_sales_submit,
+        "vatDueAcquisitions": record.vat_due_acquisitions_submit,
+        "totalVatDue": record.total_vat_due_submit,
+        "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
+        "netVatDue": record.net_vat_due_submit,
+        "totalValueSalesExVAT": record.total_value_sales_submit,
+        "totalValuePurchasesExVAT": record.total_value_purchase_submit,
+        "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
+        "totalAcquisitionsExVAT": record.total_acquisitions_submit,
+        "finalised": record.finalise
+        }
+        return params
 

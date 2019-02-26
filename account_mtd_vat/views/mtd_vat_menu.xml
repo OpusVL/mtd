@@ -9,9 +9,13 @@
             name="Vat Obligations Log"
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
+        <act_window id="action_mtd_vat_submission_log"
+            name="Vat Submission Log"
+            res_model="mtd_vat.vat_submission_logs"
+            view_mode="tree,form" />
 
 
-        <menuitem id="submenu_vat_hmrc"
+        <menuitem id="submenu_mtd_vat_endpoints"
             name="VAT"
             parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="20"
@@ -27,5 +31,10 @@
             parent="submenu_vat_logs_hmrc"
             sequence="1"
             action="action_mtd_vat_obligation_log"/>
+        <menuitem id="submenu_mtd_vat_submission_log"
+            name="VAT Submission Logs"
+            parent="submenu_vat_logs_hmrc"
+            sequence="10"
+            action="action_mtd_vat_submission_log"/>
     </data>
 </openerp>

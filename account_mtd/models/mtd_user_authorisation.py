@@ -17,8 +17,6 @@ class MtdUserAuthorisation(models.Model):
 
     @api.multi
     def get_user_authorisation(self, module_name=None, record=None):
-        import pdb;
-        pdb.set_trace()
         tracker_api = self.create_tracker_record(module_name, record)
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
         state = ""
