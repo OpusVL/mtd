@@ -33,12 +33,20 @@ class MtdVATEndpoints(models.Model):
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
-    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
+    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs') #, compute='compute_vat_obligation')
 
-    compute='compute_date_for_vat_returns'
+    # def compute_vat_obligation(self):
+    #     import pdb; pdb.set_trace()
+    #     if self.name == "Submit VAT Returns":
+    #         vat_obligations_rec = self.env['mtd_vat.vat_obligations_logs'].search([('status', '=', 'O')])
+    #         for record in self:
+    #             obligation_ids =[x.id for x in vat_obligations_rec]
+    #             record.select_vat_obligation = [[6,0,obligation_ids]]
+
+
 
     @api.onchange('select_vat_obligation')
-    def compute_date_for_vat_returns(self):
+    def onchange_date_for_vat_returns(self):
         self.date_from = self.select_vat_obligation.start
         self.date_to = self.select_vat_obligation.end
 

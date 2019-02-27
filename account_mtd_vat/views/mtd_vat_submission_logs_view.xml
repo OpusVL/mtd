@@ -23,7 +23,7 @@
                     <sheet>
                         <h2>VAT Submission Record</h2>
                         <p></p>
-                        <h4>Response received from HMRC</h4>
+                        <h4>Response received from HMRC:</h4>
                         <group>
                             <field name="submission_status">Submission Status</field>
                             <field name="vrn" readonly="1">VAT Number</field>
@@ -35,8 +35,9 @@
                             <field name="start" readonly="1" invisible="1"/>
                             <field name="end" readonly="1" invisible="1"/>
                         </group>
-                        <p></p>
+                        <hr/>
                         <h4>HMRC have successfully received your submission and provided below are the details of submitted VAT values.</h4>
+                        <br/>
                         <group>
                             <field name="vat_due_sales_submit"/>
                             <field name="vat_due_acquisitions_submit"/>

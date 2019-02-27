@@ -12,15 +12,7 @@
     <!-- VAT End points -->
     <data>
         <record model="mtd_vat.vat_endpoints" id="mtd_vat_obligations_endpoint">
-            <field name="name">VAT Obligations</field>
-            <field name="api_id" ref="mtd_api_vat"/>
-        </record>
-        <record model="mtd_vat.vat_endpoints" id="mtd_vat_liabilities_endpoint">
-            <field name="name">VAT Liabilities</field>
-            <field name="api_id" ref="mtd_api_vat"/>
-        </record>
-        <record model="mtd_vat.vat_endpoints" id="mtd_vat_payments_endpoint">
-            <field name="name">VAT Payments</field>
+            <field name="name">Retrieve VAT Obligations</field>
             <field name="api_id" ref="mtd_api_vat"/>
         </record>
         <record model="mtd_vat.vat_endpoints" id="mtd_vat_submit_returns_endpoint">
@@ -29,6 +21,14 @@
         </record>
         <record model="mtd_vat.vat_endpoints" id="mtd_vat_view_returns_endpoint">
             <field name="name">View VAT Returns</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_liabilities_endpoint">
+            <field name="name">Retrieve VAT Liabilities</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_payments_endpoint">
+            <field name="name">Retrieve VAT Payments</field>
             <field name="api_id" ref="mtd_api_vat"/>
         </record>
     </data>

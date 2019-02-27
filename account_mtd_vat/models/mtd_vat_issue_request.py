@@ -114,7 +114,7 @@ class MtdVatIssueRequest(models.Model):
         else:
             record.view_vat_flag = False
             response_token = json.loads(response.text)
-            error_message = self.env['mtd.display_message'].consturct_error_message_to_display(
+            error_message = self.env['mtd.display_message'].construct_error_message_to_display(
                 url=url,
                 code=response.status_code,
                 response_token=response_token
@@ -156,7 +156,7 @@ class MtdVatIssueRequest(models.Model):
                 from_date=tax_periods['from'],
                 to=tax_periods['to'])
             )
-            display_message += ("type:- {type}\nDue On:- {due}\n".format(type=log["type"], due=log["due"]) +
+            display_message += ("Type:- {type}\nDue On:- {due}\n".format(type=log["type"], due=log["due"]) +
                 "Amount Outstanding:- {outstanding}\nOriginal Amount:- {original}\n".format(
                     outstanding=log["outstandingAmount"],
                     original=log["originalAmount"])
@@ -208,16 +208,19 @@ class MtdVatIssueRequest(models.Model):
 
     def add_payments_logs(self, response=None, record=None):
         response_logs = json.loads(response.text)
+        payment_flag = True
         logs = response_logs['payments']
+
         display_message = ''
         for log in logs:
+
             display_message = "Amount:- {}\nReceived:- {}\n\n".format(log["amount"], log["received"])
 
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
                                                         time=datetime.now().time())
                 + "Congratulations ! The connection succeeded. \n"
-                + "Please check the response below.\n\n {message}".format(message=display_message)
+                + "Please check the response below.\n\n{message}".format(message=display_message)
         )
         record.response_from_hmrc = success_message
 
@@ -263,11 +266,10 @@ class MtdVatIssueRequest(models.Model):
     def display_view_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
         record.view_vat_flag = True
-
         record.period_key = response_logs['periodKey']
-        record.vat_due_sales = response_logs['vatDueAcquisitions']
+        record.vat_due_sales = response_logs['vatDueSales']
+        record.vat_due_acquisitions = response_logs['vatDueAcquisitions']
         record.total_vat_due = response_logs['totalVatDue']
-
         record.vat_reclaimed = response_logs['vatReclaimedCurrPeriod']
         record.net_vat_due = response_logs['netVatDue']
         record.total_value_sales = response_logs['totalValueSalesExVAT']

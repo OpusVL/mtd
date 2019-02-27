@@ -2,15 +2,15 @@
 <openerp>
     <data>
         <act_window id="action_mtd_vat_endpoints"
-            name="Vat Obligations"
+            name="VAT Obligations"
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_obligation_log"
-            name="Vat Obligations Log"
+            name="VAT Obligations Log"
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_submission_log"
-            name="Vat Submission Log"
+            name="VAT Submission Log"
             res_model="mtd_vat.vat_submission_logs"
             view_mode="tree,form" />
 

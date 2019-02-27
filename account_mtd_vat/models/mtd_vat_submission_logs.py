@@ -10,9 +10,9 @@ class MtdVATSubmissionLogs(models.Model):
     _name = 'mtd_vat.vat_submission_logs'
     _description = "Vat Submission Logs"
 
-    name = fields.Char(string="period")
+    name = fields.Char(string="Period")
     submission_status = fields.Char()
-    vrn = fields.Char()
+    vrn = fields.Char(string="VAT Number")
     start = fields.Date()
     end = fields.Date()
     unique_number = fields.Char()

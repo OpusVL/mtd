@@ -17,10 +17,10 @@
                             <field name="hmrc_configuration"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                             <field name="vrn" string="VAT Number"/>
-                            <field name="date_from"/>
-                                   <!--attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>-->
-                            <field name="date_to"/>
-                                <!--attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>-->
+                            <field name="date_from"
+                                   attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
+                            <field name="date_to"
+                                attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
                             <field name="status" attrs="{'invisible':[('name', '!=', 'VAT Obligations')]}"/>
                             <field name="gov_test_scenario"/>
                             <field name="x_correlation_id" invisible="1"/>
@@ -29,9 +29,19 @@
                             <field name="endpoint_name" invisible="1"/>
                             <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
-                                attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
+                                attrs="{'invisible':[('name', 'not in ', ['Submit VAT Returns', 'View VAT Returns'])]}"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
-                                <!--domain="([status, '=', 'o'])"/>-->
+
+                            <!--UN COMMENT THE CODE BELLW ONCE WE ARE HAPPY TO GO LIVE FOR TEST SYSTEM THIS IS FINE.-->
+
+
+                                <!--domain="([('status', '=', 'F')])"/>
+                            <field name="select_vat_obligation"
+                                string="Select VAT Obligation"
+                                attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"
+                                domain="([('status', '=', 'O')])"
+                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>-->
+
                         </group>
                         <group>
                             <button name="action_retrieve_vat"
@@ -98,10 +108,12 @@
                                     class="oe_highlight"
                                     attrs="{'invisible':[('finalise', '=', False)]}"/>
                         </group>
+                        <hr/>
                         <div>
                             <div>
                                 <h2><label for="response_from_hmrc"/></h2>
                             </div>
+                            <br/>
                             <field name="response_from_hmrc" string="" attrs="{'invisible':[
                             ('view_vat_flag', '=', True)
                             ]}"/>
@@ -128,6 +140,36 @@
                                        attrs="{'invisible':[('view_vat_flag', '=', False)]}"/>
                             </group>
                         </div>
+                        <br/>
+                        <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                            Please click here to make a payment in the method that best suits you:
+                            <a xml-link="link" href="https://www.gov.uk/pay-vat">Pay your VAT bill</a>
+                        </li>
+                        <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                        To see your previous payments made to HMRC, please visit your Business Tax Account (BTA) at
+                            <a xml-link="link" href="https://www.tax.service.gov.uk/account">
+                                https://www.tax.service.gov.uk/account
+                            </a>
+                        </li>
+                        <p attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                            Using your BTA you can:
+                            <ul>
+                                <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                                    Check any VAT Direct Debit arrangements they have with us</li>
+                                <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                                    Make changes, or cancel their Direct Debit</li>
+                                <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                                    Set up a new Direct Debit instruction</li>
+                                <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
+                                    Make a corporate credit or debit card payment</li>
+                            </ul>
+                        </p>
+                        <h4 attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}">
+                            <u>Notify a change of circumstances:</u></h4>
+                        <p attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}">
+                            Please do this by visiting your Business Tax Account at
+                            <a xml-link="link" href="https://www.tax.service.gov.uk/account">https://www.tax.service.gov.uk/account</a>
+                        </p>
                     </sheet>
                 </form>
             </field>
