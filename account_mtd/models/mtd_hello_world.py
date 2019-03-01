@@ -393,7 +393,7 @@ class MtdHelloWorld(models.Model):
             self._logger.info(
                 "(Step 4) refresh_user_authorisation - error 400, Need to obtain new access code and refresh token"
             )
-            self.get_user_authorisation()
+            return self.get_user_authorisation()
         else:
             construct_text = (
                     "Date {}     Time {} \n".format(datetime.now().date(), datetime.now().time()) +
