@@ -389,7 +389,7 @@ class MtdHelloWorld(models.Model):
             api_token.expires_in = json.dumps(response_token['expires_in'])
             version = self._json_command('version')
             return version
-        elif req.status_code == 400 and response_token['message'] == "Bad Request":
+        elif req.status_code == 400: # and response_token['message'] == "Bad Request":
             self._logger.info(
                 "(Step 4) refresh_user_authorisation - error 400, Need to obtain new access code and refresh token"
             )
