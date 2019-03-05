@@ -60,3 +60,4 @@ class MtdVATSubmissionLogs(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
+

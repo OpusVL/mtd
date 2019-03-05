@@ -15,8 +15,14 @@ class MtdVATEndpoints(models.Model):
     name = fields.Char('Name', required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
+    company_id = fields.Many2one(comodel_name="res.company", string="Company")
     scope = fields.Char(related="api_id.scope")
-    vrn = fields.Char('VRN')
+    vrn = fields.Char(string="VAT Number")
+
+    @api.onchange('company_id')
+    def onchange_company_id(self):
+        self.vrn = self.company_id.vrn
+
     date_from = fields.Date(string='From')
     date_to = fields.Date(string='To')
     status = fields.Selection([
@@ -33,17 +39,7 @@ class MtdVATEndpoints(models.Model):
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
-    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs') #, compute='compute_vat_obligation')
-
-    # def compute_vat_obligation(self):
-    #     import pdb; pdb.set_trace()
-    #     if self.name == "Submit VAT Returns":
-    #         vat_obligations_rec = self.env['mtd_vat.vat_obligations_logs'].search([('status', '=', 'O')])
-    #         for record in self:
-    #             obligation_ids =[x.id for x in vat_obligations_rec]
-    #             record.select_vat_obligation = [[6,0,obligation_ids]]
-
-
+    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
 
     @api.onchange('select_vat_obligation')
     def onchange_date_for_vat_returns(self):
@@ -95,42 +91,35 @@ class MtdVATEndpoints(models.Model):
     # submit vat fields
     submit_vat_flag = fields.Boolean(default=False)
     period_key_submit = fields.Char(related='select_vat_obligation.period_key', readonly=True)
-    vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), readonly=True)
+    vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2))
     vat_due_acquisitions_submit = fields.Float(
         "2. VAT due in this period on acquisitions from other EC Member States",
-        (13, 2),
-        readonly=True
+        (13, 2)
     )
-    total_vat_due_submit = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2), readonly=True)
+    total_vat_due_submit = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2))
     vat_reclaimed_submit = fields.Float(
         "4. VAT reclaimed in this period on purchases and other inputs (including acquisitions from the EC)",
-        (13, 2),
-        readonly=True
+        (13, 2)
     )
     net_vat_due_submit = fields.Float(
         "5. Net VAT to be paid to HMRC or reclaimed by you (Difference between boxes 3 and 4)",
-        (11, 2),
-        readonly=True
+        (11, 2)
     )
     total_value_sales_submit = fields.Float(
         "6. Total value of sales and all other outputs excluding any VAT. (Includes box 8 figure)",
-        (13, 0),
-        readonly=True
+        (13, 0)
     )
     total_value_purchase_submit = fields.Float(
         "7. Total value of purchases and all other inputs excluding any VAT. (Include box 9 figure)",
-        (13, 0),
-        readonly=True
+        (13, 0)
     )
     total_value_goods_supplied_submit = fields.Float(
         "8. Total value of all supplies of goods and related costs, excluding any VAT, to other EC Member States",
-        (13, 0),
-        readonly=True
+        (13, 0)
     )
     total_acquisitions_submit = fields.Float(
         "9. Total value of all acquisitions of goods and related costs, excluding any VAT, from other EC Member States",
-        (13, 0),
-        readonly=True
+        (13, 0)
     )
     client_type = fields.Selection([
         ('business', 'Business'),
@@ -148,6 +137,33 @@ class MtdVATEndpoints(models.Model):
         default=("Please review your VAT summary above and then tick the 'Confirm and finalise' "
                  + "checkbox and then submit to HMRC"))
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
+
+    # @api.one
+    # @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
+    # def onchange_reset_fields(self):
+    #     self.vat_due_sales_submit = False
+    #     self.vat_due_acquisitions_submit = False
+    #     self.total_vat_due_submit = False
+    #     self.vat_reclaimed_submit = False
+    #     self.net_vat_due_submit = False
+    #     self.total_value_sales_submit = False
+    #     self.total_value_purchase_submit = False
+    #     self.total_value_goods_supplied_submit = False
+    #     self.total_acquisitions_submit = False
+    #     import pdb; pdb.set_trace()
+    #
+    #     self.write({
+    #         'vat_due_sales_submit': False,
+    #         'vat_due_acquisitions_submit': False,
+    #         'total_vat_due_submit': False,
+    #         'vat_reclaimed_submit': False,
+    #         'net_vat_due_submit': False,
+    #         'total_value_sales_submit': False,
+    #         'total_value_purchase_submit': False,
+    #         'total_value_goods_supplied_submit': False,
+    #         'total_acquisitions_submit': False
+    #     })
+
 
     @api.multi
     def action_vat_connection(self):
@@ -186,7 +202,8 @@ class MtdVATEndpoints(models.Model):
 
         retrieve_period = self.env['account.period'].search([
             ('date_start', '=', self.date_from),
-            ('date_stop', '=', self.date_to)
+            ('date_stop', '=', self.date_to),
+            ('company_id', '=', self.company_id.id)
         ])
         context = str({'period_id': retrieve_period.id, \
                                  'fiscalyear_id': retrieve_period.fiscalyear_id.id, \
@@ -195,9 +212,8 @@ class MtdVATEndpoints(models.Model):
         name = period_code and (':' + period_code) or ''
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
-            ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9'])
+            ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),('company_id', '=', self.company_id.id)
         ])
-
         retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
             period_id=retrieve_period.id,
             fiscalyear_id=retrieve_period.fiscalyear_id.id,

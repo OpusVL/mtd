@@ -22,7 +22,6 @@
                 <form string="submission Logs" > <!--create="false" delete="false" edit="false">-->
                     <sheet>
                         <h2>VAT Submission Record</h2>
-                        <p></p>
                         <h4>Response received from HMRC:</h4>
                         <group>
                             <field name="submission_status">Submission Status</field>

@@ -171,6 +171,7 @@ class MtdVatIssueRequest(models.Model):
         record.response_from_hmrc = success_message
 
     def add_submit_vat_returns(self, response=None, record=None):
+
         response_logs = json.loads(response.text)
         submission_logs = self.env['mtd_vat.vat_submission_logs']
 
@@ -205,6 +206,43 @@ class MtdVatIssueRequest(models.Model):
                 + "Please check the submission logs for details."
         )
         record.response_from_hmrc = success_message
+
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'])
+
+    def copy_account_move_lines_to_storage(self, record, unique_number):
+        retrieve_period = self.env['account.period'].search([
+            ('date_start', '=', record.date_from),
+            ('date_stop', '=', record.date_to),
+            ('company_id', '=', record.company_id.id)
+        ])
+
+        move_lines_to_copy = self.env['account.move.line'].search([
+            ('company_id', '=', record.company_id.id),
+            ('period_id', '=', retrieve_period.id),
+            ('tax_code_id', '!=', False),
+            ('tax_amount', '!=', 0),
+            ('move_id.state', '=', 'posted')
+        ])
+
+        storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
+        move_lines_to_copy_list = move_lines_to_copy.read()
+        for move_line in move_lines_to_copy_list:
+            amended_move_line = move_line.copy()
+            amended_move_line['account_move_line_id'] = move_line.get('id')
+            amended_move_line['unique_number'] = unique_number
+            for k, v in move_line.items():
+                if type(v) == tuple:
+                    amended_move_line[k] = v[0]  # Handle Many2ones
+
+            stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
+            if not stored_record:
+                storage_model.create(amended_move_line)
+
+        self.set_vat_for_account_move_line(move_lines_to_copy)
+
+    def set_vat_for_account_move_line(self, account_move_lines):
+        for line in account_move_lines:
+            line.vat=True
 
     def add_payments_logs(self, response=None, record=None):
         response_logs = json.loads(response.text)
