@@ -8,6 +8,30 @@ from datetime import datetime, timedelta
 _logger = logging.getLogger(__name__)
 
 
+class GovTestScenario(models.Model):
+    _name = 'gov.test.scenario'
+
+    name = fields.Char()
+    mtd_vat_obligations_endpoint = fields.Boolean()
+    mtd_vat_liabilities_endpoint = fields.Boolean()
+    mtd_vat_payments_endpoint = fields.Boolean()
+    mtd_vat_submit_returns_endpoint = fields.Boolean()
+    mtd_vat_view_returns_endpoint = fields.Boolean()
+
+    @api.model
+    def name_search(self, name='', args=None, operator='ilike', limit=100):
+        if not args:
+            args = []
+        endpoint_name = self.env.context.get('endpoint_name')
+        endpoint_id = self.env['mtd_vat.vat_endpoints'].search([('name', '=', endpoint_name)]).id
+        endpoint_record = self.env['ir.model.data'].search([
+            ('res_id', '=', endpoint_id),
+            ('model', '=', 'mtd_vat.vat_endpoints')
+        ])
+        args.append((endpoint_record.name, '=', True))
+        return super(GovTestScenario, self).name_search(name=name, args=args, operator=operator, limit=limit)
+
+
 class MtdVATEndpoints(models.Model):
     _name = 'mtd_vat.vat_endpoints'
     _description = "Vat endpoints"
@@ -29,12 +53,7 @@ class MtdVATEndpoints(models.Model):
         ('o', ' O'),
         ('f', ' F'),
     ])
-    gov_test_scenario = fields.Selection([
-        ('SINGLE_LIABILITY', 'SINGLE_LIABILITY'),
-        ('MULTIPLE_LIABILITIES', 'MULTIPLE_LIABILITIES'),
-        ('DATE_RANGE_TOO_LARGE', 'DATE_RANGE_TOO_LARGE')
-    ],
-        string='Gov-Test-Scenario')
+    gov_test_scenario = fields.Many2one('gov.test.scenario', string='Gov-Test-Scenario')
     x_correlation_id = fields.Char('X-CorrelationId')
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
