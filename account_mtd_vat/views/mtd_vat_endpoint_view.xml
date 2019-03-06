@@ -105,18 +105,19 @@
                                string="Declaration"
                                attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>
                         <field name="review_text" attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                        <field name="finalise"
+                            attrs="{'invisible':[('submit_vat_flag', '=', False)]}" />
                         <group>
-                            <field name="finalise"
-                                attrs="{'invisible':[('submit_vat_flag', '=', False)]}" />
-                        </group>
-                        <group>
+                            <button name="action_vat_connection"
+                                type="object"
+                                string="Retrieve Vat Obligation"
+                                class="oe_highlight"
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Connect to HMRC"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}"/>
-                        </group>
-                        <group>
+                                attrs="{'invisible':[('name', 'in', ['Retrieve VAT Obligations', 'Submit VAT Returns'])]}"/>
                             <button name="action_vat_connection"
                                     type="object"
                                     string="Submit VAT return"
