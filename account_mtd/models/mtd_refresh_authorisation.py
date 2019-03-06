@@ -15,7 +15,10 @@ class MtdRefreshAuthorisation(models.Model):
 
     @api.multi
     def refresh_user_authorisation(self, record=None, token_record=None):
-        api_token = self.env['mtd.api_tokens'].search([('id', '=', token_record.id)])
+        api_token = self.env['mtd.api_tokens'].search([
+            ('id', '=', token_record.id),
+            ('company_id', '=', self.company_id.id)
+        ])
         hmrc_authorisation_url = "{}/oauth/token".format(record.hmrc_configuration.hmrc_url)
         _logger.info(
             "(Step 4) refresh_user_authorisation - hmrc authorisation url:- {}".format(hmrc_authorisation_url) +

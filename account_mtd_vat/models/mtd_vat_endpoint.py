@@ -17,7 +17,7 @@ class MtdVATEndpoints(models.Model):
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     company_id = fields.Many2one(comodel_name="res.company", string="Company")
     scope = fields.Char(related="api_id.scope")
-    vrn = fields.Char(string="VAT Number")
+    vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
 
     @api.onchange('company_id')
     def onchange_company_id(self):
@@ -278,7 +278,12 @@ class MtdVATEndpoints(models.Model):
 
     def process_connection(self):
         # search for token
-        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
+        import pdb; pdb.set_trace()
+
+        token_record = self.env['mtd.api_tokens'].search([
+            ('api_id', '=', self.api_id.id),
+            ('company_id', '=', self.company_id.id)
+        ])
         _logger.info(
             "Vat Obligation - endpoint name {name}, and the api is :- {api_id} ".format(
                 name=self.name,

@@ -11,7 +11,7 @@ class Authorize(http.Controller):
     
     @http.route('/auth-redirect', type='http', methods=['GET'])
     def get_user_authorization(self, **args):
-        
+
         # to determine which API the authorization code has been received for.
         api_trackers = http.request.env['mtd.api_request_tracker'].search([('closed', '=', False)])
         if len(api_trackers) != 1:
@@ -32,10 +32,12 @@ class Authorize(http.Controller):
             )
             # This should then return to the home page
         else:
+
             # search for the method which we need to invoke to get to exchange the authorisation code with access token
             return (http.request.env['mtd.exchange_authorisation'].exchange_user_authorisation(
                 args.get('code'),
                 api_trackers.endpoint_id,
-                api_trackers.id)
+                api_trackers.id,
+                api_trackers.company_id)
             )
         return True

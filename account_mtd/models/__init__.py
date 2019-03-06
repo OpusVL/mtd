@@ -32,6 +32,7 @@ from . import (
     mtd_issue_request,
     mtd_refresh_authorisation,
     mtd_user_authorisation,
+    res_company,
 
 )
 

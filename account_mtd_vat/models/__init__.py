@@ -27,7 +27,6 @@ from . import (
     mtd_vat_obligation_logs,
     mtd_vat_submission_logs,
     mtd_vat_detailed_submission_logs,
-    res_company,
     account_move_line
 
 )

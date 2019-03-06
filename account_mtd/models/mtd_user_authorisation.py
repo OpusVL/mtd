@@ -89,5 +89,6 @@ class MtdUserAuthorisation(models.Model):
             'action': action.id,
             'menu_id': menu_id.id,
             'module_name': module_name,
+            'company_id': record.company_id.id
         })
         return tracker_api

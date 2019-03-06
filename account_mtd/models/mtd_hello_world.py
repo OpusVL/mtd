@@ -19,6 +19,8 @@ class MtdHelloWorld(models.Model):
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     endpoint_name = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
+    company_id = fields.Many2one(comodel_name="res.company", string="Company")
+    vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
 
     @api.multi
     def action_hello_world_connection(self):
@@ -60,7 +62,11 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/user"
         _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
-        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
+
+        token_record = self.env['mtd.api_tokens'].search([
+            ('api_id', '=', self.api_id.id),
+            ('company_id', '=', self.company_id.id)
+        ])
         _logger.info(
             "Connection button Clicked - endpoint name {name}, and the api is :- {api_id} ".format(
                 name=self.name,

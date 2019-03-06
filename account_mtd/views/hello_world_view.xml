@@ -18,6 +18,8 @@
                             <field name="scope" invisible="1"/>
                             <field name="endpoint_name" invisible="1"/>
                             <field name="path" invisible="1"/>
+                            <field name="company_id" />
+                            <field name="vrn" />
                         </group>
                         <group>
                             <button name="action_hello_world_connection"
