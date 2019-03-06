@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <act_window id="action_mtd_vat_endpoints"
-            name="VAT Obligations"
+            name="VAT Management"
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_obligation_log"
@@ -20,12 +20,12 @@
 
 
         <menuitem id="submenu_mtd_vat_endpoints"
-            name="VAT"
+            name="VAT Management"
             parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="20"
             action="action_mtd_vat_endpoints"/>
         <menuitem id="submenu_vat_logs_hmrc"
-            name="VAT Logs"
+            name="VAT Audit"
             parent="account_mtd.submenu_mtd_hmrc_services"
             sequence="30"
             action=""/>
