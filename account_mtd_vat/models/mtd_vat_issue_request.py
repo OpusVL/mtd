@@ -41,7 +41,7 @@ class MtdVatIssueRequest(models.Model):
                 header_items["authorization"] = ("Bearer " + str(access_token))
                 header_items["Content-Type"] = ("application/json")
                 if record.gov_test_scenario:
-                    header_items["Gov-Test-Scenario"] = (record.gov_test_scenario)
+                    header_items["Gov-Test-Scenario"] = (record.gov_test_scenario.name)
 
             if record.endpoint_name in ('submit-vat-returns', 'view-vat-returns'):
                 date_from = record.select_vat_obligation.start
