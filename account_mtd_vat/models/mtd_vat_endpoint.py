@@ -39,7 +39,7 @@ class MtdVATEndpoints(models.Model):
     name = fields.Char('Name', required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
-    company_id = fields.Many2one(comodel_name="res.company", string="Company")
+    company_id = fields.Many2one(comodel_name="res.company", string="Company", required=True)
     scope = fields.Char(related="api_id.scope")
     vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
 
@@ -59,8 +59,18 @@ class MtdVATEndpoints(models.Model):
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
     select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
+    obligation_status = fields.Char(compute="comute_obligation_status_company")
+    obligation_company = fields.Integer(compute="comute_obligation_status_company")
     # obligation_link = fields.Char(related='select_vat_obligation.name')
     # show_obligation_link = fields.Boolean(default=False)
+
+    @api.depends('company_id', 'name')
+    def comute_obligation_status_company(self):
+        self.obligation_company = self.company_id.id
+        if self.name in ('View VAT Returns', 'Submit VAT Returns'):
+            self.obligation_status = 'O' if self.name == 'Submit VAT Returns' else 'F'
+
+        test = self.env['mtd_vat.vat_obligations_logs'].search([('status', '=', self.obligation_status), ('company_id', '=', self.obligation_company)])
 
     @api.onchange('select_vat_obligation')
     def onchange_date_for_vat_returns(self):
@@ -202,6 +212,10 @@ class MtdVATEndpoints(models.Model):
             ('res_id', '=', self.id),
             ('model', '=', 'mtd_vat.vat_endpoints')
         ])
+
+        if endpoint_record.name == "mtd_vat_submit_returns_endpoint":
+            if not self.select_vat_obligation:
+                raise exceptions.Warning("Please select a vat obligation to submit a return")
 
         request_handler = {
             "mtd_vat_obligations_endpoint": "_handle_vat_obligations_endpoint",

@@ -34,21 +34,13 @@
                             <field name="scope" invisible="1"/>
                             <field name="path" invisible="1"/>
                             <field name="endpoint_name" invisible="1"/>
+                            <field name="obligation_status" invisible="1"/>
+                            <field name="obligation_company" invisible="1"/>
                             <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
                                 attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
+                                domain="([('status', '=', obligation_status), ('company_id', '=', obligation_company)])"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
-
-                            <!--UN COMMENT THE CODE ONCE WE ARE HAPPY TO GO LIVE FOR TEST SYSTEM THIS IS FINE.-->
-
-
-                                <!--domain="([('status', '=', 'F')])"/>
-                            <field name="select_vat_obligation"
-                                string="Select VAT Obligation"
-                                attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"
-                                domain="([('status', '=', 'O')])"
-                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>-->
-
                         </group>
                         <group>
                             <button name="action_retrieve_vat"
