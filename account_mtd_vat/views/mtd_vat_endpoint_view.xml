@@ -28,7 +28,8 @@
                                 attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
                             <field name="status" attrs="{'invisible':[('name', '!=', 'VAT Obligations')]}"/>
                             <field name="gov_test_scenario" context="{'endpoint_name': name}"
-                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                options="{'no_quick_create': True, 'no_create_edit' : True}"
+                                groups="base.group_no_one"/>
                             <field name="x_correlation_id" invisible="1"/>
                             <field name="scope" invisible="1"/>
                             <field name="path" invisible="1"/>
@@ -127,12 +128,16 @@
                         <hr/>
                         <div>
                             <div>
-                                <h2><label for="response_from_hmrc"/></h2>
+                                <h3><label for="response_from_hmrc"/></h3>
                             </div>
                             <br/>
                             <field name="response_from_hmrc" string="" attrs="{'invisible':[
                             ('view_vat_flag', '=', True)
                             ]}"/>
+                            <!--<field name="show_obligation_link" invisible="1"/>
+                            <field name="obligation_link"
+                                   string="Please check the VAT logs here"
+                                   attrs="{'invisible':[('show_obligation_link', '=', False)]}"/>-->
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>
                                 <field name="period_key" invisible="1"/>

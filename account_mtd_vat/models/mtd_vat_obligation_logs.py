@@ -18,3 +18,4 @@ class MtdVATObligationLogs(models.Model):
     status = fields.Char()
     period_key = fields.Char()
     received = fields.Char()
+    company_id = fields.Many2one('res.company', string="Company", readonly=True)

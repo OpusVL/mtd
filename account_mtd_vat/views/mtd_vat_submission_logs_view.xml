@@ -11,6 +11,7 @@
                     <field name="payment_indicator">Payment Indicator</field>
                     <field name="charge_ref_number">Charge Ref Number</field>
                     <field name="processing_date">Processing Date</field>
+                    <field name="company_id">Company</field>
                 </tree>
             </field>
         </record>
@@ -25,6 +26,7 @@
                         <h4>Response received from HMRC:</h4>
                         <group>
                             <field name="submission_status">Submission Status</field>
+                            <field name="company_id">Company</field>
                             <field name="vrn" readonly="1">VAT Number</field>
                             <field name="name">Period</field>
                             <field name="processing_date">Processing Date/time</field>

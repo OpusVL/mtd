@@ -15,6 +15,7 @@
                     <field name="received">Received</field>
                     <field name="create_date">Created</field>
                     <field name="write_date">Updated</field>
+                    <field name="company_id">Company</field>
                 </tree>
             </field>
         </record>
@@ -35,6 +36,7 @@
                             <field name="received" readonly="1"/>
                             <field name="create_date" string="Created On" readonly="1"/>
                             <field name="write_date" string="Last Updated On" readonly="1"/>
+                            <field name="company_id">Company</field>
                         </group>
                     </sheet>
                 </form>

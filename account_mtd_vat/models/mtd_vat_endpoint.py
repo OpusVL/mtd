@@ -59,6 +59,8 @@ class MtdVATEndpoints(models.Model):
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
     select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
+    # obligation_link = fields.Char(related='select_vat_obligation.name')
+    # show_obligation_link = fields.Boolean(default=False)
 
     @api.onchange('select_vat_obligation')
     def onchange_date_for_vat_returns(self):

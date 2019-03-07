@@ -14,7 +14,7 @@ class MtdVATDetailedSubmissionLogs(models.Model):
 
     statement_id = fields.Many2one('account.bank.statement', string='Statement', readonly=True)
     create_date = fields.Date(string='Creation date', readonly=True)
-    company_id = fields.Many2one('res.company', readonly=True)
+    company_id = fields.Many2one('res.company', string="Company", readonly=True)
     currency_id = fields.Many2one('res.currency', string='Currency', readonly=True)
     date_maturity = fields.Date('Due date', readonly=True)
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True)

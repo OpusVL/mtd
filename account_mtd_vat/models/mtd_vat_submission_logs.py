@@ -12,6 +12,7 @@ class MtdVATSubmissionLogs(models.Model):
 
     name = fields.Char(string="Period")
     submission_status = fields.Char()
+    company_id = fields.Many2one('res.company', string="Company", readonly=True)
     vrn = fields.Char(string="VAT Number")
     start = fields.Date()
     end = fields.Date()
@@ -60,4 +61,3 @@ class MtdVATSubmissionLogs(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
-

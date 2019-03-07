@@ -111,10 +111,12 @@ class MtdVatIssueRequest(models.Model):
                 "json_command - code 401 found, user button clicked,  " +
                 "and message was:- {} ".format(response_token['message'])
             )
+            #record.show_obligation_link = False
             record.view_vat_flag=False
             return self.env['mtd.refresh_authorisation'].refresh_user_authorisation(record, api_token_record)
 
         else:
+            #record.show_obligation_link = False
             record.view_vat_flag = False
             response_token = json.loads(response.text)
             error_message = self.env['mtd.display_message'].construct_error_message_to_display(
@@ -201,6 +203,7 @@ class MtdVatIssueRequest(models.Model):
             'total_value_purchase_submit': record.total_value_purchase_submit,
             'total_value_goods_supplied_submit': record.total_value_goods_supplied_submit,
             'total_acquisitions_submit': record.total_acquisitions_submit,
+            'company_id': record.company_id.id,
         })
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
@@ -266,16 +269,17 @@ class MtdVatIssueRequest(models.Model):
         record.response_from_hmrc = success_message
 
     def add_obligation_logs(self, response=None, record=None):
-        success_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-                                                        time=datetime.now().time())
-                + "Congratulations ! The connection succeeded. \n"
-                + "Please check the VAT logs. \n"
-        )
-        record.response_from_hmrc = success_message
+        # success_message = (
+        #         "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+        #                                                 time=datetime.now().time())
+        #         + "Congratulations ! The connection succeeded. \n"
+        #         + "Please check the VAT logs. \n"
+        # )
+        # import pdb; pdb.set_trace()
 
         response_logs = json.loads(response.text)
         logs = response_logs['obligations']
+        obligation_message = ""
         for log in logs:
             received = ""
             if 'received' in log.keys():
@@ -283,26 +287,52 @@ class MtdVatIssueRequest(models.Model):
 
             obligation_logs = self.env['mtd_vat.vat_obligations_logs'].search([
                 ('start', '=', log['start']),
-                ('end', '=', log['end'])
+                ('end', '=', log['end']),
+                ('company_id', '=', record.company_id.id)
             ])
-            if obligation_logs:
-                obligation_logs.name = "{} - {}".format(log["start"], log["end"]),
-                obligation_logs.start = log['start']
-                obligation_logs.end = end = log['end']
-                obligation_logs.period_key = log['periodKey']
-                obligation_logs.status = log['status']
-                obligation_logs.received = received
-                obligation_logs.due = due = log['due']
-            else:
-                obligation_logs = obligation_logs.create({
-                    'name': "{} - {}".format(log["start"], log["end"]),
-                    'start': log['start'],
-                    'end': log['end'],
-                    'period_key': log['periodKey'],
-                    'status': log['status'],
-                    'received': received,
-                    'due': log['due']
-                })
+            obligation_message += (
+                "Period: {}\n".format(log["start"], log["end"])
+                + "Start: {}\n" .format(log['start'])
+                + "End: {}\n".format(log['end'])
+                + "Period Key: {}\n".format(log['periodKey'])
+                + "Status: {}\n".format(log['status'])
+                + "Received: {}\n".format(received)
+                + "Due: {}\n\n".format(log['due'])
+            )
+            self.update_write_obligation(log, received, obligation_logs, record)
+
+        success_message = (
+            "Date {date}     Time {time} \n\n{obligations}".format(date=datetime.now().date(),
+                                                        time=datetime.now().time(),
+                                                        obligations=obligation_message)
+            + "Please check the VAT logs here"
+        )
+        #record.show_obligation_link = True
+
+        record.response_from_hmrc = success_message
+
+    def update_write_obligation(self, log, received, obligation_logs, record):
+        if obligation_logs:
+            obligation_logs.name = "{} - {}".format(log["start"], log["end"]),
+            obligation_logs.start = log['start']
+            obligation_logs.end = log['end']
+            obligation_logs.period_key = log['periodKey']
+            obligation_logs.status = log['status']
+            obligation_logs.received = received
+            obligation_logs.due = log['due']
+            obligation_logs.company_id = record.company_id.id
+        else:
+            obligation_logs = obligation_logs.create({
+                'name': "{} - {}".format(log["start"], log["end"]),
+                'start': log['start'],
+                'end': log['end'],
+                'period_key': log['periodKey'],
+                'status': log['status'],
+                'received': received,
+                'due': log['due'],
+                'company_id': record.company_id.id
+            })
+
 
     def display_view_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
