@@ -61,7 +61,11 @@ class MtdRefreshAuthorisation(models.Model):
             api_token.access_token = response_token['access_token']
             api_token.refresh_token = response_token['refresh_token']
             api_token.expires_in = json.dumps(response_token['expires_in'])
-            version = self.env['mtd.issue_request'].json_command('version', record._name, record.id)
+            version = self.env['{}.issue_request'.format(record._name.split('.')[0])].json_command(
+                'version',
+                record._name,
+                record.id
+            )
             return version
         elif response.status_code == 400: # and resp_message == "Bad Request":
             _logger.info(
