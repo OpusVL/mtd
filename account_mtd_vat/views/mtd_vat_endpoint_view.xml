@@ -41,6 +41,9 @@
                                 attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
                                 domain="([('status', '=', obligation_status), ('company_id', '=', obligation_company)])"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                            <!--<field name="retrieve_vat_obligation_first"
+                                   string="Please retrive VAT obligation here"
+                                attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->
                         </group>
                         <group>
                             <button name="action_retrieve_vat"
@@ -98,8 +101,11 @@
                                string="Declaration"
                                attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>
                         <field name="review_text" attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
-                        <field name="finalise"
-                            attrs="{'invisible':[('submit_vat_flag', '=', False)]}" />
+                        <group>
+                            <field name="finalise"
+                                   string="I confirm and finalise"
+                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                        </group>
                         <group>
                             <button name="action_vat_connection"
                                 type="object"

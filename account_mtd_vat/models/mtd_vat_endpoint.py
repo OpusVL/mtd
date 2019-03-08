@@ -55,17 +55,28 @@ class MtdVATEndpoints(models.Model):
     ])
     gov_test_scenario = fields.Many2one('gov.test.scenario', string='Gov-Test-Scenario')
     x_correlation_id = fields.Char('X-CorrelationId')
-    response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
+    response_from_hmrc = fields.Text(string="Response from HMRC", readonly=True)
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
     select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
-    obligation_status = fields.Char(compute="comute_obligation_status_company")
-    obligation_company = fields.Integer(compute="comute_obligation_status_company")
+    # retrieve_vat_obligation_first = fields.Many2one(
+    #     comodel_name='mtd_vat.vat_endpoints',
+    #     compute='_compute_retrieve_vat_obligation_rec')
+    obligation_status = fields.Char(compute="_compute_obligation_status_company")
+    obligation_company = fields.Integer(compute="_compute_obligation_status_company")
     # obligation_link = fields.Char(related='select_vat_obligation.name')
     # show_obligation_link = fields.Boolean(default=False)
 
+    # @api.depends('name')
+    # def _compute_retrieve_vat_obligation_rec(self):
+    #     if self.name == 'Submit VAT Returns':
+    #         obligation_obj = self.env['mtd_vat.vat_endpoints'].search([
+    #             ('name', '=', 'Retrieve VAT Obligations')
+    #         ])
+    #         self.retrieve_vat_obligation_first = obligation_obj.id
+
     @api.depends('company_id', 'name')
-    def comute_obligation_status_company(self):
+    def _compute_obligation_status_company(self):
         self.obligation_company = self.company_id.id
         if self.name in ('View VAT Returns', 'Submit VAT Returns'):
             self.obligation_status = 'O' if self.name == 'Submit VAT Returns' else 'F'
@@ -330,6 +341,7 @@ class MtdVATEndpoints(models.Model):
                 api_id=self.api_id
             )
         )
+
         if token_record.access_token and token_record.refresh_token:
             _logger.info(
                 "Connection button Clicked - endpoint name {name}, ".format(name=self.name) +

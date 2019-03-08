@@ -16,6 +16,7 @@
                     <field name="create_date">Created</field>
                     <field name="write_date">Updated</field>
                     <field name="company_id">Company</field>
+                    <field name="vrn">VAT Number</field>
                 </tree>
             </field>
         </record>
@@ -37,6 +38,7 @@
                             <field name="create_date" string="Created On" readonly="1"/>
                             <field name="write_date" string="Last Updated On" readonly="1"/>
                             <field name="company_id">Company</field>
+                            <field name="vrn">VAT Number</field>
                         </group>
                     </sheet>
                 </form>

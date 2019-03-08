@@ -5,7 +5,7 @@
             <field name="name">vat.detailed.submission.logs</field>
             <field name="model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="arch" type="xml">
-                <tree create="false" delete="false" edit="false">
+                <tree create="false" delete="false" edit="false" context="{'group_by': 'company_id'}, {'group_by': 'unique_number'}">
                     <field name="journal_id">Journal</field>
                     <field name="period_id">Period</field>
                     <field name="date">Date</field>
@@ -18,7 +18,7 @@
                     <field name="debit">Debit</field>
                     <field name="credit">Credit</field>
                     <field name="reconcile_ref">Reconcile Ref</field>
-                    <field name="unique_number">Unique Number</field>
+                    <field name="unique_number">HMRC Unique No</field>
                     <field name="company_id">Company</field>
                 </tree>
             </field>
@@ -27,6 +27,7 @@
             <field name="name">vat.detailed.submission.logs.form</field>
             <field name="model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="arch" type="xml">
+                <tree default_order="company_id"/>
                 <form string="Detailed submission Logs">
                     <sheet create="false" delete="false" edit="false">
                         <h2>VAT Detailed Submission Record</h2>
@@ -46,7 +47,7 @@
                                 <field name="debit">Debit</field>
                                 <field name="credit">Credit</field>
                                 <field name="reconcile_ref">Reconcile Ref</field>
-                                <field name="unique_number">Unique Number</field>
+                                <field name="unique_number">HMRC Unique No</field>
                                 <field name="company_id">Company</field>
                             </group>
                         </group>
@@ -54,5 +55,6 @@
                 </form>
             </field>
         </record>
+
     </data>
 </openerp>

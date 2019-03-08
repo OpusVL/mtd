@@ -39,6 +39,7 @@ class MtdRefreshAuthorisation(models.Model):
             "(Step 4) refresh_user_authorisation - data to send in request:- {}".format(data_user_info) +
             "headers to send in request:- {}".format(headers)
         )
+
         response = requests.post(hmrc_authorisation_url, data=json.dumps(data_user_info), headers=headers)
         return self.handle_refresh_response(response, record, token_record, hmrc_authorisation_url)
 

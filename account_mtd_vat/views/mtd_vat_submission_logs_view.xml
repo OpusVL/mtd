@@ -12,6 +12,7 @@
                     <field name="charge_ref_number">Charge Ref Number</field>
                     <field name="processing_date">Processing Date</field>
                     <field name="company_id">Company</field>
+                    <field name="vrn">VAT Number</field>
                 </tree>
             </field>
         </record>

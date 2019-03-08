@@ -58,6 +58,7 @@ class MtdVatIssueRequest(models.Model):
                 "json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +
                 "headers:- {header}".format(header=header_items)
             )
+
             if record.endpoint_name == 'submit-vat-returns':
                 params = self.build_submit_vat_params(record)
                 response = requests.post(
@@ -90,6 +91,7 @@ class MtdVatIssueRequest(models.Model):
             "json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
+
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
@@ -180,7 +182,7 @@ class MtdVatIssueRequest(models.Model):
         response_logs = json.loads(response.text)
         submission_logs = self.env['mtd_vat.vat_submission_logs']
 
-        charge_Ref_Number=""
+        charge_Ref_Number="No Data Found"
         if 'chargeRefNumber' in response_logs.keys():
             charge_Ref_Number=response_logs['chargeRefNumber']
 
@@ -213,9 +215,10 @@ class MtdVatIssueRequest(models.Model):
         )
         record.response_from_hmrc = success_message
 
-        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'])
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
 
-    def copy_account_move_lines_to_storage(self, record, unique_number):
+    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
+
         retrieve_period = self.env['account.period'].search([
             ('date_start', '=', record.date_from),
             ('date_stop', '=', record.date_to),
@@ -244,11 +247,14 @@ class MtdVatIssueRequest(models.Model):
             if not stored_record:
                 storage_model.create(amended_move_line)
 
-        self.set_vat_for_account_move_line(move_lines_to_copy)
+        self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
-    def set_vat_for_account_move_line(self, account_move_lines):
+    def set_vat_for_account_move_line(self, account_move_lines, unique_number, submission_log):
+
         for line in account_move_lines:
             line.vat=True
+            line.vat_submission_id = submission_log
+            line.unique_number = unique_number
 
     def add_payments_logs(self, response=None, record=None):
         response_logs = json.loads(response.text)
@@ -321,6 +327,7 @@ class MtdVatIssueRequest(models.Model):
             obligation_logs.received = received
             obligation_logs.due = log['due']
             obligation_logs.company_id = record.company_id.id
+            obligation_logs.vrn = record.vrn
         else:
             obligation_logs = obligation_logs.create({
                 'name': "{} - {}".format(log["start"], log["end"]),
@@ -330,7 +337,8 @@ class MtdVatIssueRequest(models.Model):
                 'status': log['status'],
                 'received': received,
                 'due': log['due'],
-                'company_id': record.company_id.id
+                'company_id': record.company_id.id,
+                'vrn': record.vrn
             })
 
 
