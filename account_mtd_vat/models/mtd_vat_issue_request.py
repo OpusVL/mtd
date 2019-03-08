@@ -210,7 +210,12 @@ class MtdVatIssueRequest(models.Model):
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
                                                         time=datetime.now().time())
-                + "\nCongratulations ! The submission has been made successfully to HMRC. \n"
+                + "\nCongratulations ! The submission has been made successfully to HMRC. \n\n"
+                + "Period: {}\n".format(record.date_from, record.date_to)
+                + "Unique number: {}\n".format(response_logs['formBundleNumber'])
+                + "Payment indicator: {}\n".format(response_logs['paymentIndicator'])
+                + "Charge ref number: {}\n".format(charge_Ref_Number)
+                + "Processing date: {}\n\n".format(response_logs['processingDate'])
                 + "Please check the submission logs for details."
         )
         record.response_from_hmrc = success_message
