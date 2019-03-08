@@ -125,10 +125,10 @@
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', 'in', ['Retrieve VAT Obligations', 'Submit VAT Returns'])]}"/>
                             <button name="action_vat_connection"
-                                    type="object"
-                                    string="Submit VAT return"
-                                    class="oe_highlight"
-                                    attrs="{'invisible':[('finalise', '=', False)]}"/>
+                                type="object"
+                                string="Submit VAT return"
+                                class="oe_highlight"
+                                attrs="{'invisible':[('finalise', '=', False)]}"/>
                         </group>
                         <hr/>
                         <div>
