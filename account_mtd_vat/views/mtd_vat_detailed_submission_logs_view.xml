@@ -5,7 +5,7 @@
             <field name="name">vat.detailed.submission.logs</field>
             <field name="model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="arch" type="xml">
-                <tree create="false" delete="false" edit="false" context="{'group_by': 'company_id'}, {'group_by': 'unique_number'}">
+                <tree create="false" delete="false" edit="false">
                     <field name="journal_id">Journal</field>
                     <field name="period_id">Period</field>
                     <field name="date">Date</field>

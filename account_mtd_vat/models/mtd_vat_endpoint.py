@@ -244,6 +244,26 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
 
     @api.multi
+    def action_vat_breakdown(self, *args):
+
+        #get period Ids'
+        period_id = self.env['account.period'].search([
+            ('date_start', '=', self.date_from),
+            ('date_stop', '=', self.date_to),
+            ('company_id', '=', self.company_id.id)
+        ])
+        # Create on account.tax.chart, with period_id set to ^, and target_move set to either 'posted', or 'all'
+        # i.e wizard_rec = self.env['account.tax.chart'].create(<values>)
+        # call account_tax_chart_open_window() <-- This will give us a dictionary which by returning - will take us to the chart of taxes
+        # i.e chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
+        # {'view_id': x, 'target': 'new', 'context': {'default_company_id': <company_you_want>}}
+        wizard_rec = self.env['account.tax.chart'].create(dict(period_id=period_id.id, target_move='posted'))
+        chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
+        chart_of_taxes_view['target'] = 'new'
+
+        return chart_of_taxes_view
+
+    @api.multi
     def action_retrieve_vat(self, *args):
 
         # RESET FOLLOWING FIELDS SO THAT USER CAN VERIFY THESE ONCE vat HAS BEEN RETRIEVED
