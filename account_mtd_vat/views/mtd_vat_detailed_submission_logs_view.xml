@@ -55,6 +55,25 @@
                 </form>
             </field>
         </record>
-
+        <record id="view_mtd_vat_detailed_submission_logs_search" model="ir.ui.view">
+            <field name="name">mtd.vat.detailed.submission.logs.search</field>
+            <field name="model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="company_id"/>
+                    <field name="unique_number"/>
+                    <group position="inside" expand="0" string="Group By" >
+                        <filter name="group_by_company" string="Company" domain="[]" context="{'group_by': 'company_id'}"/>
+                        <filter name="group_by_unique_no" string="HMRC Unique No" domain="[]" context="{'group_by': 'unique_number'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="action_mtd_vat_detailed_submission_log">
+            <field name="name">VAT Detailed submission logs</field>
+            <field name="model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by':['company_id', 'unique_number']}</field>
+        </record>
     </data>
 </openerp>
