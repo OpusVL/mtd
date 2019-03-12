@@ -95,6 +95,7 @@ class MtdVatIssueRequest(models.Model):
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
+                self.show_log_button = True
                 self.add_obligation_logs(response, record)
             elif record.endpoint_name == "vat-liabilities":
                 self.add_liabilities_logs(response, record)
@@ -206,6 +207,7 @@ class MtdVatIssueRequest(models.Model):
             'total_value_goods_supplied_submit': record.total_value_goods_supplied_submit,
             'total_acquisitions_submit': record.total_acquisitions_submit,
             'company_id': record.company_id.id,
+            'redirect_url': record.hmrc_configuration.redirect_url
         })
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
@@ -280,13 +282,6 @@ class MtdVatIssueRequest(models.Model):
         record.response_from_hmrc = success_message
 
     def add_obligation_logs(self, response=None, record=None):
-        # success_message = (
-        #         "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-        #                                                 time=datetime.now().time())
-        #         + "Congratulations ! The connection succeeded. \n"
-        #         + "Please check the VAT logs. \n"
-        # )
-        # import pdb; pdb.set_trace()
 
         # retrieve action and menu id so we can provide a link to the obligation view.
         record.obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log')

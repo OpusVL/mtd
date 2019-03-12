@@ -31,11 +31,18 @@
                             <field name="vrn" readonly="1">VAT Number</field>
                             <field name="name">Period</field>
                             <field name="processing_date">Processing Date/time</field>
-                            <field name="unique_number">Unique Number</field>
                             <field name="payment_indicator">Payment Indicator</field>
                             <field name="charge_ref_number">Charge Ref Number</field>
+                            <field name="unique_number">Unique Number</field>
                             <field name="start" readonly="1" invisible="1"/>
                             <field name="end" readonly="1" invisible="1"/>
+                            <field name="redirect_url" invisible="1"/>
+                        </group>
+                        <group>
+                            <button name="action_Detailed_submission_Log_view"
+                                type="object"
+                                string="Detailed Submission log"
+                                class="oe_highlight"/>
                         </group>
                         <hr/>
                         <h4>HMRC have successfully received your submission and provided below are the details of submitted VAT values.</h4>

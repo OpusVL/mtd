@@ -20,6 +20,7 @@ class MtdVATSubmissionLogs(models.Model):
     payment_indicator = fields.Char()
     charge_ref_number = fields.Char()
     processing_date = fields.Datetime()
+    redirect_url = fields.Char()
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), readonly=True)
     vat_due_acquisitions_submit = fields.Float(
         "2. VAT due in this period on acquisitions from other EC Member States",
@@ -61,3 +62,19 @@ class MtdVATSubmissionLogs(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
+
+    @api.multi
+    def action_Detailed_submission_Log_view(self, *args):
+        detailed_submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_detailed_submission_log').id
+        detailed_submission_log_menu  = self.env.ref('account_mtd_vat.submenu_mtd_vat_detailed_submission_log').id
+
+        redirect_url = self.redirect_url
+        redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
+            + "&menu_id={menu}&action={action}".format(
+            menu=detailed_submission_log_menu,
+            action=detailed_submission_log_action
+        ))
+
+        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new', 'context': {'group_by': '{}'.format(
+            self.unique_number)}
+        }

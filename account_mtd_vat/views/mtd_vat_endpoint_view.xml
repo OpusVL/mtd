@@ -35,6 +35,7 @@
                             <field name="path" invisible="1"/>
                             <field name="endpoint_name" invisible="1"/>
                             <field name="obligation_status" invisible="1"/>
+                            <field name="show_obligation_log_button" invisible="1"/>
                             <field name="obligation_company" invisible="1"/>
                             <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
@@ -56,7 +57,9 @@
                                     type="object"
                                     string="View VAT Breakdown"
                                     class="oe_highlight"
-                                    attrs="{'invisible':[('submit_vat_flag', '=', 'False')]}"/>
+                                    attrs="{'invisible':['|',
+                                    ('name', '!=', 'Submit VAT Returns'),
+                                    ('submit_vat_flag', '=', 'False')]}"/>
                             </div>
                         </group>
                         <group>
@@ -91,13 +94,6 @@
                                    readonly="1"/>
                         </group>
                         <group>
-                            <button name="action_submission_log_view"
-                                type="object"
-                                string="View Submission history"
-                                class="oe_highlight"
-                                attrs="{'invisible':[('submit_vat_flag', '=', 'False')]}"/>
-                        </group>
-                        <group>
                             <label for="client_type"
                                    string="Are you a business or agent?"
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
@@ -121,16 +117,16 @@
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
                         </group>
                         <group>
-                            <button name="action_vat_connection"
+                            <!--<button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve Vat Obligation"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>-->
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Connect to HMRC"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', 'in', ['Retrieve VAT Obligations', 'Submit VAT Returns'])]}"/>
+                                attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}"/>
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Submit VAT return"
@@ -148,9 +144,18 @@
                             ]}"/>
                             <button name="action_go_to_obligation_logs"
                                 type="object"
-                                string="Please click here to view Obligation log"
+                                string="View Obligation log"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
+                            <group>
+                            <button name="action_submission_log_view"
+                                type="object"
+                                string="View Submission history"
+                                class="oe_highlight"
+                                attrs="{'invisible':['|',
+                                ('name', '!=', 'Submit VAT Returns'),
+                                ('submit_vat_flag', '=', 'False')]}"/>
+                            </group>
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>
                                 <field name="period_key" invisible="1"/>

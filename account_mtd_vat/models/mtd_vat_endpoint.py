@@ -66,6 +66,7 @@ class MtdVATEndpoints(models.Model):
     #     compute='_compute_retrieve_vat_obligation_rec')
     obligation_status = fields.Char(compute="_compute_obligation_status_company")
     obligation_company = fields.Integer(compute="_compute_obligation_status_company")
+    show_obligation_log_button = fields.Boolean(default=True)
     # obligation_link = fields.Char(related='select_vat_obligation.name')
     # show_obligation_link = fields.Boolean(default=False)
 
