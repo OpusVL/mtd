@@ -91,6 +91,13 @@
                                    readonly="1"/>
                         </group>
                         <group>
+                            <button name="action_submission_log_view"
+                                type="object"
+                                string="View Submission history"
+                                class="oe_highlight"
+                                attrs="{'invisible':[('submit_vat_flag', '=', 'False')]}"/>
+                        </group>
+                        <group>
                             <label for="client_type"
                                    string="Are you a business or agent?"
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
@@ -139,10 +146,11 @@
                             <field name="response_from_hmrc" string="" attrs="{'invisible':[
                             ('view_vat_flag', '=', True)
                             ]}"/>
-                            <!--<field name="show_obligation_link" invisible="1"/>
-                            <field name="obligation_link"
-                                   string="Please check the VAT logs here"
-                                   attrs="{'invisible':[('show_obligation_link', '=', False)]}"/>-->
+                            <button name="action_go_to_obligation_logs"
+                                type="object"
+                                string="Please click here to view Obligation log"
+                                class="oe_highlight"
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>
                                 <field name="period_key" invisible="1"/>

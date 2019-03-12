@@ -36,6 +36,8 @@ class MtdVATEndpoints(models.Model):
     _name = 'mtd_vat.vat_endpoints'
     _description = "Vat endpoints"
 
+
+
     name = fields.Char('Name', required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
@@ -187,6 +189,7 @@ class MtdVATEndpoints(models.Model):
                  + "checkbox and then submit to HMRC"))
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange= fields.Boolean(string="I confirm and finalise", default=False)
+
 
     @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_fields(self):
@@ -405,4 +408,30 @@ class MtdVATEndpoints(models.Model):
                 path=self.path
             )
 
+    @api.multi
+    def action_go_to_obligation_logs(self, *args):
+        obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log').id
+        obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log').id
 
+        redirect_url = self.hmrc_configuration.redirect_url
+        redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
+            +"&menu_id={menu}&action={action}".format(
+            menu=obligation_log_menu,
+            action=obligation_log_action
+        ))
+
+        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
+
+    @api.multi
+    def action_submission_log_view(self, *args):
+        submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_submission_log').id
+        submission_log_menu  = self.env.ref('account_mtd_vat.submenu_mtd_vat_submission_log').id
+
+        redirect_url = self.hmrc_configuration.redirect_url
+        redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
+            +"&menu_id={menu}&action={action}".format(
+            menu=submission_log_menu,
+            action=submission_log_action
+        ))
+
+        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}

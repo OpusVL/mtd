@@ -288,6 +288,10 @@ class MtdVatIssueRequest(models.Model):
         # )
         # import pdb; pdb.set_trace()
 
+        # retrieve action and menu id so we can provide a link to the obligation view.
+        record.obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log')
+        record.obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log')
+
         response_logs = json.loads(response.text)
         logs = response_logs['obligations']
         obligation_message = ""
@@ -316,11 +320,11 @@ class MtdVatIssueRequest(models.Model):
             "Date {date}     Time {time} \n\n{obligations}".format(date=datetime.now().date(),
                                                         time=datetime.now().time(),
                                                         obligations=obligation_message)
-            + "Please check the VAT logs here"
         )
         #record.show_obligation_link = True
 
         record.response_from_hmrc = success_message
+        record.obligation_log_link = "Please check the VAT logs here"
 
     def update_write_obligation(self, log, received, obligation_logs, record):
         if obligation_logs:
