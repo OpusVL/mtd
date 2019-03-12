@@ -42,7 +42,7 @@
             sequence="10"
             action="action_mtd_vat_submission_log"/>
         <menuitem id="submenu_mtd_vat_detailed_submission_log"
-            name="VAT Detailed submission logs"
+            name="VAT Detailed Submission Logs"
             parent="submenu_vat_logs_hmrc"
             sequence="20"
             action="action_mtd_vat_detailed_submission_log"/>

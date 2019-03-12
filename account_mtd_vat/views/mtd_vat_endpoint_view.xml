@@ -124,7 +124,7 @@
                                 attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>-->
                             <button name="action_vat_connection"
                                 type="object"
-                                string="Connect to HMRC"
+                                string="Retrieve from HMRC"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}"/>
                             <button name="action_vat_connection"
@@ -144,13 +144,13 @@
                             ]}"/>
                             <button name="action_go_to_obligation_logs"
                                 type="object"
-                                string="View Obligation log"
+                                string="View Obligation Logs"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
                             <group>
                             <button name="action_submission_log_view"
                                 type="object"
-                                string="View Submission history"
+                                string="View Submission Logs"
                                 class="oe_highlight"
                                 attrs="{'invisible':['|',
                                 ('name', '!=', 'Submit VAT Returns'),
