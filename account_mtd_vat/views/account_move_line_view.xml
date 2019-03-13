@@ -13,5 +13,19 @@
                 </field>
             </field>
         </record>
+
+        <record id="mtd_vat_view_move_line_form" model="ir.ui.view">
+            <field name="name">mtd.vat.account.move.line.form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_form"/>
+            <field eval="2" name="priority"/>
+            <field name="arch" type="xml">
+                <field name="account_tax_id" position="after">
+                    <field name="vat"/>
+                    <field name="unique_number"/>
+                    <field name="vat_submission_id"/>
+                </field>
+            </field>
+        </record>
     </data>
 </openerp>
