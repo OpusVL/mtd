@@ -2,7 +2,7 @@
 <openerp>
     <data>
         <record id="mtd_vat_gorups_category" model="ir.module.category">
-            <field name="name">MTD VAT user group</field>
+            <field name="name">MTD VAT</field>
         </record>
         <record id="mtd_vat_admin" model="res.groups">
             <field name="category_id" ref="mtd_vat_gorups_category"/>

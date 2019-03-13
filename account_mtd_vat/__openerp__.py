@@ -40,7 +40,7 @@
         'data/vat_api_scope.xml',
 
         'security/groups.xml',
-        # 'security/ir.model.access.csv',
+        'security/ir.model.access.csv',
         # 'security/user_access_rules.xml',
 
         'views/account_move_line_view.xml',
