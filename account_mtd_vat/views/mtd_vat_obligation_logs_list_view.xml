@@ -44,5 +44,25 @@
                 </form>
             </field>
         </record>
+
+        <record id="view_mtd_vat_obligation_logs_search" model="ir.ui.view">
+            <field name="name">mtd.vat.obligation.logs.search</field>
+            <field name="model">mtd_vat.vat_obligations_logs</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="company_id"/>
+                    <group position="inside" expand="0" string="Group By" >
+                        <filter name="group_by_company" string="Company" domain="[]" context="{'group_by': 'company_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+        <record model="ir.actions.act_window" id="action_mtd_vat_obligation_log">
+            <field name="name">VAT Obligations Log</field>
+            <field name="model">mtd_vat.vat_obligations_logs</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by':['company_id']}</field>
+        </record>
+
     </data>
 </openerp>

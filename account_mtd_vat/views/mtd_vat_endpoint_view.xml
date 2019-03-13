@@ -53,17 +53,19 @@
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                             <div class="oe_button_box oe_right">
+
+                                <field name="submit_vat_flag" invisible="1"/>
                                 <button name="action_vat_breakdown"
                                     type="object"
                                     string="View VAT Breakdown"
                                     class="oe_highlight"
                                     attrs="{'invisible':['|',
-                                    ('name', '!=', 'Submit VAT Returns'),
-                                    ('submit_vat_flag', '=', 'False')]}"/>
+                                    ('submit_vat_flag', '=', False),
+                                    ('name', '!=', 'Submit VAT Returns')
+                                    ]}"/>
                             </div>
                         </group>
                         <group>
-                            <field name="submit_vat_flag" invisible="1"/>
                             <field name="period_key_submit" invisible="1"/>
                             <field name="vat_due_sales_submit"
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
@@ -154,7 +156,7 @@
                                 class="oe_highlight"
                                 attrs="{'invisible':['|',
                                 ('name', '!=', 'Submit VAT Returns'),
-                                ('submit_vat_flag', '=', 'False')]}"/>
+                                ('submit_vat_flag', '=', False)]}"/>
                             </group>
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>

@@ -57,10 +57,10 @@ class MtdVATEndpoints(models.Model):
     ])
     gov_test_scenario = fields.Many2one('gov.test.scenario', string='Gov-Test-Scenario')
     x_correlation_id = fields.Char('X-CorrelationId')
-    response_from_hmrc = fields.Text(string="Response from HMRC", readonly=True)
+    response_from_hmrc = fields.Text(string="Response from HMRC", readonly=True, default="")
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
-    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs')
+    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs', defaule="")
     # retrieve_vat_obligation_first = fields.Many2one(
     #     comodel_name='mtd_vat.vat_endpoints',
     #     compute='_compute_retrieve_vat_obligation_rec')
@@ -95,42 +95,51 @@ class MtdVATEndpoints(models.Model):
     # need to display the result in the field rather than in a Text field
     view_vat_flag = fields.Boolean(default=False)
     period_key = fields.Char(related='select_vat_obligation.period_key', readonly=True)
-    vat_due_sales = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), readonly=True)
+    vat_due_sales = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2),
+        readonly=True,
+        default=0.00)
     vat_due_acquisitions = fields.Float(
         "2. VAT due in this period on acquisitions from other EC Member States",
         (13, 2),
-        readonly=True
+        readonly=True,
+        default=0.00
     )
-    total_vat_due = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2), readonly=True)
+    total_vat_due = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2), readonly=True, default=0.00)
     vat_reclaimed = fields.Float(
         "4. VAT reclaimed in this period on purchases and other inputs (including acquisitions from the EC)",
         (13, 2),
-        readonly=True
+        readonly=True,
+        default=0.00
     )
     net_vat_due = fields.Float(
         "5. Net VAT to be paid to HMRC or reclaimed by you (Difference between boxes 3 and 4)",
         (11, 2),
-        readonly=True
+        readonly=True,
+        default=0.00
     )
     total_value_sales = fields.Float(
         "6. Total value of sales and all other outputs excluding any VAT. (Includes box 8 figure)",
         (13, 0),
-        readonly=True
+        readonly=True,
+        default=0
     )
     total_value_purchase = fields.Float(
         "7. Total value of purchases and all other inputs excluding any VAT. (Include box 9 figure)",
         (13, 0),
-        readonly=True
+        readonly=True,
+        default=0
     )
     total_value_goods_supplied = fields.Float(
         "8. Total value of all supplies of goods and related costs, excluding any VAT, to other EC Member States",
         (13, 0),
-        readonly=True
+        readonly=True,
+        default=0
     )
     total_acquisitions = fields.Float(
         "9. Total value of all acquisitions of goods and related costs, excluding any VAT, from other EC Member States",
         (13, 0),
-        readonly=True
+        readonly=True,
+        default=0
     )
 
     # submit vat fields
@@ -191,30 +200,28 @@ class MtdVATEndpoints(models.Model):
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange= fields.Boolean(string="I confirm and finalise", default=False)
 
+    @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
+    def onchange_reset_vat_obligation(self):
+        if self.name in ("Submit VAt Returns", "View VAT Returns"):
+            self.select_vat_obligation = ""
 
     @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_fields(self):
-        self.search([('vat_due_sales_submit', '!=', False)]).write({
-            'vat_due_sales_submit': self.default_get(['vat_due_sales_submit'])['vat_due_sales_submit'],
-            'vat_due_acquisitions_submit': self.default_get(['vat_due_acquisitions_submit'])['vat_due_acquisitions_submit'],
-            'total_vat_due_submit': self.default_get(['total_vat_due_submit'])['total_vat_due_submit'],
-            'vat_reclaimed_submit': self.default_get(['vat_reclaimed_submit'])['vat_reclaimed_submit'],
-            'net_vat_due_submit': self.default_get(['net_vat_due_submit'])['net_vat_due_submit'],
-            'total_value_sales_submit': self.default_get(['total_value_sales_submit'])['total_value_sales_submit'],
-            'total_value_purchase_submit': self.default_get(['total_value_purchase_submit'])['total_value_purchase_submit'],
-            'total_value_goods_supplied_submit': self.default_get(['total_value_goods_supplied_submit'])['total_value_goods_supplied_submit'],
-            'total_acquisitions_submit': self.default_get(['total_acquisitions_submit'])['total_acquisitions_submit'],
+        self.submit_vat_flag = False
+        self.view_vat_flag = False
+        self.finalise = False
+
+        self.search([('response_from_hmrc', '!=', False)]).write({
+            'response_from_hmrc': self.default_get(['response_from_hmrc'])['response_from_hmrc']
         })
 
-        self.vat_due_sales_submit = False
-        self.vat_due_acquisitions_submit = False
-        self.total_vat_due_submit = False
-        self.vat_reclaimed_submit = False
-        self.net_vat_due_submit = False
-        self.total_value_sales_submit = False
-        self.total_value_purchase_submit = False
-        self.total_value_goods_supplied_submit = False
-        self.total_acquisitions_submit = False
+        self.response_from_hmrc = ""
+
+        if self.name == "Submit VAt Returns":
+            self.reset_vat_submission_values()
+
+        elif self.name == "View VAT Returns":
+            self.reset_view_vat_returns_values()
 
     @api.multi
     def action_vat_connection(self):
@@ -222,6 +229,9 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning("Please select HMRC configuration before continuing!")
         elif not self.vrn:
             raise exceptions.Warning("Please enter the VRN")
+        if self.name in ("Submit VAt Returns", "View VAT Returns") and not self.select_vat_obligation:
+            raise exceptions.Warning("Please select a VAT Obligation")
+
 
         endpoint_record = self.env['ir.model.data'].search([
             ('res_id', '=', self.id),
@@ -436,3 +446,53 @@ class MtdVATEndpoints(models.Model):
         ))
 
         return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
+
+    def reset_vat_submission_values(self):
+        self.search([('vat_due_sales_submit', '!=', False)]).write({
+            'vat_due_sales_submit': self.default_get(['vat_due_sales_submit'])['vat_due_sales_submit'],
+            'vat_due_acquisitions_submit': self.default_get(['vat_due_acquisitions_submit'])[
+                'vat_due_acquisitions_submit'],
+            'total_vat_due_submit': self.default_get(['total_vat_due_submit'])['total_vat_due_submit'],
+            'vat_reclaimed_submit': self.default_get(['vat_reclaimed_submit'])['vat_reclaimed_submit'],
+            'net_vat_due_submit': self.default_get(['net_vat_due_submit'])['net_vat_due_submit'],
+            'total_value_sales_submit': self.default_get(['total_value_sales_submit'])['total_value_sales_submit'],
+            'total_value_purchase_submit': self.default_get(['total_value_purchase_submit'])[
+                'total_value_purchase_submit'],
+            'total_value_goods_supplied_submit': self.default_get(['total_value_goods_supplied_submit'])[
+                'total_value_goods_supplied_submit'],
+            'total_acquisitions_submit': self.default_get(['total_acquisitions_submit'])['total_acquisitions_submit'],
+        })
+
+        self.vat_due_sales_submit = False
+        self.vat_due_acquisitions_submit = False
+        self.total_vat_due_submit = False
+        self.vat_reclaimed_submit = False
+        self.net_vat_due_submit = False
+        self.total_value_sales_submit = False
+        self.total_value_purchase_submit = False
+        self.total_value_goods_supplied_submit = False
+        self.total_acquisitions_submit = False
+
+    def reset_view_vat_returns_values(self):
+        self.view_vat_flag = False
+        self.search([('vat_due_sales', '!=', False)]).write({
+            'vat_due_sales': self.default_get(['vat_due_sales'])['vat_due_sales'],
+            'vat_due_acquisitions': self.default_get(['vat_due_acquisitions'])['vat_due_acquisitions'],
+            'total_vat_due': self.default_get(['total_vat_due'])['total_vat_due'],
+            'vat_reclaimed': self.default_get(['vat_reclaimed'])['vat_reclaimed'],
+            'net_vat_due': self.default_get(['net_vat_due'])['net_vat_due'],
+            'total_value_sales': self.default_get(['total_value_sales'])['total_value_sales'],
+            'total_value_purchase': self.default_get(['total_value_purchase'])['total_value_purchase'],
+            'total_value_goods_supplied': self.default_get(['total_value_goods_supplied'])['total_value_goods_supplied'],
+            'total_acquisitions': self.default_get(['total_acquisitions'])['total_acquisitions'],
+        })
+
+        self.vat_due_sales = False
+        self.vat_due_acquisitions = False
+        self.total_vat_due = False
+        self.vat_reclaimed = False
+        self.net_vat_due = False
+        self.total_value_sales = False
+        self.total_value_purchase = False
+        self.total_value_goods_supplied = False
+        self.total_acquisitions = False
