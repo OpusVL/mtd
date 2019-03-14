@@ -20,6 +20,7 @@
                     <field name="reconcile_ref">Reconcile Ref</field>
                     <field name="unique_number">HMRC Unique No</field>
                     <field name="company_id">Company</field>
+                    <field name="md5_integrity_value">MD5</field>
                 </tree>
             </field>
         </record>
@@ -39,6 +40,7 @@
                                 <field name="ref">Reference</field>
                                 <field name="partner_id">Partner</field>
                                 <field name="account_id">Account</field>
+                                <field name="md5_integrity_value">MD5</field>
                             </group>
                             <group>
                                 <field name="account_tax_id">Tax</field>

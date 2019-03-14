@@ -5,11 +5,50 @@ import json
 import logging
 import werkzeug
 import urllib
+import hashlib
 
 from openerp import models, fields, api, exceptions
 from datetime import datetime
 
 _logger = logging.getLogger(__name__)
+
+detailed_submission_list = [
+    'statement_id',
+    'create_date',
+    'company_id',
+    'currency_id',
+    'date_maturity',
+    'partner_id',
+    'reconcile_partial_id',
+    'blocked',
+    'analytic_account_id',
+    'create_uid',
+    'credit',
+    'centralisation',
+    'journal_id',
+    'reconcile_id',
+    'tax_code_id',
+    'state',
+    'debit',
+    'ref',
+    'account_id',
+    'period_id',
+    'write_date',
+    'date_created',
+    'date',
+    'write_uid',
+    'move_id',
+    'product_id',
+    'reconcile_ref',
+    'name',
+    'tax_amount',
+    'account_tax_id',
+    'product_uom_id',
+    'amount_currency',
+    'quantity',
+    'unique_number',
+    'account_move_line_id'
+]
 
 
 class MtdVatIssueRequest(models.Model):
@@ -256,6 +295,9 @@ class MtdVatIssueRequest(models.Model):
 
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
+        #get md5 hash value
+        hash_object = self.get_hash_object_for_submission(unique_number, record.company_id.id)
+
     def set_vat_for_account_move_line(self, account_move_lines, unique_number, submission_log):
 
         for line in account_move_lines:
@@ -376,3 +418,44 @@ class MtdVatIssueRequest(models.Model):
         }
         return params
 
+    def get_hash_object_for_submission(self, unique_number, company_id):
+
+        # get unique ref no and based on that get all general items for that unique ref no
+        # loop through the journal items make it into a string and then get the md5 no  and then store it in the
+        # detailed submission logs and in accounts journal items
+
+        journal_items_for_integrity = self.env['mtd_vat.vat_detailed_submission_logs'].search([
+            ('unique_number', '=', unique_number)
+        ])
+
+        #get the md5 value for the last submission of the company and remove the record with current unique number
+        submission_log_md5_value = self.env['mtd_vat.vat_submission_logs'].search(
+            [('company_id', '=', company_id), ('unique_number', '!=', unique_number)],
+            order="id desc",
+            limit=1).md5_integrity_value
+
+        journal_entry_dict = {}
+        journal_entry_list = []
+        if journal_items_for_integrity:
+            for record in journal_items_for_integrity:
+                record_id = record.id
+                for field in detailed_submission_list:
+                    journal_entry_list.append(record[field])
+
+                journal_entry_dict[record_id] = journal_entry_list
+
+            # update the previousmd5 valueto the list
+
+            journal_entry_list.append(submission_log_md5_value)
+            hash_value = hashlib.md5(str(journal_entry_dict))
+
+            # update the hash value in the detailed submission table
+            for record in journal_items_for_integrity:
+                record.md5_integrity_value = hash_value.hexdigest()
+
+            #get the submission record and update the submission record with the md5 value
+
+            submission_log_record = self.env['mtd_vat.vat_submission_logs'].search([
+                ('unique_number', '=', unique_number)
+            ])
+            submission_log_record.md5_integrity_value = hash_value.hexdigest()

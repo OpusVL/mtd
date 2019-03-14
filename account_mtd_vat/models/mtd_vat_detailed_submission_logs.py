@@ -49,3 +49,4 @@ class MtdVATDetailedSubmissionLogs(models.Model):
 
     unique_number = fields.Char(string='HMRC Unique No', readonly=True)
     account_move_line_id = fields.Many2one('account.move.line', readonly=True)
+    md5_integrity_value = fields.Char(string="MD5", readonly=True)

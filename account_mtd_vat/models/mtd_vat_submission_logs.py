@@ -62,19 +62,27 @@ class MtdVATSubmissionLogs(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
+    md5_integrity_value = fields.Char(string="MD5", readonly=True)
+
 
     @api.multi
     def action_Detailed_submission_Log_view(self, *args):
+
         detailed_submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_detailed_submission_log').id
         detailed_submission_log_menu  = self.env.ref('account_mtd_vat.submenu_mtd_vat_detailed_submission_log').id
 
         redirect_url = self.redirect_url
+        redirect_urlredirect_url = self.redirect_url
         redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
             + "&menu_id={menu}&action={action}".format(
             menu=detailed_submission_log_menu,
             action=detailed_submission_log_action
         ))
+        context = 'unique_number: self.unique_number'
 
-        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new', 'context': {'group_by': '{}'.format(
-            self.unique_number)}
+        return {'url': redirect_url,
+                'type': 'ir.actions.act_url',
+                'target': 'new',
+                # 'domain': "['unique_number', '=', '%s']" % self.unique_number,
+                'context': {'default_search_unique_number':1}
         }
