@@ -36,8 +36,6 @@ class MtdVATEndpoints(models.Model):
     _name = 'mtd_vat.vat_endpoints'
     _description = "Vat endpoints"
 
-
-
     name = fields.Char('Name', required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')

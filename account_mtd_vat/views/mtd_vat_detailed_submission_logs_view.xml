@@ -62,7 +62,7 @@
             <field name="arch" type="xml">
                 <search>
                     <field name="company_id"/>
-                    <field name="unique_number"/>
+                    <field name="unique_number" string='Unique Number' filter_domain="[('unique_number', 'like', self)]"/>
                     <group position="inside" expand="0" string="Group By" >
                         <filter name="group_by_company" string="Company" domain="[]" context="{'group_by': 'company_id'}"/>
                         <filter name="group_by_unique_no" string="HMRC Unique No" domain="[]" context="{'group_by': 'unique_number'}"/>

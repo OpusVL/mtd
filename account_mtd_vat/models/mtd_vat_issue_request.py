@@ -109,9 +109,23 @@ class MtdVatIssueRequest(models.Model):
             else:
                 response = requests.get(hmrc_connection_url, timeout=timeout, headers=header_items)
             return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
+
         except ValueError:
             if api_tracker:
                 api_tracker.closed = 'error'
+            error_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(), time=datetime.now().time())
+                + "Sorry. The connection failed ! \n"
+                + "Please check the log below for details. \n\n"
+                + "Connection Status Details: \n"
+                + "Request Sent: \n{auth_url} \n\n".format(auth_url=hmrc_connection_url)
+                + "Error Code:\n{code} \n\n".format(code=response.text)
+            #     + "Response Received: {resp_error}\n{message}{resp_error_message}".format(
+            # resp_error=resp_error,
+            # message=resp_message,
+            # resp_error_message=resp_error_message
+        )
+            record.response_from_hmrc = error_message
 
             if api_tracker:
                 return werkzeug.utils.redirect(
@@ -130,7 +144,6 @@ class MtdVatIssueRequest(models.Model):
             "json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
-
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
@@ -146,9 +159,9 @@ class MtdVatIssueRequest(models.Model):
                 self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
 
-
         elif (response.status_code == 401 and
               response_token['message'] == "Invalid Authentication information provided"):
+
             _logger.info(
                 "json_command - code 401 found, user button clicked,  " +
                 "and message was:- {} ".format(response_token['message'])
@@ -220,11 +233,31 @@ class MtdVatIssueRequest(models.Model):
     def add_submit_vat_returns(self, response=None, record=None):
 
         response_logs = json.loads(response.text)
-        submission_logs = self.env['mtd_vat.vat_submission_logs']
 
         charge_Ref_Number="No Data Found"
         if 'chargeRefNumber' in response_logs.keys():
             charge_Ref_Number=response_logs['chargeRefNumber']
+
+        submission_log = self.create_submission_log_entry(response_logs, record, charge_Ref_Number)
+
+        success_message = (
+                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
+                                                        time=datetime.now().time())
+                + "\nCongratulations ! The submission has been made successfully to HMRC. \n\n"
+                + "Period: {}\n".format(record.date_from, record.date_to)
+                + "Unique number: {}\n".format(response_logs['formBundleNumber'])
+                + "Payment indicator: {}\n".format(response_logs['paymentIndicator'])
+                + "Charge ref number: {}\n".format(charge_Ref_Number)
+                + "Processing date: {}\n\n".format(response_logs['processingDate'])
+                + "Please check the submission logs for details."
+        )
+        record.response_from_hmrc = success_message
+
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
+
+    def create_submission_log_entry(self, response_logs, record, charge_Ref_Number):
+
+        submission_logs = self.env['mtd_vat.vat_submission_logs']
 
         submission_log = submission_logs.create({
             'name': "{} - {}".format(record.date_from, record.date_to),
@@ -248,20 +281,6 @@ class MtdVatIssueRequest(models.Model):
             'company_id': record.company_id.id,
             'redirect_url': record.hmrc_configuration.redirect_url
         })
-        success_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-                                                        time=datetime.now().time())
-                + "\nCongratulations ! The submission has been made successfully to HMRC. \n\n"
-                + "Period: {}\n".format(record.date_from, record.date_to)
-                + "Unique number: {}\n".format(response_logs['formBundleNumber'])
-                + "Payment indicator: {}\n".format(response_logs['paymentIndicator'])
-                + "Charge ref number: {}\n".format(charge_Ref_Number)
-                + "Processing date: {}\n\n".format(response_logs['processingDate'])
-                + "Please check the submission logs for details."
-        )
-        record.response_from_hmrc = success_message
-
-        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
@@ -389,8 +408,8 @@ class MtdVatIssueRequest(models.Model):
 
 
     def display_view_returns(self, response=None, record=None):
+
         response_logs = json.loads(response.text)
-        record.view_vat_flag = True
         record.period_key = response_logs['periodKey']
         record.vat_due_sales = response_logs['vatDueSales']
         record.vat_due_acquisitions = response_logs['vatDueAcquisitions']
