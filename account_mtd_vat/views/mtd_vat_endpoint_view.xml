@@ -8,7 +8,7 @@
             <field name="name">VAT connection to hmrc form</field>
             <field name="model">mtd_vat.vat_endpoints</field>
             <field name="arch" type="xml">
-                <form string="VAT Connection to HMRC">
+                <form string="VAT Connection to HMRC" create="false" delete="false">
                     <sheet>
                         <div>
                             <h2>
@@ -108,7 +108,9 @@
                         </group>
                         <field name="business_declaration"
                                string="Declaration"
-                               attrs="{'invisible':[('client_type', '!=', 'business')]}"/>
+                               attrs="{'invisible':['|',
+                               ('client_type', '!=', 'business'),
+                               ('submit_vat_flag', '=', False)]}"/>
                         <field name="agent_declaration"
                                string="Declaration"
                                attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>

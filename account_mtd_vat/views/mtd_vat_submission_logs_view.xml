@@ -21,7 +21,7 @@
             <field name="name">vat.submission.logs.form</field>
             <field name="model">mtd_vat.vat_submission_logs</field>
             <field name="arch" type="xml">
-                <form string="submission Logs" > <!--create="false" delete="false" edit="false">-->
+                <form string="submission Logs" create="false" delete="false" edit="false"> <!--create="false" delete="false" edit="false">-->
                     <sheet>
                         <h2>VAT Submission Record</h2>
                         <h4>Response received from HMRC:</h4>

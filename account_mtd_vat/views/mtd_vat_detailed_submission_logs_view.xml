@@ -27,8 +27,7 @@
             <field name="name">vat.detailed.submission.logs.form</field>
             <field name="model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="arch" type="xml">
-                <tree default_order="company_id"/>
-                <form string="Detailed submission Logs">
+                <form string="Detailed submission Logs" create="false" delete="false" edit="false">
                     <sheet create="false" delete="false" edit="false">
                         <h2>VAT Detailed Submission Record</h2>
                         <group>

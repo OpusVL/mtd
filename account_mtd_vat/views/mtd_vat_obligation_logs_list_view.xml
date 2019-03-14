@@ -25,7 +25,7 @@
             <field name="name">vat.obligation.logs.form</field>
             <field name="model">mtd_vat.vat_obligations_logs</field>
             <field name="arch" type="xml">
-                <form string="Obligation Logs" > <!--create="false" delete="false" edit="false">-->
+                <form string="Obligation Logs" create="false" delete="false" edit="false" > <!--create="false" delete="false" edit="false">-->
                     <sheet>
                         <group>
                             <field name="name" readonly="1"/>
