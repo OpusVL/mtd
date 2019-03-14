@@ -40,8 +40,9 @@
                             <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
                                 attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
-                                domain="([('status', '=', obligation_status), ('company_id', '=', obligation_company)])"
+                                domain="([('company_id', '=', obligation_company)])"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                            <!--('status', '=', obligation_status), -->
                             <!--<field name="retrieve_vat_obligation_first"
                                    string="Please retrive VAT obligation here"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->

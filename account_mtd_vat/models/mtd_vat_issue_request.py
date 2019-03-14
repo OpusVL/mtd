@@ -58,6 +58,7 @@ class MtdVatIssueRequest(models.Model):
     @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
         try:
+
             record = self.env[module_name].search([('id', '=', record_id)])
             _logger.info(
                 "json_command - we need to find the record and assign it to self"
@@ -71,16 +72,14 @@ class MtdVatIssueRequest(models.Model):
             # refresh_token = token_record.refresh_token if token_record else ""
 
             header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
-            if record.endpoint_name in ("vat-obligation",
-                "vat-liabilities",
-                "vat-payments",
-                "view-vat-returns",
-                "submit-vat-returns"
-            ):
-                header_items["authorization"] = ("Bearer " + str(access_token))
-                header_items["Content-Type"] = ("application/json")
-                if record.gov_test_scenario:
-                    header_items["Gov-Test-Scenario"] = (record.gov_test_scenario.name)
+            header_items["authorization"] = ("Bearer " + str(access_token))
+            header_items["scope"] = record.scope
+            header_items["Content-Type"] = ("application/json")
+            # if record.endpoint_name == "view-vat-returns":
+            #     header_items["scope"] = record.scope
+
+            if record.gov_test_scenario:
+                header_items["Gov-Test-Scenario"] = (record.gov_test_scenario.name)
 
             if record.endpoint_name in ('submit-vat-returns', 'view-vat-returns'):
                 date_from = record.select_vat_obligation.start
@@ -154,8 +153,10 @@ class MtdVatIssueRequest(models.Model):
             elif record.endpoint_name == "vat-payments":
                 self.add_payments_logs(response, record)
             elif record.endpoint_name == "view-vat-returns":
+                record.view_vat_flag = True
                 self.display_view_returns(response, record)
             elif record.endpoint_name == "submit-vat-returns":
+                record.submit_vat_flag=True
                 self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
 
@@ -281,6 +282,7 @@ class MtdVatIssueRequest(models.Model):
             'company_id': record.company_id.id,
             'redirect_url': record.hmrc_configuration.redirect_url
         })
+        return submission_log
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
@@ -321,7 +323,7 @@ class MtdVatIssueRequest(models.Model):
 
         for line in account_move_lines:
             line.vat=True
-            line.vat_submission_id = submission_log
+            line.vat_submission_id = submission_log.id
             line.unique_number = unique_number
 
     def add_payments_logs(self, response=None, record=None):

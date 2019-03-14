@@ -198,6 +198,7 @@ class MtdVATEndpoints(models.Model):
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange= fields.Boolean(string="I confirm and finalise", default=False)
 
+
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
         if self.name in ("Submit VAt Returns", "View VAT Returns"):
@@ -348,9 +349,11 @@ class MtdVATEndpoints(models.Model):
         return self.process_connection()
 
     def _handle_vat_returns_view_endpoint(self):
+
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=self.vrn, key=period_key)
         self.endpoint_name = "view-vat-returns"
+
 
         return self.process_connection()
 
