@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class MtdVATObligationLogs(models.Model):
     _name = 'mtd_vat.vat_obligations_logs'
-    _description = "Vat Obligations Logs"
+    _description = "Vat Obligation Log"
 
     name = fields.Char(string="Period")
     start = fields.Date()

@@ -58,7 +58,7 @@
             </field>
         </record>
         <record model="ir.actions.act_window" id="action_mtd_vat_obligation_log">
-            <field name="name">VAT Obligations Log</field>
+            <field name="name">VAT Obligation Log</field>
             <field name="model">mtd_vat.vat_obligations_logs</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{'group_by':['company_id']}</field>

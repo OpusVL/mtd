@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class MtdVATSubmissionLogs(models.Model):
     _name = 'mtd_vat.vat_submission_logs'
-    _description = "Vat Submission Logs"
+    _description = "Vat Submission Log"
 
     name = fields.Char(string="Period")
     submission_status = fields.Char()

@@ -6,7 +6,7 @@
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_obligation_log"
-            name="VAT Obligations Log"
+            name="VAT Obligation Log"
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_submission_log"
@@ -14,7 +14,7 @@
             res_model="mtd_vat.vat_submission_logs"
             view_mode="tree,form" />
         <!--<act_window id="action_mtd_vat_detailed_submission_log"
-            name="VAT Detailed submission logs"
+            name="VAT Detailed Submission Log"
             res_model="mtd_vat.vat_detailed_submission_logs"
             view_mode="tree,form"
             />-->
