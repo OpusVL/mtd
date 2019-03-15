@@ -74,5 +74,5 @@ class MtdVATSubmissionLogs(models.Model):
              'res_model': 'mtd_vat.vat_detailed_submission_logs',
              'type': 'ir.actions.act_window',
              'target': 'self',
-             'domain': "[('unique_number', '=', {})]".format(self.unique_number)
+             'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
          }
