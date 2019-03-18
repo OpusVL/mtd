@@ -187,11 +187,11 @@
                         <br/>
                         <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
                             Please click here to make a payment in the method that best suits you:
-                            <a xml-link="link" href="https://www.gov.uk/pay-vat">Pay your VAT bill</a>
+                            <a xml-link="link" href="https://www.gov.uk/pay-vat" target="_blank">Pay your VAT bill</a>
                         </li>
                         <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
                         To see your previous payments made to HMRC, please visit your Business Tax Account (BTA) at
-                            <a xml-link="link" href="https://www.tax.service.gov.uk/account">
+                            <a xml-link="link" href="https://www.tax.service.gov.uk/account" target="_blank">
                                 https://www.tax.service.gov.uk/account
                             </a>
                         </li>
@@ -212,7 +212,7 @@
                             <u>Notify a change of circumstances:</u></h4>
                         <p attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}">
                             Please do this by visiting your Business Tax Account at
-                            <a xml-link="link" href="https://www.tax.service.gov.uk/account">https://www.tax.service.gov.uk/account</a>
+                            <a xml-link="link" href="https://www.tax.service.gov.uk/account" target="_blank">https://www.tax.service.gov.uk/account</a>
                         </p>
                     </sheet>
                 </form>
