@@ -46,11 +46,12 @@
                             <!--<field name="retrieve_vat_obligation_first"
                                    string="Please retrive VAT obligation here"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->
+                            <field name="previous_period" attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                         </group>
                         <group>
                             <button name="action_retrieve_vat"
                                 type="object"
-                                string="Retrieve VAT"
+                                string="Retrieve VAT Transactions"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                             <div class="oe_button_box oe_right">

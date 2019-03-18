@@ -9,7 +9,7 @@
             res_model="mtd.hmrc_configuration"
             view_mode="tree,form" />
         <act_window id="action_mtd_hello_world"
-            name="Validate Connection to HMRC"
+            name="Diagnose Connection to HMRC"
             res_model="mtd.hello_world"
             view_mode="tree,form" />
 
@@ -27,9 +27,9 @@
 
         <!-- sub menu for hmrc services -->
         <menuitem id="submenu_mtd_hello_world"
-            name="Validate Connection to HMRC"
+            name="Diagnose Connection to HMRC"
             parent="submenu_mtd_hmrc_services"
-            sequence="10"
+            sequence="99"
             action="action_mtd_hello_world"/>
         <menuitem id="submenu_hmrc_configuration"
             name="HMRC Configuration"
