@@ -10,7 +10,7 @@ _logger = logging.getLogger(__name__)
 class MtdVATDetailedSubmissionLogs(models.Model):
 
     _name = 'mtd_vat.vat_detailed_submission_logs'
-    _description = "Vat Detailed Submission Logs"
+    _description = "Vat Detailed Submission Log"
 
     statement_id = fields.Many2one('account.bank.statement', string='Statement', readonly=True)
     create_date = fields.Date(string='Creation date', readonly=True)

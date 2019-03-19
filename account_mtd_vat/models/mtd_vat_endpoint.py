@@ -39,7 +39,7 @@ class MtdVATEndpoints(models.Model):
     name = fields.Char('Name', required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True, readonly=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
-    company_id = fields.Many2one(comodel_name="res.company", string="Company", required=True)
+    company_id = fields.Many2one(comodel_name="res.company", string="Company")
     scope = fields.Char(related="api_id.scope")
     vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
 
@@ -228,6 +228,8 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning("Please select HMRC configuration before continuing!")
         elif not self.vrn:
             raise exceptions.Warning("Please enter the VRN")
+        elif not self.company_id:
+            raise exceptions.Warning("Please select a company before continuing!")
         if self.name in ("Submit VAt Returns", "View VAT Returns") and not self.select_vat_obligation:
             raise exceptions.Warning("Please select a VAT Obligation")
 
@@ -278,6 +280,9 @@ class MtdVATEndpoints(models.Model):
 
     @api.multi
     def action_retrieve_vat(self, *args):
+
+        if not self.company_id:
+            raise exceptions.Warning("Please select a company before continuing!")
 
         # RESET FOLLOWING FIELDS SO THAT USER CAN VERIFY THESE ONCE vat HAS BEEN RETRIEVED
         self.client_type = ""

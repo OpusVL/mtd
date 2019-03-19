@@ -51,7 +51,7 @@
                         <group>
                             <button name="action_retrieve_vat"
                                 type="object"
-                                string="Retrieve VAT Transactions"
+                                string="Calculate VAT"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                             <div class="oe_button_box oe_right">
