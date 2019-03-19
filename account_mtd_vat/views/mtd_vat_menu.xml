@@ -18,6 +18,10 @@
             res_model="mtd_vat.vat_detailed_submission_logs"
             view_mode="tree,form"
             />-->
+        <act_window id="action_hmrc_posting_template"
+            name="HMRC Posting Template"
+            res_model="mtd_vat.hmrc_posting_configuration"
+            view_mode="tree,form" />
 
 
         <menuitem id="submenu_mtd_vat_endpoints"
@@ -46,6 +50,12 @@
             parent="submenu_vat_logs_hmrc"
             sequence="20"
             action="action_mtd_vat_detailed_submission_log"/>
+
+        <menuitem id="submenu_hmrc_posting_template"
+            action="action_hmrc_posting_template"
+            parent="account.menu_configuration_misc"
+            name="HMRC Posting Template"
+            sequence="30"/>
 
     </data>
 </openerp>
