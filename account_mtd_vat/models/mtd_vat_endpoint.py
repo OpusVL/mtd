@@ -327,7 +327,7 @@ class MtdVATEndpoints(models.Model):
                     setattr(self, code_dict[item.code], retrieve_sum_for_codes[item.id])
             self.total_vat_due_submit = (self.vat_due_sales_submit + self.vat_due_acquisitions_submit)
             #HMRC does not take negative value therefore need to change the negative value for Net vat due field
-            self.net_vat_due_submit = abs(self.net_vat_due_submit)
+            # self.net_vat_due_submit = abs(self.net_vat_due_submit)
         else:
             self.submit_vat_flag = False
             self.response_from_hmrc = (

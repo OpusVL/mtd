@@ -1,8 +1,11 @@
 # -*- coding = utf-8 -*-
 import logging
+import json
 
 
 from openerp.osv import fields, osv
+from openerp import exceptions
+
 
 class account_move_line(osv.osv):
     _inherit = "account.move.line"
@@ -17,3 +20,19 @@ class account_move_line(osv.osv):
             store=True,
             readonly=True)
     }
+
+
+
+class account_move(osv.osv):
+    _inherit = "account.move"
+
+    def button_cancel(self, cr, uid, ids, context=None):
+        import pdb; pdb.set_trace()
+
+        for line in self.browse(cr, uid, ids, context):
+            for item in line.line_id:
+                if item.vat:
+                    raise exceptions.Warning('You cannot modify a vat posted entry of this journal.')
+
+        result = super(account_move, self).button_cancel(cr, uid, ids, context=context)
+        return result

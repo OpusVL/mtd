@@ -16,7 +16,7 @@ class MtdVATSubmissionLogs(models.Model):
     vrn = fields.Char(string="VAT Number")
     start = fields.Date()
     end = fields.Date()
-    unique_number = fields.Char()
+    unique_number = fields.Char(string="HMRC Unique Number")
     payment_indicator = fields.Char()
     charge_ref_number = fields.Char()
     processing_date = fields.Datetime()

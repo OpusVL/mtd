@@ -32,7 +32,7 @@
                                    ('user_type', '=', input_account_type)])"/>
                             <field name="liability_account"
                                    string="HMRC Liability Account"
-                                   domain="([('company_id', '=', company_journal), ('type', '=', 'view')])"/>
+                                   domain="([('company_id', '=', company_journal), ('type', '!=', 'view')])"/>
                         </group>
                     </group>
                 </form>

@@ -286,11 +286,7 @@ class MtdVatIssueRequest(models.Model):
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
-        retrieve_period = self.env['account.period'].search([
-            ('date_start', '=', record.date_from),
-            ('date_stop', '=', record.date_to),
-            ('company_id', '=', record.company_id.id)
-        ])
+        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
 
         move_lines_to_copy = self.env['account.move.line'].search([
             ('company_id', '=', record.company_id.id),
@@ -315,6 +311,9 @@ class MtdVatIssueRequest(models.Model):
                 storage_model.create(amended_move_line)
 
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
+
+        # create journal records and then reconcile records
+        self.create_journal_record_for_submission(move_lines_to_copy, record)
 
         #get md5 hash value
         hash_object = self.get_hash_object_for_submission(unique_number, record.company_id.id)
@@ -430,7 +429,7 @@ class MtdVatIssueRequest(models.Model):
         "vatDueAcquisitions": record.vat_due_acquisitions_submit,
         "totalVatDue": record.total_vat_due_submit,
         "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
-        "netVatDue": record.net_vat_due_submit,
+        "netVatDue": abs(record.net_vat_due_submit),
         "totalValueSalesExVAT": record.total_value_sales_submit,
         "totalValuePurchasesExVAT": record.total_value_purchase_submit,
         "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
@@ -480,3 +479,114 @@ class MtdVatIssueRequest(models.Model):
                 ('unique_number', '=', unique_number)
             ])
             submission_log_record.md5_integrity_value = hash_value.hexdigest()
+
+    def create_journal_record_for_submission(self, move_lines_to_copy, record):
+
+        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+        account_move = self.env['account.move']
+        hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
+            ('company_id', '=', record.company_id.id)])
+
+        account_move_id = account_move.create({
+            'name': 'HMRC VAT Submission',
+            'ref': 'HMRC VAT Submission',
+            'date': datetime.now().date(),
+            'period_id': retrieve_period.id,
+            'journal_id': hmrc_posting_config.journal_id.id
+        })
+
+        # create account move line entry for tax output  account
+        output_move_line = self.create_account_move_line(
+            retrieve_period.id,
+            hmrc_posting_config.output_account.id,
+            'debit',
+            record.total_vat_due_submit,
+            account_move_id.id)
+
+        # create account move line entry for tax input account
+        input_move_line = self.create_account_move_line(
+            retrieve_period.id,
+            hmrc_posting_config.input_account.id,
+            'credit',
+            record.vat_reclaimed_submit,
+            account_move_id.id)
+
+        # create account move line entry for HMRC liability Account
+        debit_credit_type = "credit"
+        if record.net_vat_due_submit < 0:
+            debit_credit_type = "debit"
+
+        liability_move_line = self.create_account_move_line(
+            retrieve_period.id,
+            hmrc_posting_config.liability_account.id,
+            debit_credit_type,
+            record.net_vat_due_submit,
+            account_move_id.id)
+
+        # update the state of Journal entry to posted.
+        account_move_id.state = 'posted'
+
+        # Reconcile Output tax Records
+        self.autoreconcile_tax_records(
+            hmrc_posting_config.output_account.id,
+            output_move_line,
+            move_lines_to_copy,
+            retrieve_period.id
+        )
+
+        # Reconcile Input tax Records
+        self.autoreconcile_tax_records(
+            hmrc_posting_config.input_account.id,
+            input_move_line,
+            move_lines_to_copy,
+            retrieve_period.id
+        )
+
+    def create_account_move_line(self,period_id, account_id, debit_credit_type, value, account_move_id):
+
+        account_move_line = self.env['account.move.line']
+
+        move_line_id = account_move_line.create({
+            'name': 'HMRC VAT Submission',
+            'ref': 'HMRC VAT Submission',
+            'date': datetime.now().date(),
+            'period_id': period_id,
+            'account_id': account_id,
+            '{}'.format(debit_credit_type): value,
+            'move_id': account_move_id
+        })
+
+        return move_line_id
+
+    def autoreconcile_tax_records(self, account_id, move_line_id, move_lines_for_period, period_id):
+
+        account_move_line_obj = self.pool.get('account.move.line')
+        move_line_account_id = []
+        move_line_account_id.append(move_line_id.id)
+
+        for line in move_lines_for_period:
+            if line.account_id.id == account_id:
+                move_line_account_id.append(line.id)
+
+        account_id = False
+        journal_id = False
+        context = None
+        context = {}
+        context['active_ids'] = move_line_account_id
+
+        account_move_line_obj.reconcile(self._cr, self._uid, move_line_account_id, 'manual', account_id, period_id, journal_id, context=context)
+
+
+class RetrievePeriodId(models.Model):
+    _name = 'mtd_vat.retrieve_period_id'
+
+
+    def retrieve_period(self, record):
+
+        retrieve_period = self.env['account.period'].search([
+            ('date_start', '=', record.date_from),
+            ('date_stop', '=', record.date_to),
+            ('company_id', '=', record.company_id.id)
+        ])
+
+        return retrieve_period
