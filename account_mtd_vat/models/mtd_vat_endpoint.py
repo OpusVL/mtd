@@ -373,6 +373,16 @@ class MtdVATEndpoints(models.Model):
         return self.process_connection()
 
     def _handle_vat_submit_returns_endpoint(self):
+        # Check to see if we have HMRC Posting record We can not submit VAT witout a HMRC posting template for the company
+        hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
+            ('name', '=', self.company_id.id)])
+
+        if not hmrc_posting_config:
+            raise exceptions.Warning(
+                "Submission can't be done due to missing 'HMRC Posting Template' !\n " +
+                "Please create one using 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+            )
+
         vrn = self.get_vrn(self.vrn)
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)

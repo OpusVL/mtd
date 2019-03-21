@@ -485,7 +485,7 @@ class MtdVatIssueRequest(models.Model):
         retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
         account_move = self.env['account.move']
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
-            ('company_id', '=', record.company_id.id)])
+            ('name', '=', record.company_id.id)])
 
         account_move_id = account_move.create({
             'name': 'HMRC VAT Submission',
