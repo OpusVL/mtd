@@ -82,20 +82,24 @@ class MtdVATEndpoints(models.Model):
         if self.name in ('View VAT Returns', 'Submit VAT Returns'):
             self.obligation_status = 'O' if self.name == 'Submit VAT Returns' else 'F'
 
-        test = self.env['mtd_vat.vat_obligations_logs'].search([('status', '=', self.obligation_status), ('company_id', '=', self.obligation_company)])
+        self.env['mtd_vat.vat_obligations_logs'].search([
+            ('status', '=', self.obligation_status),
+            ('company_id', '=', self.obligation_company)])
 
     @api.onchange('select_vat_obligation')
     def onchange_date_for_vat_returns(self):
         self.date_from = self.select_vat_obligation.start
         self.date_to = self.select_vat_obligation.end
 
-    #Fields for Viewing the vat returns
+    # Fields for Viewing the vat returns
     # need to display the result in the field rather than in a Text field
     view_vat_flag = fields.Boolean(default=False)
     period_key = fields.Char(related='select_vat_obligation.period_key', readonly=True)
-    vat_due_sales = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2),
+    vat_due_sales = fields.Float("1. VAT due in this period on sales and other outputs",
+        (13, 2),
         readonly=True,
-        default=0.00)
+        default=0.00
+    )
     vat_due_acquisitions = fields.Float(
         "2. VAT due in this period on acquisitions from other EC Member States",
         (13, 2),
@@ -187,17 +191,19 @@ class MtdVATEndpoints(models.Model):
     business_declaration = fields.Char(readonly=True,
         default=("When you submit this VAT information you are making a legal declaration "
         + "\nthat the information is true and complete. "
-        + "\nA false declaration can result in prosecution."))
+        + "\nA false declaration can result in prosecution.")
+    )
     agent_declaration = fields.Char(readonly=True,
         default=("I confirm that my client has received a copy of the information contained "
          + "\nin this return and approved the information as being correct and "
-         + "\ncomplete to the best of their knowledge and belief."))
+         + "\ncomplete to the best of their knowledge and belief.")
+    )
     review_text = fields.Char(readonly=True,
         default=("Please review your VAT summary above and then tick the 'Confirm and finalise' "
-                 + "checkbox and then submit to HMRC"))
+        + "checkbox and then submit to HMRC")
+    )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
-    triggered_onchange= fields.Boolean(string="I confirm and finalise", default=False)
-
+    triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -233,7 +239,6 @@ class MtdVATEndpoints(models.Model):
         if self.name in ("Submit VAt Returns", "View VAT Returns") and not self.select_vat_obligation:
             raise exceptions.Warning("Please select a VAT Obligation")
 
-
         endpoint_record = self.env['ir.model.data'].search([
             ('res_id', '=', self.id),
             ('model', '=', 'mtd_vat.vat_endpoints')
@@ -261,7 +266,7 @@ class MtdVATEndpoints(models.Model):
     @api.multi
     def action_vat_breakdown(self, *args):
 
-        #get period Ids'
+        # get period Ids'
         period_id = self.env['account.period'].search([
             ('date_start', '=', self.date_from),
             ('date_stop', '=', self.date_to),
@@ -269,7 +274,8 @@ class MtdVATEndpoints(models.Model):
         ])
         # Create on account.tax.chart, with period_id set to ^, and target_move set to either 'posted', or 'all'
         # i.e wizard_rec = self.env['account.tax.chart'].create(<values>)
-        # call account_tax_chart_open_window() <-- This will give us a dictionary which by returning - will take us to the chart of taxes
+        # call account_tax_chart_open_window() <-- This will give us a dictionary which by returning
+        # - will take us to the chart of taxes
         # i.e chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
         # {'view_id': x, 'target': 'new', 'context': {'default_company_id': <company_you_want>}}
         wizard_rec = self.env['account.tax.chart'].create(dict(period_id=period_id.id, target_move='posted'))
@@ -294,14 +300,15 @@ class MtdVATEndpoints(models.Model):
             ('date_stop', '=', self.date_to),
             ('company_id', '=', self.company_id.id)
         ])
-        context = str({'period_id': retrieve_period.id, \
-                                 'fiscalyear_id': retrieve_period.fiscalyear_id.id, \
-                                 'state': 'posted'})
+        context = str({'period_id': retrieve_period.id,
+            'fiscalyear_id': retrieve_period.fiscalyear_id.id,
+            'state': 'posted'})
         period_code = retrieve_period.code
         name = period_code and (':' + period_code) or ''
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
-            ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),('company_id', '=', self.company_id.id)
+            ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),
+            ('company_id', '=', self.company_id.id)
         ])
         retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
             period_id=retrieve_period.id,
@@ -326,7 +333,7 @@ class MtdVATEndpoints(models.Model):
                 if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
                     setattr(self, code_dict[item.code], retrieve_sum_for_codes[item.id])
             self.total_vat_due_submit = (self.vat_due_sales_submit + self.vat_due_acquisitions_submit)
-            #HMRC does not take negative value therefore need to change the negative value for Net vat due field
+            # HMRC does not take negative value therefore need to change the negative value for Net vat due field
             # self.net_vat_due_submit = abs(self.net_vat_due_submit)
         else:
             self.submit_vat_flag = False
@@ -358,7 +365,6 @@ class MtdVATEndpoints(models.Model):
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=self.vrn, key=period_key)
         self.endpoint_name = "view-vat-returns"
-
 
         return self.process_connection()
 
