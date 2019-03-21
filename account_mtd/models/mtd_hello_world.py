@@ -20,7 +20,7 @@ class MtdHelloWorld(models.Model):
     endpoint_name = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
     company_id = fields.Many2one(comodel_name="res.company", string="Company")
-    vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
+    vrn = fields.Char(related="company_id.vat", string="VAT Number", readonly=True)
 
     @api.multi
     def action_hello_world_connection(self):

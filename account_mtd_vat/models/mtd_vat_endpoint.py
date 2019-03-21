@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import urllib
+import re
 
 from openerp import models, fields, api, exceptions
 from datetime import datetime, timedelta
@@ -41,11 +42,11 @@ class MtdVATEndpoints(models.Model):
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string='HMRC Configuration')
     company_id = fields.Many2one(comodel_name="res.company", string="Company")
     scope = fields.Char(related="api_id.scope")
-    vrn = fields.Char(related="company_id.vrn", string="VAT Number", readonly=True)
+    vrn = fields.Char(related="company_id.vat", string="VAT Number", readonly=True)
 
     @api.onchange('company_id')
     def onchange_company_id(self):
-        self.vrn = self.company_id.vrn
+        self.vrn = self.company_id.vat
 
     date_from = fields.Date(string='From')
     date_to = fields.Date(string='To')
@@ -342,38 +343,47 @@ class MtdVATEndpoints(models.Model):
             )
 
     def _handle_vat_obligations_endpoint(self):
-        self.path = "/organisations/vat/{vrn}/obligations".format(vrn=self.vrn)
+        vrn = self.get_vrn(self.vrn)
+        self.path = "/organisations/vat/{vrn}/obligations".format(vrn=vrn)
         self.endpoint_name = "vat-obligation"
         _logger.info(self.connection_button_clicked_log_message())
 
         return self.process_connection()
 
     def _handle_vat_liabilities_endpoint(self):
-        self.path = "/organisations/vat/{vrn}/liabilities".format(vrn=self.vrn)
+        vrn = self.get_vrn(self.vrn)
+        self.path = "/organisations/vat/{vrn}/liabilities".format(vrn=vrn)
         self.endpoint_name = "vat-liabilities"
 
         return self.process_connection()
 
     def _handle_vat_payments_endpoint(self):
-        self.path = "/organisations/vat/{vrn}/payments".format(vrn=self.vrn)
+        vrn = self.get_vrn(self.vrn)
+        self.path = "/organisations/vat/{vrn}/payments".format(vrn=vrn)
         self.endpoint_name = "vat-payments"
 
         return self.process_connection()
 
     def _handle_vat_returns_view_endpoint(self):
-
+        vrn = self.get_vrn(self.vrn)
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
-        self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=self.vrn, key=period_key)
+        self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=vrn, key=period_key)
         self.endpoint_name = "view-vat-returns"
 
         return self.process_connection()
 
     def _handle_vat_submit_returns_endpoint(self):
+        vrn = self.get_vrn(self.vrn)
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
-        self.path = "/organisations/vat/{vrn}/returns".format(vrn=self.vrn)
+        self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
 
         return self.process_connection()
+
+    def get_vrn(self, vrn):
+        split_vrn = re.findall('\d+|\D+', vrn)
+
+        return split_vrn[1]
 
     def process_connection(self):
         # search for token
