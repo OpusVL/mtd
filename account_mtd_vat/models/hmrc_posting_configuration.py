@@ -9,7 +9,7 @@ class HMRCPostingConfiguration(models.Model):
     _name = 'mtd_vat.hmrc_posting_configuration'
     _description = "HMRC Posting Configuration"
 
-    company_id = fields.Many2one(comodel_name="res.company", string="Company", required=True)
+    name = fields.Many2one(comodel_name="res.company", string="Company", required=True)
     journal_id = fields.Many2one(comodel_name="account.journal", string="Journal", required=True)
     output_account = fields.Many2one(comodel_name="account.account", string="Tax Output Account", required=True)
     input_account = fields.Many2one(comodel_name="account.account", string="Tax Input Account", required=True)
@@ -20,9 +20,16 @@ class HMRCPostingConfiguration(models.Model):
     input_account_type = fields.Integer(compute="_compute_company_id")
     company_liability_account = fields.Integer(compute="_compute_company_id")
 
-    @api.depends('company_id')
+    @api.onchange('name')
+    def onchange_reset_fields(self):
+        self.journal_id = False
+        self.output_account = False
+        self.input_account = False
+        self.liability_account = False
+
+    @api.depends('name')
     def _compute_company_id(self):
-        self.company_journal = self.company_id.id
+        self.company_journal = self.name.id
         self.output_account_type = self.env['account.account.type'].search([
             ('code', '=', 'Output Tax'),
             ('name', '=', 'Output Tax')])
