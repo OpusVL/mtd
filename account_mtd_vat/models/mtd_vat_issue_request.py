@@ -332,8 +332,11 @@ class MtdVatIssueRequest(models.Model):
 
         display_message = ''
         for log in logs:
+            received = ""
+            if 'received' in log.keys():
+                received = "Received:- {}".format(log["received"])
 
-            display_message = "Amount:- {}\nReceived:- {}\n\n".format(log["amount"], log["received"])
+            display_message += "Amount:- {}\n{}\n\n".format(log["amount"], received)
 
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
