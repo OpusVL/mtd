@@ -75,15 +75,22 @@
             <field name="name">NOT_FOUND</field>
             <field name="mtd_vat_obligations_endpoint">True</field>
         </record>
-        <!--GOV test Scenario for mtd_vat_liabilities_endpoint and mtd_vat_payments_endpoint-->
+        <!--GOV test Scenario for mtd_vat_liabilities_endpoint -->
         <record model="gov.test.scenario" id="multi_liabilities">
             <field name="name">MULTIPLE_LIABILITIES</field>
             <field name="mtd_vat_liabilities_endpoint">True</field>
-            <field name="mtd_vat_payments_endpoint">True</field>
         </record>
         <record model="gov.test.scenario" id="single_liabilities">
             <field name="name">SINGLE_LIABILITY</field>
             <field name="mtd_vat_liabilities_endpoint">True</field>
+        </record>
+         <!--GOV test Scenario for mtd_vat_payments_endpoint -->
+        <record model="gov.test.scenario" id="single_liabilities">
+            <field name="name">SINGLE_PAYMENT</field>
+            <field name="mtd_vat_payments_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="multi_liabilities">
+            <field name="name">MULTIPLE_PAYMENTS</field>
             <field name="mtd_vat_payments_endpoint">True</field>
         </record>
         <!--GOV test Scenario for mtd_vat_submit_returns_endpoint -->
