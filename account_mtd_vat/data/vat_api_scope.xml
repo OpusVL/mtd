@@ -85,11 +85,11 @@
             <field name="mtd_vat_liabilities_endpoint">True</field>
         </record>
          <!--GOV test Scenario for mtd_vat_payments_endpoint -->
-        <record model="gov.test.scenario" id="single_liabilities">
+        <record model="gov.test.scenario" id="single_payments">
             <field name="name">SINGLE_PAYMENT</field>
             <field name="mtd_vat_payments_endpoint">True</field>
         </record>
-        <record model="gov.test.scenario" id="multi_liabilities">
+        <record model="gov.test.scenario" id="multi_payments">
             <field name="name">MULTIPLE_PAYMENTS</field>
             <field name="mtd_vat_payments_endpoint">True</field>
         </record>
