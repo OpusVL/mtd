@@ -18,6 +18,12 @@
             res_model="mtd_vat.vat_detailed_submission_logs"
             view_mode="tree,form"
             />-->
+        <record model="ir.actions.act_window" id="action_mtd_vat_detailed_submission_log">
+            <field name="name">VAT Detailed Submission Log</field>
+            <field name="res_model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by':['company_id', 'unique_number']}</field>
+        </record>
         <act_window id="action_hmrc_posting_template"
             name="HMRC Posting Template"
             res_model="mtd_vat.hmrc_posting_configuration"
