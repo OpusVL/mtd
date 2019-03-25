@@ -11,7 +11,6 @@
                     <field name="end">End Date</field>
                     <field name="due">Due Date</field>
                     <field name="status">Status</field>
-                    <field name="period_key">Period Key</field>
                     <field name="received">Received</field>
                     <field name="create_date">Created</field>
                     <field name="write_date">Updated</field>
@@ -33,7 +32,7 @@
                             <field name="end" readonly="1"/>
                             <field name="due" readonly="1"/>
                             <field name="status" readonly="1"/>
-                            <field name="period_key" readonly="1"/>
+                            <field name="period_key" readonly="1" invisible="1"/>
                             <field name="received" readonly="1"/>
                             <field name="create_date" string="Created On" readonly="1"/>
                             <field name="write_date" string="Last Updated On" readonly="1"/>

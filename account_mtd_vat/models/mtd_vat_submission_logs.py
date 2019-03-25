@@ -62,7 +62,7 @@ class MtdVATSubmissionLogs(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
-    md5_integrity_value = fields.Char(string="MD5", readonly=True)
+    md5_integrity_value = fields.Char(string="Checksum", readonly=True)
 
 
     @api.multi

@@ -13,7 +13,7 @@
                     <field name="processing_date">Processing Date</field>
                     <field name="company_id">Company</field>
                     <field name="vrn">VAT Number</field>
-                    <field name="md5_integrity_value">MD5</field>
+                    <field name="md5_integrity_value">Checksum</field>
                 </tree>
             </field>
         </record>
@@ -38,7 +38,7 @@
                             <field name="start" readonly="1" invisible="1"/>
                             <field name="end" readonly="1" invisible="1"/>
                             <field name="redirect_url" invisible="1"/>
-                            <field name="md5_integrity_value">MD5</field>
+                            <field name="md5_integrity_value">Checksum</field>
                         </group>
                         <hr/>
                         <h4>HMRC have successfully received your submission and provided below are the details of submitted VAT values.</h4>
