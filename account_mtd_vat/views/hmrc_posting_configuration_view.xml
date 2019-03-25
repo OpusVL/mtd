@@ -5,7 +5,7 @@
             <field name="name">hmrc.posting.template</field>
             <field name="model">mtd_vat.hmrc_posting_configuration</field>
             <field name="arch" type="xml">
-                <form string="HMRC Posting Template">
+                <form string="HMRC Posting Template" delete="false">
                     <group>
                         <group>
                             <field name="company_journal" invisible="1"/>
@@ -44,7 +44,7 @@
             <field name="name">hmrc.posting.templat</field>
             <field name="model">mtd_vat.hmrc_posting_configuration</field>
             <field name="arch" type="xml">
-                <tree string="HMRC Posting Template">
+                <tree string="HMRC Posting Template" delete="false">
                     <field name="name"/>
                     <field name="journal_id"/>
                     <field name="output_account"/>

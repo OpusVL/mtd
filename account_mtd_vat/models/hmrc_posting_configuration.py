@@ -39,7 +39,6 @@ class HMRCPostingConfiguration(models.Model):
 
     @api.model
     def create(self, vals):
-        import pdb; pdb.set_trace()
 
         res = super(HMRCPostingConfiguration, self).create(vals)
         company_id = res.name.id
