@@ -37,3 +37,16 @@ class HMRCPostingConfiguration(models.Model):
             ('code', '=', 'Input Tax'),
             ('name', '=', 'Input Tax')])
 
+    @api.model
+    def create(self, vals):
+        import pdb; pdb.set_trace()
+
+        res = super(HMRCPostingConfiguration, self).create(vals)
+        company_id = res.name.id
+
+        res_partner = self.env['res.company'].search([('id', '=', company_id)])
+
+        if len(res_partner) == 1:
+            res_partner.hmrc_posting_created = True
+
+        return res

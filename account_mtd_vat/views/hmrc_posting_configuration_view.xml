@@ -14,7 +14,8 @@
                             <field name="company_liability_account" invisible="1"/>
 
                             <field name="name"
-                                   string="Company"/>
+                                   string="Company"
+                                   domain="([('hmrc_posting_created', '!=', True)])"/>
                             <field name="journal_id"
                                    string="Journal"
                                    domain="([('company_id', '=', company_journal)])"/>
