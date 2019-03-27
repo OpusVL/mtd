@@ -28,7 +28,7 @@ from . import (
     mtd_vat_submission_logs,
     mtd_vat_detailed_submission_logs,
     account_move_line,
-    #account_tax_code,
+    account_tax_code,
     hmrc_posting_configuration,
     res_company
 

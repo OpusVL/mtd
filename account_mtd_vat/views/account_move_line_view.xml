@@ -27,5 +27,23 @@
                 </field>
             </field>
         </record>
+
+        <record id="mtd_vat_view_account_tax_chart" model="ir.ui.view">
+            <field name="name">mtd.vat.view.account.tax.chart</field>
+            <field name="model">account.tax.chart</field>
+            <field name="inherit_id" ref="account.view_account_tax_chart"/>
+            <field name="arch" type="xml">
+                <field name="target_move" position="before">
+                    <label for="previous_period"/>
+                    <div>
+                        <field name="previous_period"/>
+                    </div>
+                    <label for="vat_posted"/>
+                    <div>
+                        <field name="vat_posted"/>
+                    </div>
+                </field>
+            </field>
+        </record>
     </data>
 </openerp>

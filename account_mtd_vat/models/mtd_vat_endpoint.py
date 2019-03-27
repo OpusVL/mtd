@@ -205,6 +205,10 @@ class MtdVATEndpoints(models.Model):
     )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
+    previous_period = fields.Selection([
+        ('yes', 'Yes'),
+        ('no', 'No')],
+        'Include Transaction of Previous period')
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
