@@ -26,7 +26,7 @@ class Authorize(http.Controller):
                 "\napi_tracer = {}".format(api_trackers))
             for record in api_trackers:
                 record.closed = 'more_than_one'
-            werkzeug.utils.redirect('/web')
+            return werkzeug.utils.redirect('/web')
             raise exceptions.Warning(
                 "No connection request made Please try to connect again!"
             )

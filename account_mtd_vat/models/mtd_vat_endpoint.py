@@ -208,7 +208,9 @@ class MtdVATEndpoints(models.Model):
     previous_period = fields.Selection([
         ('yes', 'Yes'),
         ('no', 'No')],
-        'Include Transaction of Previous period')
+        'Include Transaction of Previous period',
+        required=True,
+        default = 'yes')
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -300,25 +302,40 @@ class MtdVATEndpoints(models.Model):
         self.finalise = False
         self.response_from_hmrc = ""
 
-        retrieve_period = self.env['account.period'].search([
-            ('date_start', '=', self.date_from),
-            ('date_stop', '=', self.date_to),
-            ('company_id', '=', self.company_id.id)
-        ])
-        context = str({'period_id': retrieve_period.id,
-            'fiscalyear_id': retrieve_period.fiscalyear_id.id,
-            'state': 'posted'})
-        period_code = retrieve_period.code
-        name = period_code and (':' + period_code) or ''
+        if self.previous_period == 'no':
+            retrieve_period = self.env['account.period'].search([
+                ('date_start', '=', self.date_from),
+                ('date_stop', '=', self.date_to),
+                ('company_id', '=', self.company_id.id)
+            ])
+            period_ids = [retrieve_period.id]
+            fiscalyear_ids = [retrieve_period.fiscalyear_id.id]
+        else:
+            retrieve_period = self.env['account.period'].search([
+                ('date_start', '<=', self.date_from),
+                ('company_id', '=', self.company_id.id)
+            ])
+            period_ids = []
+            fiscalyear_ids = []
+            for period in retrieve_period:
+                period_ids.append(period.id)
+                fiscalyear_ids.append(period.fiscalyear_id.id)
+
+        context = str({'period_id': period_ids,
+            'fiscalyear_id': fiscalyear_ids,
+            'state': 'posted',
+            'vat': 'no'})
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
             ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),
             ('company_id', '=', self.company_id.id)
         ])
+        name = 'Calculated VAT'
         retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
-            period_id=retrieve_period.id,
-            fiscalyear_id=retrieve_period.fiscalyear_id.id,
-            state='posted'
+            period_id=period_ids,
+            fiscalyear_id=fiscalyear_ids,
+            state='posted',
+            vat='no'
         )._sum_period(name, context)
 
         code_dict = {
