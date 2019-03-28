@@ -61,7 +61,7 @@ class mtd_account_tax_code(osv.osv):
             period_id = self.pool.get('account.period').find(cr, uid, context=context)
             if not period_id:
                 return dict.fromkeys(ids, 0.0)
-            period_id = period_id[0]
+            period_id = [period_id[0]]
 
         vat = ""
         if context.get('vat', False):
@@ -72,7 +72,7 @@ class mtd_account_tax_code(osv.osv):
         elif vat == 'no':
             vat = False
 
-        if vat == 'all':
+        if not vat or vat == 'all':
             return self._sum(
                 cr,
                 uid,
