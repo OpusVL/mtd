@@ -72,7 +72,7 @@ class mtd_account_tax_code(osv.osv):
         elif vat == 'no':
             vat = False
 
-        if not vat or vat == 'all':
+        if vat == "" or vat == 'all':
             return self._sum(
                 cr,
                 uid,
