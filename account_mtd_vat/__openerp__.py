@@ -50,7 +50,8 @@
         'views/mtd_vat_submission_logs_view.xml',
         'views/mtd_vat_detailed_submission_logs_view.xml',
         'views/hmrc_posting_configuration_view.xml',
-        'views/res_company_view.xml'
+        'views/res_company_view.xml',
+        'views/webclient_templates.xml'
 
     ],
     'demo': [

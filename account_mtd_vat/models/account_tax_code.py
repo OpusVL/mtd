@@ -22,14 +22,11 @@ class mtd_account_tax_code(osv.osv):
         else:
             fiscalyear_id = self.pool.get('account.fiscalyear').finds(cr, uid, exception=False)
 
-        vat = ""
-        if context.get('vat', False):
-            vat = context['vat']
-
-        if vat == 'yes':
-            vat = True
-        elif vat == 'no':
+        vat = ''
+        if 'vat' in context.keys() and context['vat'] != "":
             vat = False
+            if context['vat'] == 'True':
+                vat = False
 
         where = ''
         where_params = ()
@@ -38,7 +35,7 @@ class mtd_account_tax_code(osv.osv):
             for fy in fiscalyear_id:
                 pids += map(lambda x: str(x.id), self.pool.get('account.fiscalyear').browse(cr, uid, fy).period_ids)
             if pids:
-                if vat == "" or vat == 'all':
+                if vat == '':
                     where = ' AND line.period_id IN %s AND move.state IN %s '
                     where_params = (tuple(pids), move_state)
                 else:
@@ -86,16 +83,13 @@ class mtd_account_tax_code(osv.osv):
                 return dict.fromkeys(ids, 0.0)
             period_id = [period_id[0]]
 
-        vat = ""
-        if context.get('vat', False):
-            vat = context['vat']
-
-        if vat == 'yes':
-            vat = True
-        elif vat == 'no':
+        vat = ''
+        if 'vat' in context.keys() and context['vat'] != "":
             vat = False
+            if context['vat'] == 'True':
+                vat = False
 
-        if vat == "" or vat == 'all':
+        if vat == "":
             return self._sum(
                 cr,
                 uid,
