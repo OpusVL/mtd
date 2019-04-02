@@ -48,15 +48,29 @@ class account_tax_chart(osv.osv_memory):
         result = super(account_tax_chart, self).account_tax_chart_open_window(cr, uid, ids, context=context)
         # Get the record to access the information provided by the user
         data = self.browse(cr, uid, ids, context=context)[0]
-
         period_ids = [data.period_id.id]
         fiscalyear_ids = [data.period_id.fiscalyear_id.id]
+
         if data.previous_period == 'yes':
+            cutoff_date_rec = self.pool.get('mtd_vat.hmrc_posting_configuration').search(cr, uid, [
+                ('name', '=', data.period_id.company_id.id)])
+            if cutoff_date_rec:
+                cutoff_date = self.pool.get('mtd_vat.hmrc_posting_configuration').browse(cr, uid, cutoff_date_rec,
+                    context=context).cutoff_date
+                all_periods_before_cutoff = self.pool.get('account.period').search(cr, uid,
+                    [('date_start', '>=', cutoff_date.date_start),
+                    ('state', '=', 'draft'),
+                    ('company_id', '=', data.period_id.company_id.id)], context=context)
+            else:
+                raise exceptions.Warning(
+                    "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
+                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+                )
             # return list of periods
             period_ids = self.pool.get('account.period').search(cr, uid,
-                [('date_start', '<=', data.period_id.date_start),
-                 ('state', '=', 'draft'),
-                 ('company_id', '=', data.period_id.company_id.id)], context=context)
+                [('id', 'in', tuple(all_periods_before_cutoff)),
+                 ('date_start', '<=', data.period_id.date_start)], context=context)
+
             fiscalyear_ids = []
             for period in period_ids:
                 fiscalyear_id = self.pool.get('account.period').browse(cr, uid, period).fiscalyear_id.id

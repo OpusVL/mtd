@@ -302,24 +302,7 @@ class MtdVATEndpoints(models.Model):
         self.finalise = False
         self.response_from_hmrc = ""
 
-        if self.previous_period == 'no':
-            retrieve_period = self.env['account.period'].search([
-                ('date_start', '=', self.date_from),
-                ('date_stop', '=', self.date_to),
-                ('company_id', '=', self.company_id.id)
-            ])
-            period_ids = [retrieve_period.id]
-            fiscalyear_ids = [retrieve_period.fiscalyear_id.id]
-        else:
-            retrieve_period = self.env['account.period'].search([
-                ('date_start', '<=', self.date_from),
-                ('company_id', '=', self.company_id.id)
-            ])
-            period_ids = []
-            fiscalyear_ids = []
-            for period in retrieve_period:
-                period_ids.append(period.id)
-                fiscalyear_ids.append(period.fiscalyear_id.id)
+        retrieve_period, period_ids, fiscalyear_ids = self.retrieve_period_and_fiscalyear()
 
         context = str({'period_id': period_ids,
             'fiscalyear_id': fiscalyear_ids,
@@ -363,6 +346,45 @@ class MtdVATEndpoints(models.Model):
                 "No period matching to the vat obligation found Please try a different period."
             )
 
+    def retrieve_period_and_fiscalyear(self):
+        if self.previous_period == 'no':
+            retrieve_period = self.env['account.period'].search([
+                ('date_start', '=', self.date_from),
+                ('date_stop', '=', self.date_to),
+                ('company_id', '=', self.company_id.id),
+                ('state', '=', 'draft')
+            ])
+            period_ids = [retrieve_period.id]
+            fiscalyear_ids = [retrieve_period.fiscalyear_id.id]
+        else:
+            cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', self.company_id.id)])
+            if not cutoff_date_rec:
+                raise exceptions.Warning(
+                    "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
+                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+                )
+            all_periods_before_cutoff = self.env['account.period'].search([
+                ('date_start', '>=', cutoff_date_rec.cutoff_date.date_start),
+                ('state', '=', 'draft'),
+                ('company_id', '=', self.company_id.id)
+            ])
+
+            all_period_ids = []
+            for period in all_periods_before_cutoff:
+                all_period_ids.append(period.id)
+
+            retrieve_period = self.env['account.period'].search([
+                ('id', 'in', tuple(all_period_ids)),
+                ('date_start', '<=', self.date_from)
+            ])
+            period_ids = []
+            fiscalyear_ids = []
+            for period in retrieve_period:
+                period_ids.append(period.id)
+                fiscalyear_ids.append(period.fiscalyear_id.id)
+
+        return (retrieve_period, period_ids, fiscalyear_ids)
+
     def _handle_vat_obligations_endpoint(self):
         vrn = self.get_vrn(self.vrn)
         self.path = "/organisations/vat/{vrn}/obligations".format(vrn=vrn)
@@ -400,8 +422,9 @@ class MtdVATEndpoints(models.Model):
 
         if not hmrc_posting_config:
             raise exceptions.Warning(
-                "Submission can't be done due to missing 'HMRC Posting Template' !\n " +
-                "Please create one using 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+                "Chart of Taxes can not be generated!\n " +
+                "Please create HMRC Posting Templae record first \n" +
+                "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
             )
 
         vrn = self.get_vrn(self.vrn)

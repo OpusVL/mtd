@@ -50,6 +50,7 @@
                     <field name="output_account"/>
                     <field name="input_account"/>
                     <field name="liability_account"/>
+                    <field name="cutoff_date"/>
                 </tree>
             </field>
         </record>
