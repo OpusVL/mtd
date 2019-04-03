@@ -70,12 +70,12 @@ class account_tax_chart(osv.osv_memory):
             period_ids = self.pool.get('account.period').search(cr, uid,
                 [('id', 'in', tuple(all_periods_before_cutoff)),
                  ('date_start', '<=', data.period_id.date_start)], context=context)
-
             fiscalyear_ids = []
             for period in period_ids:
                 fiscalyear_id = self.pool.get('account.period').browse(cr, uid, period).fiscalyear_id.id
                 if fiscalyear_id not in fiscalyear_ids:
                     fiscalyear_ids.append(fiscalyear_id)
+
         vat = ''
         if data.vat_posted == 'yes':
             vat = 'True'

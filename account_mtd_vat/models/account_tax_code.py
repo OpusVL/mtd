@@ -26,7 +26,7 @@ class mtd_account_tax_code(osv.osv):
         if 'vat' in context.keys() and context['vat'] != "":
             vat = False
             if context['vat'] == 'True':
-                vat = False
+                vat = True
 
         where = ''
         where_params = ()
@@ -87,7 +87,7 @@ class mtd_account_tax_code(osv.osv):
         if 'vat' in context.keys() and context['vat'] != "":
             vat = False
             if context['vat'] == 'True':
-                vat = False
+                vat = True
 
         if vat == "":
             return self._sum(
