@@ -49,7 +49,6 @@ class MtdHmrcConfiguration(models.Model):
             self.redonly_on_live = False
 
     def create(self, cr, uid, vals, context=None):
-        import pdb; pdb.set_trace()
         if vals['environment'] == 'live':
             vals['name'] = 'HMRC Live Environment'
             vals['server_token'] = '5b9635be5d53d5d87bdcb051ee90e760'
@@ -59,7 +58,5 @@ class MtdHmrcConfiguration(models.Model):
             vals['redonly_on_live'] = True
 
         record = super(MtdHmrcConfiguration, self).create(cr, uid, vals=vals, context=context)
-        import pdb;
-        pdb.set_trace()
         return record
 
