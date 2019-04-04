@@ -285,7 +285,12 @@ class MtdVATEndpoints(models.Model):
         # - will take us to the chart of taxes
         # i.e chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
         # {'view_id': x, 'target': 'new', 'context': {'default_company_id': <company_you_want>}}
-        wizard_rec = self.env['account.tax.chart'].create(dict(period_id=period_id.id, target_move='posted'))
+        wizard_rec = self.env['account.tax.chart'].create(dict(
+            period_id=period_id.id,
+            target_move='posted',
+            previous_period=self.previous_period,
+            vat_posted='no'))
+
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
         chart_of_taxes_view['target'] = 'new'
 
