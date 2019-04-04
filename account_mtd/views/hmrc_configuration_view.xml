@@ -9,12 +9,13 @@
                 </header>
                 <sheet>
                     <group>
-                        <field name="name"/>
-                        <field name="server_token"/>
-                        <field name="client_id"/>
-                        <field name="client_secret"/>
-                        <field name="environment" widget="radio" options="{'horizontal': true}"/>
-                        <field name="hmrc_url"/>
+			            <field name="environment" widget="radio" />
+                        <field name="redonly_on_live" invisible="1"/>
+                        <field name="name" attrs="{'readonly':[('redonly_on_live', '=', True)]}"/>
+                        <field name="server_token" attrs="{'readonly':[('redonly_on_live', '=', True)]}"/>
+                        <field name="client_id" attrs="{'readonly':[('redonly_on_live', '=', True)]}"/>
+                        <field name="client_secret" attrs="{'readonly':[('redonly_on_live', '=', True)]}"/>
+                        <field name="hmrc_url" attrs="{'readonly':[('redonly_on_live', '=', True)]}"/>
                         <field name="redirect_url"/>
                         <field name="access_token" invisible="1"/>
                         <field name="refresh_token" invisible="1"/>

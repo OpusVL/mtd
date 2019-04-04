@@ -22,16 +22,15 @@
 
 from . import (
 
-    mtd_api_request_tracker,
-    mtd_api_tokens,
-    mtd_api,
-    mtd_construct_display_message,
-    mtd_exchange_authorisation,
-    mtd_hello_world,
-    mtd_hmrc_configuration,
-    mtd_issue_request,
-    mtd_refresh_authorisation,
-    mtd_user_authorisation,
+    mtd_vat_endpoint,
+    mtd_vat_issue_request,
+    mtd_vat_obligation_logs,
+    mtd_vat_submission_logs,
+    mtd_vat_detailed_submission_logs,
+    account_move_line,
+    account_tax_code,
+    hmrc_posting_configuration,
+    res_company
 
 )
 

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <act_window id="action_mtd_vat_endpoints"
+            name="VAT Management"
+            res_model="mtd_vat.vat_endpoints"
+            view_mode="tree,form" />
+        <act_window id="action_mtd_vat_obligation_log"
+            name="VAT Obligation Log"
+            res_model="mtd_vat.vat_obligations_logs"
+            view_mode="tree,form" />
+        <act_window id="action_mtd_vat_submission_log"
+            name="VAT Submission Log"
+            res_model="mtd_vat.vat_submission_logs"
+            view_mode="tree,form" />
+        <!--<act_window id="action_mtd_vat_detailed_submission_log"
+            name="VAT Detailed Submission Log"
+            res_model="mtd_vat.vat_detailed_submission_logs"
+            view_mode="tree,form"
+            />-->
+        <record model="ir.actions.act_window" id="action_mtd_vat_detailed_submission_log">
+            <field name="name">VAT Detailed Submission Log</field>
+            <field name="res_model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="view_mode">tree,form</field>
+            <field name="context">{'group_by':['company_id', 'unique_number']}</field>
+        </record>
+        <act_window id="action_hmrc_posting_template"
+            name="HMRC Posting Template"
+            res_model="mtd_vat.hmrc_posting_configuration"
+            view_mode="tree,form" />
+
+
+        <menuitem id="submenu_mtd_vat_endpoints"
+            name="VAT Management"
+            parent="account_mtd.submenu_mtd_hmrc_services"
+            sequence="20"
+            action="action_mtd_vat_endpoints"/>
+        <menuitem id="submenu_vat_logs_hmrc"
+            name="VAT Audit"
+            parent="account_mtd.submenu_mtd_hmrc_services"
+            sequence="30"
+            action=""/>
+
+        <menuitem id="submenu_mtd_vat_obligation_log"
+            name="VAT Obligation Log"
+            parent="submenu_vat_logs_hmrc"
+            sequence="1"
+            action="action_mtd_vat_obligation_log"/>
+        <menuitem id="submenu_mtd_vat_submission_log"
+            name="VAT Submission Log"
+            parent="submenu_vat_logs_hmrc"
+            sequence="10"
+            action="action_mtd_vat_submission_log"/>
+        <menuitem id="submenu_mtd_vat_detailed_submission_log"
+            name="VAT Detailed Submission Log"
+            parent="submenu_vat_logs_hmrc"
+            sequence="20"
+            action="action_mtd_vat_detailed_submission_log"/>
+
+        <menuitem id="submenu_hmrc_posting_template"
+            action="action_hmrc_posting_template"
+            parent="account.menu_configuration_misc"
+            name="HMRC Posting Template"
+            sequence="30"/>
+
+    </data>
+</openerp>

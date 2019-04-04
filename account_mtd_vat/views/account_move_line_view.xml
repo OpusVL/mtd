@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="mtd_vat_view_move_line_tree" model="ir.ui.view">
+            <field name="name">mtd.vat.account.move.line.tree</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_tree"/>
+            <field name="arch" type="xml">
+                <field name="reconcile_ref" position="after">
+                    <field name="vat"/>
+                    <field name="vat_submission_id" invisible="1"/>
+                    <field name="unique_number"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mtd_vat_view_move_line_form" model="ir.ui.view">
+            <field name="name">mtd.vat.account.move.line.form</field>
+            <field name="model">account.move.line</field>
+            <field name="inherit_id" ref="account.view_move_line_form"/>
+            <field eval="2" name="priority"/>
+            <field name="arch" type="xml">
+                <field name="account_tax_id" position="after">
+                    <field name="vat"/>
+                    <field name="unique_number"/>
+                    <field name="vat_submission_id"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="mtd_vat_view_account_tax_chart" model="ir.ui.view">
+            <field name="name">mtd.vat.view.account.tax.chart</field>
+            <field name="model">account.tax.chart</field>
+            <field name="inherit_id" ref="account.view_account_tax_chart"/>
+            <field name="arch" type="xml">
+                <field name="target_move" position="before">
+                    <label for="previous_period"/>
+                    <div>
+                        <field name="previous_period"/>
+                    </div>
+                    <label for="vat_posted"/>
+                    <div>
+                        <field name="vat_posted"/>
+                    </div>
+                </field>
+            </field>
+        </record>
+    </data>
+</openerp>

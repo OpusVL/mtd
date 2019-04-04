@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="mtd_vat_submission_logs_list_view" model="ir.ui.view">
+            <field name="name">vat.submission.logs</field>
+            <field name="model">mtd_vat.vat_submission_logs</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false" edit="false">
+                    <field name="name">Name</field>
+                    <field name="unique_number">Unique Number</field>
+                    <field name="payment_indicator">Payment Indicator</field>
+                    <field name="charge_ref_number">Charge Ref Number</field>
+                    <field name="processing_date">Processing Date</field>
+                    <field name="company_id">Company</field>
+                    <field name="vrn">VAT Number</field>
+                    <field name="md5_integrity_value">Checksum</field>
+                </tree>
+            </field>
+        </record>
+
+        <record id="mtd_vat_submission_logs_form_view" model="ir.ui.view">
+            <field name="name">vat.submission.logs.form</field>
+            <field name="model">mtd_vat.vat_submission_logs</field>
+            <field name="arch" type="xml">
+                <form string="submission Logs" create="false" delete="false" edit="false"> <!--create="false" delete="false" edit="false">-->
+                    <sheet>
+                        <h2>VAT Submission Record</h2>
+                        <h4>Response received from HMRC:</h4>
+                        <group>
+                            <field name="submission_status">Submission Status</field>
+                            <field name="company_id">Company</field>
+                            <field name="vrn" readonly="1">VAT Number</field>
+                            <field name="name">Period</field>
+                            <field name="processing_date">Processing Date/time</field>
+                            <field name="payment_indicator">Payment Indicator</field>
+                            <field name="charge_ref_number">Charge Ref Number</field>
+                            <field name="unique_number">Unique Number</field>
+                            <field name="start" readonly="1" invisible="1"/>
+                            <field name="end" readonly="1" invisible="1"/>
+                            <field name="redirect_url" invisible="1"/>
+                            <field name="md5_integrity_value">Checksum</field>
+                        </group>
+                        <hr/>
+                        <h4>HMRC have successfully received your submission and provided below are the details of submitted VAT values.</h4>
+                        <br/>
+                        <group>
+                            <div class="oe_button_box oe_right">
+                                <button name="action_Detailed_submission_Log_view"
+                                    type="object"
+                                    string="View VAT Breakdown"
+                                    class="oe_highlight"/>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="vat_due_sales_submit"/>
+                            <field name="vat_due_acquisitions_submit"/>
+                            <field name="total_vat_due_submit"/>
+                            <field name="vat_reclaimed_submit"/>
+                            <field name="net_vat_due_submit"/>
+                            <field name="total_value_sales_submit"/>
+                            <field name="total_value_purchase_submit"/>
+                            <field name="total_value_goods_supplied_submit"/>
+                            <field name="total_acquisitions_submit"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</openerp>
