@@ -286,11 +286,11 @@ class MtdVatIssueRequest(models.Model):
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
-        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+        period_id, retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
 
         move_lines_to_copy = self.env['account.move.line'].search([
             ('company_id', '=', record.company_id.id),
-            ('period_id', '=', retrieve_period.id),
+            ('period_id', 'in', tuple(retrieve_period)),
             ('tax_code_id', '!=', False),
             ('tax_amount', '!=', 0),
             ('move_id.state', '=', 'posted')
@@ -485,7 +485,7 @@ class MtdVatIssueRequest(models.Model):
 
     def create_journal_record_for_submission(self, move_lines_to_copy, record):
 
-        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+        period_id, retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
         account_move = self.env['account.move']
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', record.company_id.id)])
@@ -494,13 +494,13 @@ class MtdVatIssueRequest(models.Model):
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
             'date': datetime.now().date(),
-            'period_id': retrieve_period.id,
+            'period_id': period_id.id,
             'journal_id': hmrc_posting_config.journal_id.id
         })
 
         # create account move line entry for tax output  account
         output_move_line = self.create_account_move_line(
-            retrieve_period.id,
+            period_id.id,
             hmrc_posting_config.output_account.id,
             'debit',
             record.total_vat_due_submit,
@@ -508,7 +508,7 @@ class MtdVatIssueRequest(models.Model):
 
         # create account move line entry for tax input account
         input_move_line = self.create_account_move_line(
-            retrieve_period.id,
+            period_id.id,
             hmrc_posting_config.input_account.id,
             'credit',
             record.vat_reclaimed_submit,
@@ -520,7 +520,7 @@ class MtdVatIssueRequest(models.Model):
             debit_credit_type = "debit"
 
         liability_move_line = self.create_account_move_line(
-            retrieve_period.id,
+            period_id.id,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
             record.net_vat_due_submit,
@@ -534,7 +534,7 @@ class MtdVatIssueRequest(models.Model):
             hmrc_posting_config.output_account.id,
             output_move_line,
             move_lines_to_copy,
-            retrieve_period.id
+            period_id.id
         )
 
         # Reconcile Input tax Records
@@ -542,7 +542,7 @@ class MtdVatIssueRequest(models.Model):
             hmrc_posting_config.input_account.id,
             input_move_line,
             move_lines_to_copy,
-            retrieve_period.id
+            period_id.id
         )
 
     def create_account_move_line(self,period_id, account_id, debit_credit_type, value, account_move_id):
@@ -585,11 +585,36 @@ class RetrievePeriodId(models.Model):
 
 
     def retrieve_period(self, record):
-
-        retrieve_period = self.env['account.period'].search([
+        period = self.env['account.period'].search([
             ('date_start', '=', record.date_from),
             ('date_stop', '=', record.date_to),
-            ('company_id', '=', record.company_id.id)
+            ('company_id', '=', record.company_id.id),
+            ('state', '=', 'draft')
         ])
 
-        return retrieve_period
+        if record.previous_period == 'no':
+            retrieve_period=[]
+            retrieve_period.append(period.id)
+        else:
+            cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', record.company_id.id)])
+
+            all_periods_before_cutoff = self.env['account.period'].search([
+                ('date_start', '>=', cutoff_date_rec.cutoff_date.date_start),
+                ('state', '=', 'draft'),
+                ('company_id', '=', record.company_id.id)
+            ])
+
+            all_period_ids = []
+            for period in all_periods_before_cutoff:
+                all_period_ids.append(period.id)
+
+            retrieve_periods = self.env['account.period'].search([
+                ('id', 'in', tuple(all_period_ids)),
+                ('date_start', '<=', record.date_from)
+            ])
+
+            retrieve_period = []
+            for period in retrieve_periods:
+                retrieve_period.append(period.id)
+
+        return period, retrieve_period
