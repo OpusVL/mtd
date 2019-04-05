@@ -9,6 +9,8 @@ import urllib
 from odoo import models, fields, api, exceptions
 from datetime import datetime, timedelta
 
+_logger = logging.getLogger(__name__)
+
 
 class MtdHelloWorld(models.Model):
     _name = 'mtd.hello_world'

@@ -7,7 +7,7 @@ import werkzeug
 import urllib
 import hashlib
 
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 from datetime import datetime
 
 _logger = logging.getLogger(__name__)
@@ -296,7 +296,7 @@ class MtdVatIssueRequest(models.Model):
             ('move_id.state', '=', 'posted')
         ])
 
-        storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
+        # storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
         move_lines_to_copy_list = move_lines_to_copy.read()
         for move_line in move_lines_to_copy_list:
             amended_move_line = move_line.copy()
@@ -306,9 +306,9 @@ class MtdVatIssueRequest(models.Model):
                 if type(v) == tuple:
                     amended_move_line[k] = v[0]  # Handle Many2ones
 
-            stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
-            if not stored_record:
-                storage_model.create(amended_move_line)
+            # stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
+            # if not stored_record:
+            #     storage_model.create(amended_move_line)
 
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
@@ -360,11 +360,12 @@ class MtdVatIssueRequest(models.Model):
             if 'received' in log.keys():
                 received = log['received']
 
-            obligation_logs = self.env['mtd_vat.vat_obligations_logs'].search([
-                ('start', '=', log['start']),
-                ('end', '=', log['end']),
-                ('company_id', '=', record.company_id.id)
-            ])
+            # obligation_logs = self.env['mtd_vat.vat_obligations_logs'].search([
+            #     ('start', '=', log['start']),
+            #     ('end', '=', log['end']),
+            #     ('company_id', '=', record.company_id.id)
+            # ])
+            obligation_logs = ""
             obligation_message += (
                 "Period: {}\n".format(log["start"], log["end"])
                 + "Start: {}\n" .format(log['start'])
@@ -374,7 +375,7 @@ class MtdVatIssueRequest(models.Model):
                 + "Received: {}\n".format(received)
                 + "Due: {}\n\n".format(log['due'])
             )
-            self.update_write_obligation(log, received, obligation_logs, record)
+            # self.update_write_obligation(log, received, obligation_logs, record)
 
         success_message = (
             "Date {date}     Time {time} \n\n{obligations}".format(date=datetime.now().date(),
@@ -447,9 +448,9 @@ class MtdVatIssueRequest(models.Model):
         # loop through the journal items make it into a string and then get the md5 no  and then store it in the
         # detailed submission logs and in accounts journal items
 
-        journal_items_for_integrity = self.env['mtd_vat.vat_detailed_submission_logs'].search([
-            ('unique_number', '=', unique_number)
-        ])
+        # journal_items_for_integrity = self.env['mtd_vat.vat_detailed_submission_logs'].search([
+        #     ('unique_number', '=', unique_number)
+        # ])
 
         #get the md5 value for the last submission of the company and remove the record with current unique number
         submission_log_md5_value = self.env['mtd_vat.vat_submission_logs'].search(
@@ -457,31 +458,31 @@ class MtdVatIssueRequest(models.Model):
             order="id desc",
             limit=1).md5_integrity_value
 
-        journal_entry_dict = {}
-        journal_entry_list = []
-        if journal_items_for_integrity:
-            for record in journal_items_for_integrity:
-                record_id = record.id
-                for field in detailed_submission_list:
-                    journal_entry_list.append(record[field])
-
-                journal_entry_dict[record_id] = journal_entry_list
-
-            # update the previousmd5 valueto the list
-
-            journal_entry_list.append(submission_log_md5_value)
-            hash_value = hashlib.md5(str(journal_entry_dict))
-
-            # update the hash value in the detailed submission table
-            for record in journal_items_for_integrity:
-                record.md5_integrity_value = hash_value.hexdigest()
-
-            #get the submission record and update the submission record with the md5 value
-
-            submission_log_record = self.env['mtd_vat.vat_submission_logs'].search([
-                ('unique_number', '=', unique_number)
-            ])
-            submission_log_record.md5_integrity_value = hash_value.hexdigest()
+        # journal_entry_dict = {}
+        # journal_entry_list = []
+        # if journal_items_for_integrity:
+        #     for record in journal_items_for_integrity:
+        #         record_id = record.id
+        #         for field in detailed_submission_list:
+        #             journal_entry_list.append(record[field])
+        #
+        #         journal_entry_dict[record_id] = journal_entry_list
+        #
+        #     # update the previousmd5 valueto the list
+        #
+        #     journal_entry_list.append(submission_log_md5_value)
+        #     hash_value = hashlib.md5(str(journal_entry_dict))
+        #
+        #     # update the hash value in the detailed submission table
+        #     for record in journal_items_for_integrity:
+        #         record.md5_integrity_value = hash_value.hexdigest()
+        #
+        #     #get the submission record and update the submission record with the md5 value
+        #
+        #     submission_log_record = self.env['mtd_vat.vat_submission_logs'].search([
+        #         ('unique_number', '=', unique_number)
+        #     ])
+        #     submission_log_record.md5_integrity_value = hash_value.hexdigest()
 
     def create_journal_record_for_submission(self, move_lines_to_copy, record):
 

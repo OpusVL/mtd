@@ -56,7 +56,7 @@
                 </form>
             </field>
         </record>
-        <record id="view_mtd_vat_detailed_submission_logs_search" model="ir.ui.view">
+        <!--<record id="view_mtd_vat_detailed_submission_logs_search" model="ir.ui.view">
             <field name="name">mtd.vat.detailed.submission.logs.search</field>
             <field name="model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="arch" type="xml">
@@ -69,7 +69,7 @@
                     </group>
                 </search>
             </field>
-        </record>
+        </record>-->
 
     </data>
 </openerp>

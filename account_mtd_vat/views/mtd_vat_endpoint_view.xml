@@ -31,21 +31,21 @@
                             <field name="scope" invisible="1"/>
                             <field name="path" invisible="1"/>
                             <field name="endpoint_name" invisible="1"/>
-                            <field name="obligation_status" invisible="1"/>
+                            <!--<field name="obligation_status" invisible="1"/>-->
                             <field name="show_obligation_log_button" invisible="1"/>
-                            <field name="obligation_company" invisible="1"/>
-                            <field name="select_vat_obligation"
+                            <!--<field name="obligation_company" invisible="1"/>-->
+                            <!--<field name="select_vat_obligation"
                                 string="Select VAT Obligation"
                                 attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
                                 domain="([('company_id', '=', obligation_company)])"
-                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>
+                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>-->
                             <!--('status', '=', obligation_status), -->
                             <!--<field name="retrieve_vat_obligation_first"
                                    string="Please retrive VAT obligation here"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->
                             <field name="previous_period" attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                         </group>
-                        <group>
+                        <!--<group>
                             <button name="action_retrieve_vat"
                                 type="object"
                                 string="Calculate VAT"
@@ -53,7 +53,7 @@
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                             <div class="oe_button_box oe_right">
 
-                                <field name="submit_vat_flag" invisible="1"/>
+
                                 <button name="action_vat_breakdown"
                                     type="object"
                                     string="View VAT Breakdown"
@@ -63,9 +63,10 @@
                                     ('name', '!=', 'Submit VAT Returns')
                                     ]}"/>
                             </div>
-                        </group>
+                        </group>-->
                         <group>
-                            <field name="period_key_submit" invisible="1"/>
+                            <field name="submit_vat_flag" invisible="1"/>
+                            <!--<field name="period_key_submit" invisible="1"/>-->
                             <field name="vat_due_sales_submit"
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
                                    readonly="1"/>
@@ -119,12 +120,12 @@
                                    string="I confirm and finalise"
                                    attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
                         </group>
-                        <group>
-                            <!--<button name="action_vat_connection"
+                        <!--<group>
+                            &lt;!&ndash;<button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve Vat Obligation"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>-->
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>&ndash;&gt;
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve from HMRC"
@@ -135,7 +136,7 @@
                                 string="Submit VAT return"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('finalise', '=', False)]}"/>
-                        </group>
+                        </group>-->
                         <hr/>
                         <div>
                             <div>
@@ -145,7 +146,7 @@
                             <field name="response_from_hmrc" string="" attrs="{'invisible':[
                             ('view_vat_flag', '=', True)
                             ]}"/>
-                            <button name="action_go_to_obligation_logs"
+                            <!--<button name="action_go_to_obligation_logs"
                                 type="object"
                                 string="View Obligation Logs"
                                 class="oe_highlight"
@@ -158,10 +159,10 @@
                                 attrs="{'invisible':['|',
                                 ('name', '!=', 'Submit VAT Returns'),
                                 ('submit_vat_flag', '=', False)]}"/>
-                            </group>
+                            </group>-->
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>
-                                <field name="period_key" invisible="1"/>
+                                <!--<field name="period_key" invisible="1"/>-->
                                 <field name="vat_due_sales"
                                        attrs="{'invisible':[('view_vat_flag', '=', False)]}"/>
                                 <field name="vat_due_acquisitions"

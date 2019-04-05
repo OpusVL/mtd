@@ -2,7 +2,8 @@
 import logging
 
 
-from openerp.osv import fields, osv
+from odoo.osv import osv
+from odoo import fields
 
 
 class mtd_account_tax_code(osv.osv):
@@ -112,7 +113,6 @@ class mtd_account_tax_code(osv.osv):
                 where_params=(tuple(period_id), move_state, vat)
             )
 
-    _columns = {
-        'sum': fields.function(_sum_year, string="Year Sum"),
-        'sum_period': fields.function(_sum_period, string="Period Sum")
-    }
+    # sum = fields.function(_sum_year, string="Year Sum"),
+    # sum_period = fields.function(_sum_period, string="Period Sum")
+

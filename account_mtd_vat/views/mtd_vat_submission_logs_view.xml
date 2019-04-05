@@ -43,14 +43,14 @@
                         <hr/>
                         <h4>HMRC have successfully received your submission and provided below are the details of submitted VAT values.</h4>
                         <br/>
-                        <group>
+                        <!--<group>
                             <div class="oe_button_box oe_right">
                                 <button name="action_Detailed_submission_Log_view"
                                     type="object"
                                     string="View VAT Breakdown"
                                     class="oe_highlight"/>
                             </div>
-                        </group>
+                        </group>-->
                         <group>
                             <field name="vat_due_sales_submit"/>
                             <field name="vat_due_acquisitions_submit"/>

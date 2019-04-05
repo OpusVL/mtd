@@ -1,7 +1,7 @@
 # -*- coding = utf-8 -*-
 import logging
 
-from openerp import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions
 from datetime import datetime, timedelta
 
 _logger = logging.getLogger(__name__)

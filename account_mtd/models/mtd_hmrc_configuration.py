@@ -47,17 +47,16 @@ class MtdHmrcConfiguration(models.Model):
             self.hmrc_url = ''
             self.redonly_on_live = False
 
-    def create(self, cr, uid, vals, context=None):
-        import pdb; pdb.set_trace()
-        if vals['environment'] == 'live':
-            vals['name'] = 'HMRC Live Environment'
-            vals['server_token'] = '5b9635be5d53d5d87bdcb051ee90e760'
-            vals['client_id'] = '4wB_PpdQAn81wCE0usci6_xSzYIa'
-            vals['client_secret'] = '44c3ae5a-cbbf-4fa5-a5fc-04c96a10d719'
-            vals['hmrc_url'] = 'https://api.service.hmrc.gov.uk/'
-            vals['redonly_on_live'] = True
-
-        record = super(MtdHmrcConfiguration, self).create(cr, uid, vals=vals, context=context)
-        import pdb;
-        pdb.set_trace()
-        return record
+    # def create(self, vals, context):
+    #     import pdb; pdb.set_trace()
+    #
+    #     if vals['environment'] == 'live':
+    #         vals['name'] = 'HMRC Live Environment'
+    #         vals['server_token'] = '5b9635be5d53d5d87bdcb051ee90e760'
+    #         vals['client_id'] = '4wB_PpdQAn81wCE0usci6_xSzYIa'
+    #         vals['client_secret'] = '44c3ae5a-cbbf-4fa5-a5fc-04c96a10d719'
+    #         vals['hmrc_url'] = 'https://api.service.hmrc.gov.uk/'
+    #         vals['redonly_on_live'] = True
+    #
+    #     record = super(MtdHmrcConfiguration, self).create(vals=vals, context=context)
+    #     return record

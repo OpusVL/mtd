@@ -34,9 +34,9 @@
                             <field name="liability_account"
                                    string="HMRC Liability Account"
                                    domain="([('company_id', '=', company_journal), ('type', '!=', 'view')])"/>
-                            <field name="cutoff_date"
+                            <!--<field name="cutoff_date"
                                    string="MTD Cutoff Date"
-                                   domain="([('company_id', '=', company_journal)])"/>
+                                   domain="([('company_id', '=', company_journal)])"/>-->
 
                         </group>
                     </group>
@@ -54,7 +54,7 @@
                     <field name="output_account"/>
                     <field name="input_account"/>
                     <field name="liability_account"/>
-                    <field name="cutoff_date"/>
+                    <!--<field name="cutoff_date"/>-->
                 </tree>
             </field>
         </record>

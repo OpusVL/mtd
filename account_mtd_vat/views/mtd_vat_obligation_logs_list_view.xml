@@ -44,7 +44,7 @@
             </field>
         </record>
 
-        <record id="view_mtd_vat_obligation_logs_search" model="ir.ui.view">
+        <!--<record id="view_mtd_vat_obligation_logs_search" model="ir.ui.view">
             <field name="name">mtd.vat.obligation.logs.search</field>
             <field name="model">mtd_vat.vat_obligations_logs</field>
             <field name="arch" type="xml">
@@ -55,7 +55,7 @@
                     </group>
                 </search>
             </field>
-        </record>
+        </record>-->
         <record model="ir.actions.act_window" id="action_mtd_vat_obligation_log">
             <field name="name">VAT Obligation Log</field>
             <field name="model">mtd_vat.vat_obligations_logs</field>

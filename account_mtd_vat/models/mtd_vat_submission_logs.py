@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 
-from openerp import models, fields, api
+from odoo import models, fields, api
 
 _logger = logging.getLogger(__name__)
 
@@ -65,14 +65,14 @@ class MtdVATSubmissionLogs(models.Model):
     md5_integrity_value = fields.Char(string="Checksum", readonly=True)
 
 
-    @api.multi
-    def action_Detailed_submission_Log_view(self, *args):
-
-        return {
-             'view_mode': 'list',
-             'view_type':'list',
-             'res_model': 'mtd_vat.vat_detailed_submission_logs',
-             'type': 'ir.actions.act_window',
-             'target': 'self',
-             'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
-         }
+    # @api.multi
+    # def action_Detailed_submission_Log_view(self, *args):
+    #
+    #     return {
+    #          'view_mode': 'list',
+    #          'view_type':'list',
+    #          'res_model': 'mtd_vat.vat_detailed_submission_logs',
+    #          'type': 'ir.actions.act_window',
+    #          'target': 'self',
+    #          'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
+    #      }

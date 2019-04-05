@@ -4,45 +4,40 @@ import json
 import ast
 
 
-from openerp.osv import fields, osv
-from openerp import exceptions
+from odoo.osv import osv
+from odoo import fields, exceptions
 
 
 class account_move_line(osv.osv):
     _inherit = "account.move.line"
 
-    _columns = {
-        'vat': fields.boolean(string="VAT Posted", default=False, readonly=True),
-        'vat_submission_id': fields.many2one('mtd_vat.vat_submission_logs', string='VAT Submission Period'),
-        'unique_number': fields.related(
-            'vat_submission_id',
-            'unique_number',
-            type='char',
-            string="HMRC Unique Number",
-            store=True,
-            readonly=True
-        )
-    }
-
+    vat = fields.Boolean(string="VAT Posted", default=False, readonly=True),
+    vat_submission_id = fields.Many2one('mtd_vat.vat_submission_logs', string='VAT Submission Period')
+    unique_number = fields.Many2one(
+        related='vat_submission_id.unique_number',
+        type='char',
+        string="HMRC Unique Number",
+        store=True,
+        readonly=True
+    )
 
 class account_tax_chart(osv.osv_memory):
     _inherit = "account.tax.chart"
 
-    _columns = {
-        'vat_posted': fields.selection([
-            ('yes', 'Yes'),
-            ('no', 'No'),
-            ('all', 'All')],
-            'VAT Posted',
-            required=True,
-            default='no'),
-        'previous_period': fields.selection([
-            ('yes', 'Yes'),
-            ('no', 'No')],
-            'Include Transaction of Previous period',
-            required=True,
-            default='yes')
-    }
+    vat_posted = fields.Selection([
+        ('yes', 'Yes'),
+        ('no', 'No'),
+        ('all', 'All')],
+        'VAT Posted',
+        required=True,
+        default='no')
+
+    previous_period = fields.Selection([
+        ('yes', 'Yes'),
+        ('no', 'No')],
+        'Include Transaction of Previous period',
+        required=True,
+        default='yes')
 
     def account_tax_chart_open_window(self, cr, uid, ids, context=None):
         result = super(account_tax_chart, self).account_tax_chart_open_window(cr, uid, ids, context=context)
