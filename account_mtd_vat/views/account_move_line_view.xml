@@ -33,16 +33,23 @@
             <field name="model">account.tax.chart</field>
             <field name="inherit_id" ref="account.view_account_tax_chart"/>
             <field name="arch" type="xml">
-                <field name="target_move" position="before">
-                    <label for="previous_period"/>
-                    <div>
-                        <field name="previous_period"/>
-                    </div>
-                    <label for="vat_posted"/>
-                    <div>
-                        <field name="vat_posted"/>
-                    </div>
-                </field>
+                <form string="Account tax charts" position="replace">
+                    <form string="Account tax charts">
+                        <group>
+                            <field name="date_from" required="1"/>
+                            <field name="date_to" required="1"/>
+                            <field name="company_id" required="1"/>
+                            <field name="vat_posted"/>
+                            <field name="previous_period" invisible="1"/>
+                            <field name="target_move"/>
+                        </group>
+                        <footer>
+                            <button string="Open Charts" name="account_tax_chart_open_window" type="object" class="oe_highlight"/>
+                            or
+                            <button string="Cancel" class="oe_link" special="cancel"/>
+                        </footer>
+                    </form>
+                </form>
             </field>
         </record>
     </data>

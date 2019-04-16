@@ -44,7 +44,7 @@ class account_tax_chart(osv.osv_memory):
             ('no', 'No')],
             'Include Transaction of Previous period',
             required=True,
-            default='yes')
+            default='no')
     }
 
     def account_tax_chart_open_window(self, cr, uid, ids, context=None):
