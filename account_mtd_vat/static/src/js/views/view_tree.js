@@ -32,11 +32,13 @@ var instance = openerp;
                     if ((typeof c.__eval_context.vat !== 'Undefined') && (c.__eval_context.vat != "")){
                         var vat = c.__eval_context.vat
                         action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('period_id', 'in', [" + c.__eval_context.period_id + "]), ('vat', '=', " + c.__eval_context.vat + ")]")
-                        //, ('vat', '=', vat)]
+                        "('date', '>=', '" + c.__eval_context.date_from +
+                        "'), ('date', '<=', '" + c.__eval_context.date_to +
+                        "'), ('vat', '=', " + c.__eval_context.vat + ")]")
                     } else {
                         action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('period_id', 'in', [" + c.__eval_context.period_id + "])]")
+                        "('date', '>=', '" + c.__eval_context.date_from +
+                        "'), ('date', '<=', '" + c.__eval_context.date_to + "')]")
                     }
                 }
                 return self.do_action(action);
