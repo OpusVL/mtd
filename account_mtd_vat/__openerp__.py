@@ -44,6 +44,7 @@
         # 'security/user_access_rules.xml',
 
         'views/account_move_line_view.xml',
+        'views/account_tax_code_view.xml',
         'views/mtd_vat_endpoint_view.xml',
         'views/mtd_vat_menu.xml',
         'views/mtd_vat_obligation_logs_list_view.xml',

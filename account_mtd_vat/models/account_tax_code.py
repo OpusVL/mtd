@@ -27,6 +27,15 @@ class mtd_account_tax_code(osv.osv):
             vat = False
             if context['vat'] == 'True':
                 vat = True
+        date_from = None
+        date_to = None
+        company_id = None
+        if 'date_from' in context.keys():
+            date_from = context['date_from']
+        if 'date_to' in context.keys():
+            date_to = context['date_to']
+        if 'company_id' in context.keys():
+            company_id = context['company_id']
 
         where = ''
         where_params = ()
@@ -36,11 +45,11 @@ class mtd_account_tax_code(osv.osv):
                 pids += map(lambda x: str(x.id), self.pool.get('account.fiscalyear').browse(cr, uid, fy).period_ids)
             if pids:
                 if vat == '':
-                    where = ' AND line.period_id IN %s AND move.state IN %s '
-                    where_params = (tuple(pids), move_state)
+                    where = ' AND line.date >= %s AND line.date <= %s AND move.state IN %s  AND line.company_id = %s'
+                    where_params = (date_from, date_to, move_state, company_id)
                 else:
-                    where = ' AND line.period_id IN %s AND move.state IN %s AND line.vat = %s '
-                    where_params = (tuple(pids), move_state, vat)
+                    where = ' AND line.date >= %s AND line.date <= %s AND move.state IN %s AND line.vat = %s  AND line.company_id = %s'
+                    where_params = (date_from, date_to, move_state, vat, company_id)
 
         return self._sum(
             cr,
@@ -82,12 +91,20 @@ class mtd_account_tax_code(osv.osv):
             if not period_id:
                 return dict.fromkeys(ids, 0.0)
             period_id = [period_id[0]]
-
         vat = ''
         if 'vat' in context.keys() and context['vat'] != "":
             vat = False
             if context['vat'] == 'True':
                 vat = True
+        date_from = None
+        date_to = None
+        company_id = None
+        if 'date_from' in context.keys():
+            date_from = context['date_from']
+        if 'date_to' in context.keys():
+            date_to = context['date_to']
+        if 'company_id' in context.keys():
+            company_id = context['company_id']
 
         if vat == "":
             return self._sum(
@@ -97,8 +114,8 @@ class mtd_account_tax_code(osv.osv):
                 name,
                 args,
                 context,
-                where=' AND line.period_id IN %s AND move.state IN %s',
-                where_params=(tuple(period_id), move_state)
+                where=' AND line.date >= %s AND line.date <= %s AND move.state IN %s AND line.company_id = %s',
+                where_params=(date_from, date_to, move_state, company_id)
             )
         else:
             return self._sum(
@@ -108,8 +125,8 @@ class mtd_account_tax_code(osv.osv):
                 name,
                 args,
                 context,
-                where=' AND line.period_id IN %s AND move.state IN %s AND line.vat = %s',
-                where_params=(tuple(period_id), move_state, vat)
+                where=' AND line.date >= %s AND line.date <= %s AND move.state IN %s AND line.vat = %s AND line.company_id = %s',
+                where_params=(date_from, date_to, move_state, vat, company_id)
             )
 
     _columns = {

@@ -29,6 +29,9 @@ class account_tax_chart(osv.osv_memory):
     _inherit = "account.tax.chart"
 
     _columns = {
+        'date_from': fields.date(string='Effective date from'),
+        'date_to': fields.date(string='Effective date to'),
+        'company_id': fields.many2one('res.company', 'Company'),
         'vat_posted': fields.selection([
             ('yes', 'Yes'),
             ('no', 'No'),
@@ -50,26 +53,19 @@ class account_tax_chart(osv.osv_memory):
         data = self.browse(cr, uid, ids, context=context)[0]
         period_ids = [data.period_id.id]
         fiscalyear_ids = [data.period_id.fiscalyear_id.id]
+        date_from = data.date_from
 
         if data.previous_period == 'yes':
             cutoff_date_rec = self.pool.get('mtd_vat.hmrc_posting_configuration').search(cr, uid, [
                 ('name', '=', data.period_id.company_id.id)])
             if cutoff_date_rec:
-                cutoff_date = self.pool.get('mtd_vat.hmrc_posting_configuration').browse(cr, uid, cutoff_date_rec,
+                date_from = self.pool.get('mtd_vat.hmrc_posting_configuration').browse(cr, uid, cutoff_date_rec,
                     context=context).cutoff_date
-                all_periods_before_cutoff = self.pool.get('account.period').search(cr, uid,
-                    [('date_start', '>=', cutoff_date.date_start),
-                    ('state', '=', 'draft'),
-                    ('company_id', '=', data.period_id.company_id.id)], context=context)
             else:
                 raise exceptions.Warning(
                     "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
                     "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
                 )
-            # return list of periods
-            period_ids = self.pool.get('account.period').search(cr, uid,
-                [('id', 'in', tuple(all_periods_before_cutoff)),
-                 ('date_start', '<=', data.period_id.date_start)], context=context)
             fiscalyear_ids = []
             for period in period_ids:
                 fiscalyear_id = self.pool.get('account.period').browse(cr, uid, period).fiscalyear_id.id
@@ -83,11 +79,14 @@ class account_tax_chart(osv.osv_memory):
             vat = 'False'
 
         context = result['context']
-        new = ast.literal_eval(context)
-        new['period_id'] = period_ids
-        new['vat'] = vat
-        new['fiscalyear_id'] = fiscalyear_ids
-        result['context'] = new
+        new_context = ast.literal_eval(context)
+        new_context['company_id'] = data.company_id.id
+        new_context['date_from'] = date_from
+        new_context["date_to"] = data.date_to
+        new_context['period_id'] = period_ids
+        new_context['vat'] = vat
+        new_context['fiscalyear_id'] = fiscalyear_ids
+        result['context'] = new_context
 
         return result
 
