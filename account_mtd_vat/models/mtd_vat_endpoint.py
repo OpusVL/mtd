@@ -273,12 +273,6 @@ class MtdVATEndpoints(models.Model):
     @api.multi
     def action_vat_breakdown(self, *args):
 
-        # get period Ids'
-        period_id = self.env['account.period'].search([
-            ('date_start', '=', self.date_from),
-            ('date_stop', '=', self.date_to),
-            ('company_id', '=', self.company_id.id)
-        ])
         # Create on account.tax.chart, with period_id set to ^, and target_move set to either 'posted', or 'all'
         # i.e wizard_rec = self.env['account.tax.chart'].create(<values>)
         # call account_tax_chart_open_window() <-- This will give us a dictionary which by returning
@@ -286,10 +280,12 @@ class MtdVATEndpoints(models.Model):
         # i.e chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
         # {'view_id': x, 'target': 'new', 'context': {'default_company_id': <company_you_want>}}
         wizard_rec = self.env['account.tax.chart'].create(dict(
-            period_id=period_id.id,
+            date_from=self.date_from,
+            date_to=self.date_to,
             target_move='posted',
             previous_period=self.previous_period,
-            vat_posted='no'))
+            vat_posted='no',
+            company_id=self.company_id.id))
 
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
         chart_of_taxes_view['target'] = 'new'
@@ -307,7 +303,11 @@ class MtdVATEndpoints(models.Model):
         self.finalise = False
         self.response_from_hmrc = ""
 
-        retrieve_period, period_ids, fiscalyear_ids = self.retrieve_period_and_fiscalyear()
+        retrieve_period, period_ids, fiscalyear_ids, cutoff_date = self.retrieve_period_and_fiscalyear()
+
+        date_from = self.date_from
+        if cutoff_date:
+            date_from = cutoff_date
 
         context = str({'period_id': period_ids,
             'fiscalyear_id': fiscalyear_ids,
@@ -319,11 +319,15 @@ class MtdVATEndpoints(models.Model):
             ('company_id', '=', self.company_id.id)
         ])
         name = 'Calculated VAT'
+
         retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
+            date_from=date_from,
+            date_to=self.date_to,
             period_id=period_ids,
             fiscalyear_id=fiscalyear_ids,
             state='posted',
-            vat='no'
+            vat='no',
+            company_id=self.company_id.id
         )._sum_period(name, context)
 
         code_dict = {
@@ -352,43 +356,23 @@ class MtdVATEndpoints(models.Model):
             )
 
     def retrieve_period_and_fiscalyear(self):
-        if self.previous_period == 'no':
-            retrieve_period = self.env['account.period'].search([
-                ('date_start', '=', self.date_from),
-                ('date_stop', '=', self.date_to),
-                ('company_id', '=', self.company_id.id),
-                ('state', '=', 'draft')
-            ])
-            period_ids = [retrieve_period.id]
-            fiscalyear_ids = [retrieve_period.fiscalyear_id.id]
-        else:
+        retrieve_period = self.env['account.period'].search([
+            ('date_start', '<=', self.date_to),
+            ('date_stop', '>=', self.date_to),
+            ('company_id', '=', self.company_id.id),
+            ('state', '=', 'draft')
+        ])
+        period_ids = [retrieve_period.id]
+        fiscalyear_ids = [retrieve_period.fiscalyear_id.id]
+
+        cutoff_date = None
+        if self.previous_period == 'yes':
             cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', self.company_id.id)])
-            if not cutoff_date_rec:
-                raise exceptions.Warning(
-                    "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
-                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
-                )
-            all_periods_before_cutoff = self.env['account.period'].search([
-                ('date_start', '>=', cutoff_date_rec.cutoff_date.date_start),
-                ('state', '=', 'draft'),
-                ('company_id', '=', self.company_id.id)
-            ])
 
-            all_period_ids = []
-            for period in all_periods_before_cutoff:
-                all_period_ids.append(period.id)
+            for rec in cutoff_date_rec:
+                cutoff_date = rec.cutoff_date
 
-            retrieve_period = self.env['account.period'].search([
-                ('id', 'in', tuple(all_period_ids)),
-                ('date_start', '<=', self.date_from)
-            ])
-            period_ids = []
-            fiscalyear_ids = []
-            for period in retrieve_period:
-                period_ids.append(period.id)
-                fiscalyear_ids.append(period.fiscalyear_id.id)
-
-        return (retrieve_period, period_ids, fiscalyear_ids)
+        return (retrieve_period, period_ids, fiscalyear_ids, cutoff_date)
 
     def _handle_vat_obligations_endpoint(self):
         vrn = self.get_vrn(self.vrn)

@@ -286,11 +286,18 @@ class MtdVatIssueRequest(models.Model):
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
-        period_id, retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+        # period_id, retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+
+        date_from = record.date_from
+        if record.previous_period == 'yes':
+            cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', record.company_id.id)])
+            for rec in cutoff_date_rec:
+                date_from = rec.cutoff_date
 
         move_lines_to_copy = self.env['account.move.line'].search([
             ('company_id', '=', record.company_id.id),
-            ('period_id', 'in', tuple(retrieve_period)),
+            ('date', '>=', date_from),
+            ('date', '<=', record.date_to),
             ('tax_code_id', '!=', False),
             ('tax_amount', '!=', 0),
             ('move_id.state', '=', 'posted')
@@ -566,7 +573,6 @@ class MtdVatIssueRequest(models.Model):
         account_move_line_obj = self.pool.get('account.move.line')
         move_line_account_id = []
         move_line_account_id.append(move_line_id.id)
-
         for line in move_lines_for_period:
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
@@ -583,38 +589,18 @@ class MtdVatIssueRequest(models.Model):
 class RetrievePeriodId(models.Model):
     _name = 'mtd_vat.retrieve_period_id'
 
-
     def retrieve_period(self, record):
         period = self.env['account.period'].search([
-            ('date_start', '=', record.date_from),
-            ('date_stop', '=', record.date_to),
+            ('date_start', '<=', record.date_to),
+            ('date_stop', '>=', record.date_to),
             ('company_id', '=', record.company_id.id),
             ('state', '=', 'draft')
         ])
 
         if record.previous_period == 'no':
-            retrieve_period=[]
-            retrieve_period.append(period.id)
+            retrieve_period = record.date_from
         else:
             cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', record.company_id.id)])
 
-            all_periods_before_cutoff = self.env['account.period'].search([
-                ('date_start', '>=', cutoff_date_rec.cutoff_date.date_start),
-                ('state', '=', 'draft'),
-                ('company_id', '=', record.company_id.id)
-            ])
-
-            all_period_ids = []
-            for period in all_periods_before_cutoff:
-                all_period_ids.append(period.id)
-
-            retrieve_periods = self.env['account.period'].search([
-                ('id', 'in', tuple(all_period_ids)),
-                ('date_start', '<=', record.date_from)
-            ])
-
-            retrieve_period = []
-            for period in retrieve_periods:
-                retrieve_period.append(period.id)
 
         return period, retrieve_period
