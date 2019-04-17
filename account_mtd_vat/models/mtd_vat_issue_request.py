@@ -601,7 +601,7 @@ class RetrievePeriodId(models.Model):
             retrieve_period = record.date_from
         else:
             cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', record.company_id.id)])
-            retrieve_period = cutoff_date_rec.cutoff_date_rec
+            retrieve_period = cutoff_date_rec.cutoff_date
 
 
         return period, retrieve_period
