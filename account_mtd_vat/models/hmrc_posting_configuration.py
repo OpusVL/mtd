@@ -15,7 +15,7 @@ class HMRCPostingConfiguration(models.Model):
     input_account = fields.Many2one(comodel_name="account.account", string="Tax Input Account", required=True)
     liability_account = fields.Many2one(comodel_name="account.account", string="HMRC Liability Account", required=True)
     cutoff_date = fields.Date(
-        string='MTD Cutoff Date',
+        string='MTD Start Date',
         required=True
     )
 
