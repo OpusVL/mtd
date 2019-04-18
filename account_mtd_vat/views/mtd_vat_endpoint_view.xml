@@ -20,12 +20,9 @@
                                 <!--domain="([('res.user_id', '=', "-->
                             <field name="vrn" string="VAT Number"/>
                             <field name="date_from"
-                                   attrs="{'invisible':[('name', 'in', ['View VAT Returns'])]}"/>
-                            <!--the Start and end date will need to be hidden in the live system.-->
-                            <!--'Submit VAT Returns',-->
+                                   attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
                             <field name="date_to"
-                                attrs="{'invisible':[('name', 'in', ['View VAT Returns'])]}"/>
-                            <!--'Submit VAT Returns',-->
+                                attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
                             <field name="status" attrs="{'invisible':[('name', '!=', 'VAT Obligations')]}"/>
                             <field name="gov_test_scenario" context="{'endpoint_name': name}"
                                 options="{'no_quick_create': True, 'no_create_edit' : True, 'no_open': True}"
