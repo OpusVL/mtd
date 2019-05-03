@@ -46,7 +46,7 @@
         'views/account_move_line_view.xml',
         'views/account_tax.xml',
         'views/hmrc_posting_configuration_view.xml',
-        'views/mtd_vat_calculation_table_view.xml'
+        'views/mtd_vat_calculation_table_view.xml',
         'views/mtd_vat_detailed_submission_logs_view.xml',
         'views/mtd_vat_endpoint_view.xml',
         'views/mtd_vat_menu.xml',
