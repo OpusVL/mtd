@@ -54,7 +54,7 @@ class mtd_account_tax_code(osv.osv):
             where_params=where_params
         )
 
-    def _sum(self, cr, uid, ids, name, args, context, where ='', where_params=()):
+    def _sum(self, cr, uid, ids, name, args, context, where='', where_params=()):
 
         mtd_sum = super(mtd_account_tax_code, self)._sum(
             cr,
@@ -115,4 +115,3 @@ class mtd_account_tax_code(osv.osv):
 
     # sum = fields.function(_sum_year, string="Year Sum"),
     # sum_period = fields.function(_sum_period, string="Period Sum")
-

@@ -30,7 +30,7 @@ class MtdVATDetailedSubmissionLogs(models.Model):
     state = fields.Char(readonly=True)
     debit = fields.Float(readonly=True)
     ref = fields.Char(string='Reference', readonly=True)
-    account_id =fields.Many2one('account.account', string='Account', readonly=True)
+    account_id = fields.Many2one('account.account', string='Account', readonly=True)
     period_id = fields.Many2one('account.period', string='Period', readonly=True)
     write_date = fields.Datetime(readonly=True)
     date_created = fields.Datetime(readonly=True)
@@ -45,7 +45,6 @@ class MtdVATDetailedSubmissionLogs(models.Model):
     product_uom_id = fields.Many2one('product.uom', string='Unit of Measure', readonly=True)
     amount_currency = fields.Float(readonly=True)
     quantity = fields.Float(digits=(16, 2), readonly=True)
-
 
     unique_number = fields.Char(string='HMRC Unique No', readonly=True)
     account_move_line_id = fields.Many2one('account.move.line', readonly=True)

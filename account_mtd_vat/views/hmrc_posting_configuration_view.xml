@@ -9,9 +9,6 @@
                     <group>
                         <group>
                             <field name="company_journal" invisible="1"/>
-                            <field name="output_account_type" invisible="1"/>
-                            <field name="input_account_type" invisible="1"/>
-                            <field name="company_liability_account" invisible="1"/>
 
                             <field name="name"
                                    string="Company"
@@ -22,22 +19,17 @@
                             <field name="output_account"
                                    string="Tax Output Account"
                                    domain="([
-                                   ('company_id', '=', company_journal),
-                                   ('user_type', '=', output_account_type)])"/>
+                                   ('company_id', '=', company_journal)])"/>
                         </group>
                         <group>
                             <field name="input_account"
                                    string="Tax Input Account"
                                    domain="([
-                                   ('company_id', '=', company_journal),
-                                   ('user_type', '=', input_account_type)])"/>
+                                   ('company_id', '=', company_journal)])"/>
                             <field name="liability_account"
                                    string="HMRC Liability Account"
-                                   domain="([('company_id', '=', company_journal), ('type', '!=', 'view')])"/>
-                            <!--<field name="cutoff_date"
-                                   string="MTD Cutoff Date"
-                                   domain="([('company_id', '=', company_journal)])"/>-->
-
+                                   domain="([('company_id', '=', company_journal)])"/>
+                            <field name="cutoff_date" string="MTD Cutoff Date"/>
                         </group>
                     </group>
                 </form>
@@ -54,7 +46,7 @@
                     <field name="output_account"/>
                     <field name="input_account"/>
                     <field name="liability_account"/>
-                    <!--<field name="cutoff_date"/>-->
+                    <field name="cutoff_date"/>
                 </tree>
             </field>
         </record>

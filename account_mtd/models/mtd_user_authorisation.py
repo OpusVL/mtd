@@ -21,6 +21,7 @@ class MtdUserAuthorisation(models.Model):
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
         state = ""
         # State is optional
+
         if record.hmrc_configuration.state:
             state = "&state={}".format(record.hmrc_configuration.state)
         # scope needs to be percent encoded
@@ -48,6 +49,7 @@ class MtdUserAuthorisation(models.Model):
         return self.handle_user_authorisation_response(response, authorisation_url, tracker_api, record)
 
     def handle_user_authorisation_response(self, response=None, url=None, tracker=None, record=None):
+
 
         if response.ok:
             return {'url': url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': record.id}

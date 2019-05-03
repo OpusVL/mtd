@@ -7,11 +7,9 @@
             <field name="arch" type="xml">
                 <form string="VAT Connection to HMRC" create="false" delete="false">
                     <sheet>
-                        <div>
-                            <h2>
-                                <field name="name"/>
-                            </h2>
-                        </div>
+                        <h2>
+                            <field name="name"/>
+                        </h2>
                         <group>
                             <field name="api_id" invisible="1"/>
                             <field name="hmrc_configuration"
@@ -31,21 +29,21 @@
                             <field name="scope" invisible="1"/>
                             <field name="path" invisible="1"/>
                             <field name="endpoint_name" invisible="1"/>
-                            <!--<field name="obligation_status" invisible="1"/>-->
+                            <field name="obligation_status" invisible="1"/>
                             <field name="show_obligation_log_button" invisible="1"/>
-                            <!--<field name="obligation_company" invisible="1"/>-->
-                            <!--<field name="select_vat_obligation"
+                            <field name="obligation_company" invisible="1"/>
+                            <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
                                 attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
                                 domain="([('company_id', '=', obligation_company)])"
-                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>-->
+                                options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                             <!--('status', '=', obligation_status), -->
                             <!--<field name="retrieve_vat_obligation_first"
                                    string="Please retrive VAT obligation here"
                                 attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->
                             <field name="previous_period" attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
                         </group>
-                        <!--<group>
+                        <group>
                             <button name="action_retrieve_vat"
                                 type="object"
                                 string="Calculate VAT"
@@ -63,38 +61,38 @@
                                     ('name', '!=', 'Submit VAT Returns')
                                     ]}"/>
                             </div>
-                        </group>-->
-                        <group>
-                            <field name="submit_vat_flag" invisible="1"/>
-                            <!--<field name="period_key_submit" invisible="1"/>-->
-                            <field name="vat_due_sales_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="vat_due_acquisitions_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="total_vat_due_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="vat_reclaimed_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="net_vat_due_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="total_value_sales_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="total_value_purchase_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="total_value_goods_supplied_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
-                            <field name="total_acquisitions_submit"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
-                                   readonly="1"/>
                         </group>
+                            <group col="1">
+                                <field name="submit_vat_flag" invisible="1"/>
+                                <!--<field name="period_key_submit" invisible="1"/>-->
+                                <field name="vat_due_sales_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="vat_due_acquisitions_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="total_vat_due_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="vat_reclaimed_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="net_vat_due_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="total_value_sales_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="total_value_purchase_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="total_value_goods_supplied_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                                <field name="total_acquisitions_submit"
+                                       attrs="{'invisible':[('submit_vat_flag', '=', False)]}"
+                                       readonly="1"/>
+                            </group>
                         <group>
                             <label for="client_type"
                                    string="Are you a business or agent?"
@@ -116,37 +114,38 @@
                                attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>
                         <field name="review_text" attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
                         <group>
+                            <field name="finalise_flag" invisible="1"/>
                             <field name="finalise"
                                    string="I confirm and finalise"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                                   attrs="{'invisible':[
+                                   ('finalise_flag', '=', False)]}"/>
                         </group>
-                        <!--<group>
-                            &lt;!&ndash;<button name="action_vat_connection"
+                        <group>
+                            <!--<button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve Vat Obligation"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>&ndash;&gt;
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>-->
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve from HMRC"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}"/>
+                        </group>
+                        <group>
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Submit VAT return"
                                 class="oe_highlight"
                                 attrs="{'invisible':[('finalise', '=', False)]}"/>
-                        </group>-->
+                        </group>
                         <hr/>
-                        <div>
-                            <div>
-                                <h3><label for="response_from_hmrc"/></h3>
-                            </div>
+                            <h3><label for="response_from_hmrc"/></h3>
                             <br/>
                             <field name="response_from_hmrc" string="" attrs="{'invisible':[
                             ('view_vat_flag', '=', True)
                             ]}"/>
-                            <!--<button name="action_go_to_obligation_logs"
+                            <button name="action_go_to_obligation_logs"
                                 type="object"
                                 string="View Obligation Logs"
                                 class="oe_highlight"
@@ -159,8 +158,8 @@
                                 attrs="{'invisible':['|',
                                 ('name', '!=', 'Submit VAT Returns'),
                                 ('submit_vat_flag', '=', False)]}"/>
-                            </group>-->
-                            <group>
+                            </group>
+                            <group col="1">
                                 <field name="view_vat_flag" invisible="1"/>
                                 <!--<field name="period_key" invisible="1"/>-->
                                 <field name="vat_due_sales"
@@ -182,8 +181,6 @@
                                 <field name="total_acquisitions"
                                        attrs="{'invisible':[('view_vat_flag', '=', False)]}"/>
                             </group>
-                        </div>
-                        <br/>
                         <li attrs="{'invisible':[('name', '!=', 'Retrieve VAT Liabilities')]}">
                             Please click here to make a payment in the method that best suits you:
                             <a xml-link="link" href="https://www.gov.uk/pay-vat" target="_blank">Pay your VAT bill</a>

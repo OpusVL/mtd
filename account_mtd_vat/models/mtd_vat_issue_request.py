@@ -68,18 +68,18 @@ class MtdVatIssueRequest(models.Model):
                 ('company_id', '=', record.company_id.id)
             ])
             access_token = token_record.access_token if token_record else ""
-            # may not newed next line of code will need to look into this further while testing.
+            # may not need next line of code will need to look into this further while testing.
             # refresh_token = token_record.refresh_token if token_record else ""
 
             header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
             header_items["authorization"] = ("Bearer " + str(access_token))
             header_items["scope"] = record.scope
-            header_items["Content-Type"] = ("application/json")
+            header_items["Content-Type"] = "application/json"
             # if record.endpoint_name == "view-vat-returns":
             #     header_items["scope"] = record.scope
 
             if record.gov_test_scenario:
-                header_items["Gov-Test-Scenario"] = (record.gov_test_scenario.name)
+                header_items["Gov-Test-Scenario"] = record.gov_test_scenario.name
 
             if record.endpoint_name in ('submit-vat-returns', 'view-vat-returns'):
                 date_from = record.select_vat_obligation.start
@@ -87,7 +87,6 @@ class MtdVatIssueRequest(models.Model):
             else:
                 date_from = record.date_from
                 date_to = record.date_to
-
 
             hmrc_connection_url = "{}{}?from={}&to={}".format(
                 record.hmrc_configuration.hmrc_url, record.path, date_from, date_to)
@@ -119,11 +118,7 @@ class MtdVatIssueRequest(models.Model):
                 + "Connection Status Details: \n"
                 + "Request Sent: \n{auth_url} \n\n".format(auth_url=hmrc_connection_url)
                 + "Error Code:\n{code} \n\n".format(code=response.text)
-            #     + "Response Received: {resp_error}\n{message}{resp_error_message}".format(
-            # resp_error=resp_error,
-            # message=resp_message,
-            # resp_error_message=resp_error_message
-        )
+            )
             record.response_from_hmrc = error_message
 
             if api_tracker:
@@ -135,6 +130,7 @@ class MtdVatIssueRequest(models.Model):
 
     def handle_request_response(self, response, record=None, url=None, api_token_record=None, api_tracker=None):
         response_token = json.loads(response.text)
+
         if api_tracker:
             action = api_tracker.action
             menu_id = api_tracker.menu_id
@@ -143,6 +139,7 @@ class MtdVatIssueRequest(models.Model):
             "json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
+
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
@@ -232,7 +229,6 @@ class MtdVatIssueRequest(models.Model):
         record.response_from_hmrc = success_message
 
     def add_submit_vat_returns(self, response=None, record=None):
-
         response_logs = json.loads(response.text)
 
         charge_Ref_Number="No Data Found"
@@ -254,7 +250,7 @@ class MtdVatIssueRequest(models.Model):
         )
         record.response_from_hmrc = success_message
 
-        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log, response_logs['processingDate'])
 
     def create_submission_log_entry(self, response_logs, record, charge_Ref_Number):
 
@@ -284,19 +280,17 @@ class MtdVatIssueRequest(models.Model):
         })
         return submission_log
 
-    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
+    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log, processing_date):
 
-        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
-
+        journal_item_ids = self.env['mtd_vat.vat_endpoints'].get_journal_item_ids_from_calculation_table(
+            record.date_from,
+            record.date_to,
+            record.company_id
+        )
         move_lines_to_copy = self.env['account.move.line'].search([
-            ('company_id', '=', record.company_id.id),
-            ('period_id', '=', retrieve_period.id),
-            ('tax_code_id', '!=', False),
-            ('tax_amount', '!=', 0),
-            ('move_id.state', '=', 'posted')
-        ])
+            ('id', 'in', journal_item_ids)])
 
-        # storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
+        storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
         move_lines_to_copy_list = move_lines_to_copy.read()
         for move_line in move_lines_to_copy_list:
             amended_move_line = move_line.copy()
@@ -306,14 +300,14 @@ class MtdVatIssueRequest(models.Model):
                 if type(v) == tuple:
                     amended_move_line[k] = v[0]  # Handle Many2ones
 
-            # stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
-            # if not stored_record:
-            #     storage_model.create(amended_move_line)
+            stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
+            if not stored_record:
+                storage_model.create(amended_move_line)
 
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
         # create journal records and then reconcile records
-        self.create_journal_record_for_submission(move_lines_to_copy, record)
+        self.create_journal_record_for_submission(move_lines_to_copy, record, processing_date)
 
         #get md5 hash value
         hash_object = self.get_hash_object_for_submission(unique_number, record.company_id.id)
@@ -360,12 +354,11 @@ class MtdVatIssueRequest(models.Model):
             if 'received' in log.keys():
                 received = log['received']
 
-            # obligation_logs = self.env['mtd_vat.vat_obligations_logs'].search([
-            #     ('start', '=', log['start']),
-            #     ('end', '=', log['end']),
-            #     ('company_id', '=', record.company_id.id)
-            # ])
-            obligation_logs = ""
+            obligation_logs = self.env['mtd_vat.vat_obligations_logs'].search([
+                ('start', '=', log['start']),
+                ('end', '=', log['end']),
+                ('company_id', '=', record.company_id.id)
+            ])
             obligation_message += (
                 "Period: {}\n".format(log["start"], log["end"])
                 + "Start: {}\n" .format(log['start'])
@@ -375,7 +368,7 @@ class MtdVatIssueRequest(models.Model):
                 + "Received: {}\n".format(received)
                 + "Due: {}\n\n".format(log['due'])
             )
-            # self.update_write_obligation(log, received, obligation_logs, record)
+            self.update_write_obligation(log, received, obligation_logs, record)
 
         success_message = (
             "Date {date}     Time {time} \n\n{obligations}".format(date=datetime.now().date(),
@@ -448,9 +441,9 @@ class MtdVatIssueRequest(models.Model):
         # loop through the journal items make it into a string and then get the md5 no  and then store it in the
         # detailed submission logs and in accounts journal items
 
-        # journal_items_for_integrity = self.env['mtd_vat.vat_detailed_submission_logs'].search([
-        #     ('unique_number', '=', unique_number)
-        # ])
+        journal_items_for_integrity = self.env['mtd_vat.vat_detailed_submission_logs'].search([
+            ('unique_number', '=', unique_number)
+        ])
 
         #get the md5 value for the last submission of the company and remove the record with current unique number
         submission_log_md5_value = self.env['mtd_vat.vat_submission_logs'].search(
@@ -458,35 +451,32 @@ class MtdVatIssueRequest(models.Model):
             order="id desc",
             limit=1).md5_integrity_value
 
-        # journal_entry_dict = {}
-        # journal_entry_list = []
-        # if journal_items_for_integrity:
-        #     for record in journal_items_for_integrity:
-        #         record_id = record.id
-        #         for field in detailed_submission_list:
-        #             journal_entry_list.append(record[field])
-        #
-        #         journal_entry_dict[record_id] = journal_entry_list
-        #
-        #     # update the previousmd5 valueto the list
-        #
-        #     journal_entry_list.append(submission_log_md5_value)
-        #     hash_value = hashlib.md5(str(journal_entry_dict))
-        #
-        #     # update the hash value in the detailed submission table
-        #     for record in journal_items_for_integrity:
-        #         record.md5_integrity_value = hash_value.hexdigest()
-        #
-        #     #get the submission record and update the submission record with the md5 value
-        #
-        #     submission_log_record = self.env['mtd_vat.vat_submission_logs'].search([
-        #         ('unique_number', '=', unique_number)
-        #     ])
-        #     submission_log_record.md5_integrity_value = hash_value.hexdigest()
+        journal_entry_dict = {}
+        journal_entry_list = []
+        if journal_items_for_integrity:
+            # update the previousmd5 valueto the list
+            journal_entry_list.append(submission_log_md5_value)
+            for record in journal_items_for_integrity:
+                record_id = record.id
+                for field in detailed_submission_list:
+                    journal_entry_list.append(record[field])
 
-    def create_journal_record_for_submission(self, move_lines_to_copy, record):
+                journal_entry_dict[record_id] = journal_entry_list
 
-        retrieve_period = self.env['mtd_vat.retrieve_period_id'].retrieve_period(record)
+            hash_value = hashlib.md5(str(journal_entry_dict))
+
+            # update the hash value in the detailed submission table
+            for record in journal_items_for_integrity:
+                record.md5_integrity_value = hash_value.hexdigest()
+
+            # get the submission record and update the submission record with the md5 value
+            submission_log_record = self.env['mtd_vat.vat_submission_logs'].search([
+                ('unique_number', '=', unique_number)
+            ])
+            submission_log_record.md5_integrity_value = hash_value.hexdigest()
+
+    def create_journal_record_for_submission(self, move_lines_to_copy, record, processing_date):
+
         account_move = self.env['account.move']
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', record.company_id.id)])
@@ -494,26 +484,45 @@ class MtdVatIssueRequest(models.Model):
         account_move_id = account_move.create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': datetime.now().date(),
-            'period_id': retrieve_period.id,
+            'date': processing_date,
             'journal_id': hmrc_posting_config.journal_id.id
         })
 
-        # create account move line entry for tax output  account
-        output_move_line = self.create_account_move_line(
-            retrieve_period.id,
-            hmrc_posting_config.output_account.id,
-            'debit',
-            record.total_vat_due_submit,
-            account_move_id.id)
+        move_line_ids = []
+        # create account move line entry for tax input account (purchase)
+        # 1 workout figures for output moveline
+        # box 4 - box2
+        input_value = (record.vat_reclaimed_submit - record.vat_due_acquisitions_submit)
 
-        # create account move line entry for tax input account
+        # 2 workout whether to debit or credit?
+        input_credit_debit = 'credit'
+        if input_value < 0:
+            input_credit_debit = 'debit'
+
+        # 2 create input move line
         input_move_line = self.create_account_move_line(
-            retrieve_period.id,
+            processing_date,
             hmrc_posting_config.input_account.id,
-            'credit',
-            record.vat_reclaimed_submit,
+            input_credit_debit,
+            input_value,
             account_move_id.id)
+        move_line_ids.append(input_move_line.id)
+
+        # create account move line entry for tax output  account (sales)
+        # use box1 for value
+        # 1 work out whether to debit or credit?
+        output_credit_debit = 'debit'
+        if record.vat_due_sales_submit < 0:
+            output_credit_debit = 'credit'
+
+        # 2 create output move line
+        output_move_line = self.create_account_move_line(
+            processing_date,
+            hmrc_posting_config.output_account.id,
+            output_credit_debit,
+            record.vat_due_sales_submit,
+            account_move_id.id)
+        move_line_ids.append(output_move_line.id)
 
         # create account move line entry for HMRC liability Account
         debit_credit_type = "credit"
@@ -521,50 +530,50 @@ class MtdVatIssueRequest(models.Model):
             debit_credit_type = "debit"
 
         liability_move_line = self.create_account_move_line(
-            retrieve_period.id,
+            processing_date,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
             record.net_vat_due_submit,
             account_move_id.id)
+        move_line_ids.append(liability_move_line.id)
 
+        # Validate the account once the journal items have been created.
+        account_move_id._post_validate()
         # update the state of Journal entry to posted.
         account_move_id.state = 'posted'
-
-        # Reconcile Output tax Records
-        self.autoreconcile_tax_records(
-            hmrc_posting_config.output_account.id,
-            output_move_line,
-            move_lines_to_copy,
-            retrieve_period.id
-        )
 
         # Reconcile Input tax Records
         self.autoreconcile_tax_records(
             hmrc_posting_config.input_account.id,
             input_move_line,
             move_lines_to_copy,
-            retrieve_period.id
+            # period_id.id
         )
 
-    def create_account_move_line(self,period_id, account_id, debit_credit_type, value, account_move_id):
+        # Reconcile Output tax Records
+        self.autoreconcile_tax_records(
+            hmrc_posting_config.output_account.id,
+            output_move_line,
+            move_lines_to_copy,
+            # period_id.id
+        )
+
+    def create_account_move_line(self,processing_date, account_id, debit_credit_type, value, account_move_id):
 
         account_move_line = self.env['account.move.line']
 
-        move_line_id = account_move_line.create({
+        move_line_id = account_move_line.with_context(check_move_validity=False).create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': datetime.now().date(),
-            'period_id': period_id,
+            'date': processing_date,
             'account_id': account_id,
             '{}'.format(debit_credit_type): value,
             'move_id': account_move_id
         })
-
+        # 'move_id': account_move_id
         return move_line_id
 
-    def autoreconcile_tax_records(self, account_id, move_line_id, move_lines_for_period, period_id):
-
-        account_move_line_obj = self.pool.get('account.move.line')
+    def autoreconcile_tax_records(self, account_id, move_line_id, move_lines_for_period):
         move_line_account_id = []
         move_line_account_id.append(move_line_id.id)
 
@@ -572,13 +581,9 @@ class MtdVatIssueRequest(models.Model):
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
 
-        account_id = False
-        journal_id = False
-        context = None
-        context = {}
-        context['active_ids'] = move_line_account_id
-
-        account_move_line_obj.reconcile(self._cr, self._uid, move_line_account_id, 'manual', account_id, period_id, journal_id, context=context)
+        account_move_line_obj = self.env['account.move.line']
+        line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
+        line_ids.reconcile()
 
 
 class RetrievePeriodId(models.Model):
@@ -586,11 +591,36 @@ class RetrievePeriodId(models.Model):
 
 
     def retrieve_period(self, record):
-
-        retrieve_period = self.env['account.period'].search([
+        period = self.env['account.period'].search([
             ('date_start', '=', record.date_from),
             ('date_stop', '=', record.date_to),
-            ('company_id', '=', record.company_id.id)
+            ('company_id', '=', record.company_id.id),
+            ('state', '=', 'draft')
         ])
 
-        return retrieve_period
+        if record.previous_period == 'no':
+            retrieve_period=[]
+            retrieve_period.append(period.id)
+        else:
+            cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', record.company_id.id)])
+
+            all_periods_before_cutoff = self.env['account.period'].search([
+                ('date_start', '>=', cutoff_date_rec.cutoff_date.date_start),
+                ('state', '=', 'draft'),
+                ('company_id', '=', record.company_id.id)
+            ])
+
+            all_period_ids = []
+            for period in all_periods_before_cutoff:
+                all_period_ids.append(period.id)
+
+            retrieve_periods = self.env['account.period'].search([
+                ('id', 'in', tuple(all_period_ids)),
+                ('date_start', '<=', record.date_from)
+            ])
+
+            retrieve_period = []
+            for period in retrieve_periods:
+                retrieve_period.append(period.id)
+
+        return period, retrieve_period
