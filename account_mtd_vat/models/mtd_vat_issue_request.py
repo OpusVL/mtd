@@ -505,20 +505,37 @@ class MtdVatIssueRequest(models.Model):
             'journal_id': hmrc_posting_config.journal_id.id
         })
 
-        # create account move line entry for tax output  account
+        # create account move line entry for tax output account (sales)
+        # use box1 for value
+        # 1 work out whether to debit or credit?
+        output_credit_debit = 'debit'
+        if record.vat_due_sales_submit < 0:
+            output_credit_debit = 'credit'
+        # 3 create output move line
         output_move_line = self.create_account_move_line(
             period_id.id,
             hmrc_posting_config.output_account.id,
-            'debit',
-            record.total_vat_due_submit,
+            output_credit_debit,
+            record.vat_due_sales_submit,
             account_move_id.id)
 
-        # create account move line entry for tax input account
+
+        # create account move line entry for tax input account (purchase)
+        # 1 workout figures for output moveline
+        # box 4 - box2
+        input_value = (record.vat_reclaimed_submit - record.vat_due_acquisitions_submit)
+
+        # 2 workout whether to debit or credit?
+        input_credit_debit = 'credit'
+        if input_value < 0:
+            input_credit_debit = 'debit'
+
+        # 3 create input move line
         input_move_line = self.create_account_move_line(
             period_id.id,
             hmrc_posting_config.input_account.id,
-            'credit',
-            record.vat_reclaimed_submit,
+            input_credit_debit,
+            input_value,
             account_move_id.id)
 
         # create account move line entry for HMRC liability Account
