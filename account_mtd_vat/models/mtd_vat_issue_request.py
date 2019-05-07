@@ -300,7 +300,8 @@ class MtdVatIssueRequest(models.Model):
             ('date', '<=', record.date_to),
             ('tax_code_id', '!=', False),
             ('tax_amount', '!=', 0),
-            ('move_id.state', '=', 'posted')
+            ('move_id.state', '=', 'posted'),
+            ('vat', '=', False)
         ])
 
         storage_model = self.env['mtd_vat.vat_detailed_submission_logs']
