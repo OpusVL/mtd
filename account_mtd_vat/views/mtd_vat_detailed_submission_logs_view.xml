@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
         <record id="mtd_vat_detailed_submission_logs_list_view" model="ir.ui.view">
             <field name="name">vat.detailed.submission.logs</field>
@@ -72,4 +72,4 @@
         </record>-->
 
     </data>
-</openerp>
+</odoo>

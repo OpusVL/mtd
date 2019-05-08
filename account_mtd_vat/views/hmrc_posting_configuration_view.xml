@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<openerp>
+<odoo>
     <data>
         <record id="action_hmrc_posting_template_form" model="ir.ui.view" >
             <field name="name">hmrc.posting.template</field>
@@ -52,4 +52,4 @@
         </record>
 
     </data>
-</openerp>
+</odoo>
