@@ -412,8 +412,7 @@ class MtdVATEndpoints(models.Model):
         if not hmrc_posting_config:
             raise exceptions.Warning(
                 "Chart of Taxes can not be generated!\n " +
-                "Please create HMRC Posting Templae record first \n" +
-                "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+                "Please create HMRC Posting Templae record first"
             )
 
         vrn = self.get_vrn(self.vrn)
