@@ -32,35 +32,35 @@
 
         <menuitem id="submenu_mtd_vat_endpoints"
             name="VAT Management"
-            parent="account_mtd.submenu_mtd_hmrc_services"
-            sequence="20"
+            parent="account_mtd.mtd_menu"
+            sequence="10"
             action="action_mtd_vat_endpoints"/>
         <menuitem id="submenu_vat_logs_hmrc"
-            name="VAT Audit"
-            parent="account_mtd.submenu_mtd_hmrc_services"
-            sequence="30"
+            name="Compliance"
+            parent="account_mtd.mtd_menu"
+            sequence="20"
             action=""/>
 
         <menuitem id="submenu_mtd_vat_obligation_log"
-            name="VAT Obligation Log"
+            name="VAT Obligation History"
             parent="submenu_vat_logs_hmrc"
-            sequence="1"
+            sequence="30"
             action="action_mtd_vat_obligation_log"/>
         <menuitem id="submenu_mtd_vat_submission_log"
-            name="VAT Submission Log"
+            name="View VAT Submission Log"
             parent="submenu_vat_logs_hmrc"
             sequence="10"
             action="action_mtd_vat_submission_log"/>
         <menuitem id="submenu_mtd_vat_detailed_submission_log"
-            name="VAT Detailed Submission Log"
+            name="View VAT Details"
             parent="submenu_vat_logs_hmrc"
             sequence="20"
             action="action_mtd_vat_detailed_submission_log"/>
 
         <menuitem id="submenu_hmrc_posting_template"
             action="action_hmrc_posting_template"
-            parent="account.menu_configuration_misc"
-            name="HMRC Posting Template"
+            parent="account_mtd.submenu_mtd_hmrc_services"
+            name="Posting Template"
             sequence="30"/>
 
     </data>
