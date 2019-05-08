@@ -80,8 +80,8 @@ class MtdVATEndpoints(models.Model):
     @api.depends('company_id', 'name')
     def _compute_obligation_status_company(self):
         self.obligation_company = self.company_id.id
-        if self.name in ('View VAT Returns', 'Submit VAT Returns'):
-            self.obligation_status = 'O' if self.name == 'Submit VAT Returns' else 'F'
+        if self.name in ('View VAT Returns', 'Submit VAT Return'):
+            self.obligation_status = 'O' if self.name == 'Submit VAT Return' else 'F'
 
         self.env['mtd_vat.vat_obligations_logs'].search([
             ('status', '=', self.obligation_status),
@@ -214,7 +214,7 @@ class MtdVATEndpoints(models.Model):
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
-        if self.name in ("Submit VAt Returns", "View VAT Returns"):
+        if self.name in ("Submit VAt Return", "View VAT Returns"):
             self.select_vat_obligation = ""
 
     @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
@@ -229,7 +229,7 @@ class MtdVATEndpoints(models.Model):
 
         self.response_from_hmrc = ""
 
-        if self.name == "Submit VAt Returns":
+        if self.name == "Submit VAT Return":
             self.reset_vat_submission_values()
 
         elif self.name == "View VAT Returns":
@@ -243,7 +243,7 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning("Please enter the VRN")
         elif not self.company_id:
             raise exceptions.Warning("Please select a company before continuing!")
-        if self.name in ("Submit VAt Returns", "View VAT Returns") and not self.select_vat_obligation:
+        if self.name in ("Submit VAT Return", "View VAT Returns") and not self.select_vat_obligation:
             raise exceptions.Warning("Please select a VAT Obligation")
 
         endpoint_record = self.env['ir.model.data'].search([
