@@ -68,7 +68,7 @@ class MtdVatIssueRequest(models.Model):
                 ('company_id', '=', record.company_id.id)
             ])
             access_token = token_record.access_token if token_record else ""
-            # may not newed next line of code will need to look into this further while testing.
+            # may not need next line of code will need to look into this further while testing.
             # refresh_token = token_record.refresh_token if token_record else ""
 
             header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
@@ -548,7 +548,7 @@ class MtdVatIssueRequest(models.Model):
             period_id.id,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
-            record.net_vat_due_submit,
+            abs(record.net_vat_due_submit),
             account_move_id.id)
 
         # update the state of Journal entry to posted.
