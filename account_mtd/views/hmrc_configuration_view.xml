@@ -19,7 +19,7 @@
                         <field name="redirect_url"/>
                         <field name="access_token" invisible="1"/>
                         <field name="refresh_token" invisible="1"/>
-                        <field name="state"/>
+                        <field name="state" invisible="1"/>
                     </group>
                 </sheet>
             </form>
