@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+
+    <!-- API and its associated Scopes -->
+    <data>
+        <record model="mtd.api" id="mtd_api_vat">
+            <field name="name">VAT</field>
+            <field name="scope">read:vat+write:vat</field>
+        </record>
+    </data>
+
+    <!-- VAT End points -->
+    <data>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_obligations_endpoint">
+            <field name="name">Retrieve VAT periods</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_submit_returns_endpoint">
+            <field name="name">Submit a VAT Return</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_view_returns_endpoint">
+            <field name="name">View VAT Returns</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_liabilities_endpoint">
+            <field name="name">View Unpaid VAT</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+        <record model="mtd_vat.vat_endpoints" id="mtd_vat_payments_endpoint">
+            <field name="name">View VAT Payments</field>
+            <field name="api_id" ref="mtd_api_vat"/>
+        </record>
+    </data>
+    <!--Gov Test Scenario-->
+    <data>
+        <!--GOV test Scenario for mtd_vat_obligations_endpoint-->
+        <record model="gov.test.scenario" id="qtrly_none_met">
+            <field name="name">QUARTERLY_NONE_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="qtrly_one_met">
+            <field name="name">QUARTERLY_ONE_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="qtrly_two_met">
+            <field name="name">QUARTERLY_TWO_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="qtrly_three_met">
+            <field name="name">QUARTERLY_THREE_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="qtrly_four_met">
+            <field name="name">QUARTERLY_FOUR_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="monthly_none_met">
+            <field name="name">MONTHLY_NONE_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="monthly_one_met">
+            <field name="name">MONTHLY_ONE_ME</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="monthly_two_met">
+            <field name="name">MONTHLY_TWO_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="monthly_three_met">
+            <field name="name">MONTHLY_THREE_MET</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="not_found">
+            <field name="name">NOT_FOUND</field>
+            <field name="mtd_vat_obligations_endpoint">True</field>
+        </record>
+        <!--GOV test Scenario for mtd_vat_liabilities_endpoint -->
+        <record model="gov.test.scenario" id="multi_liabilities">
+            <field name="name">MULTIPLE_LIABILITIES</field>
+            <field name="mtd_vat_liabilities_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="single_liabilities">
+            <field name="name">SINGLE_LIABILITY</field>
+            <field name="mtd_vat_liabilities_endpoint">True</field>
+        </record>
+         <!--GOV test Scenario for mtd_vat_payments_endpoint -->
+        <record model="gov.test.scenario" id="single_payments">
+            <field name="name">SINGLE_PAYMENT</field>
+            <field name="mtd_vat_payments_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="multi_payments">
+            <field name="name">MULTIPLE_PAYMENTS</field>
+            <field name="mtd_vat_payments_endpoint">True</field>
+        </record>
+        <!--GOV test Scenario for mtd_vat_submit_returns_endpoint -->
+        <record model="gov.test.scenario" id="date_range_too_large">
+            <field name="name">DATE_RANGE_TOO_LARGE</field>
+            <field name="mtd_vat_submit_returns_endpoint">True</field>
+        </record>
+        <!--GOV test Scenario for mtd_vat_view_returns_endpoint -->
+        <record model="gov.test.scenario" id="invalid_vrn">
+            <field name="name">INVALID_VRN</field>
+            <field name="mtd_vat_view_returns_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="invalid_periodkey">
+            <field name="name">INVALID_PERIODKEY</field>
+            <field name="mtd_vat_view_returns_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="invalid_payload">
+            <field name="name">INVALID_PAYLOAD</field>
+            <field name="mtd_vat_view_returns_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="duplicate_submission">
+            <field name="name">DUPLICATE_SUBMISSION</field>
+            <field name="mtd_vat_view_returns_endpoint">True</field>
+        </record>
+        <record model="gov.test.scenario" id="tax_period_not_ended">
+            <field name="name">TAX_PERIOD_NOT_ENDED</field>
+            <field name="mtd_vat_view_returns_endpoint">True</field>
+        </record>
+    </data>
+</openerp>

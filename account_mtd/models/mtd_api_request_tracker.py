@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from odoo import models, fields, api
 
 
@@ -20,7 +22,10 @@ class MtdApiRequestTracker(models.Model):
     closed = fields.Selection([
         ('timed_out', 'Request timed out'),
         ('response', 'Response received'),
-        ('more_than_one', 'More than one open tracker found')
+        ('more_than_one', 'More than one open tracker found'),
+        ('error', 'There was an error')
     ], string='Tracker Closed')
     action = fields.Char(required=True)
     menu_id = fields.Char(required=True)
+    module_name = fields.Char(required=True)
+    company_id = fields.Char(required=True)

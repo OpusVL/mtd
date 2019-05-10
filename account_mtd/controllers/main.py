@@ -8,10 +8,10 @@ _logger = logging.getLogger(__name__)
 
 
 class Authorize(http.Controller):
-    
+
     @http.route('/auth-redirect', type='http', methods=['GET'])
     def get_user_authorization(self, **args):
-        
+
         # to determine which API the authorization code has been received for.
         api_trackers = http.request.env['mtd.api_request_tracker'].search([('closed', '=', False)])
         if len(api_trackers) != 1:
@@ -26,16 +26,18 @@ class Authorize(http.Controller):
                 "\napi_tracer = {}".format(api_trackers))
             for record in api_trackers:
                 record.closed = 'more_than_one'
-            werkzeug.utils.redirect('/web')
+            return werkzeug.utils.redirect('/web')
             raise exceptions.Warning(
                 "No connection request made Please try to connect again!"
             )
             # This should then return to the home page
         else:
+
             # search for the method which we need to invoke to get to exchange the authorisation code with access token
-            return (http.request.env['mtd.hello_world'].exchange_user_authorisation(
+            return (http.request.env['mtd.exchange_authorisation'].exchange_user_authorisation(
                 args.get('code'),
                 api_trackers.endpoint_id,
-                api_trackers.id)
+                api_trackers.id,
+                api_trackers.company_id)
             )
         return True

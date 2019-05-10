@@ -21,18 +21,7 @@
 ##############################################################################
 
 from . import (
-
-    mtd_api_request_tracker,
-    mtd_api_tokens,
-    mtd_api,
-    mtd_construct_display_message,
-    mtd_exchange_authorisation,
-    mtd_hello_world,
-    mtd_hmrc_configuration,
-    mtd_issue_request,
-    mtd_refresh_authorisation,
-    mtd_user_authorisation,
-
+    models,
 )
 
 # vim:expandtab:smartindent:tabstop=4:softtabstop=4:shiftwidth=4:

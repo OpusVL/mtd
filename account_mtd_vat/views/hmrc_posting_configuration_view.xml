@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_hmrc_posting_template_form" model="ir.ui.view" >
+            <field name="name">hmrc.posting.template</field>
+            <field name="model">mtd_vat.hmrc_posting_configuration</field>
+            <field name="arch" type="xml">
+                <form string="HMRC Posting Template" delete="false">
+                    <group>
+                        <group>
+                            <field name="company_journal" invisible="1"/>
+
+                            <field name="name"
+                                   string="Company"
+                                   domain="([('hmrc_posting_created', '!=', True)])"/>
+                            <field name="journal_id"
+                                   string="Journal"
+                                   domain="([('company_id', '=', company_journal)])"/>
+                            <field name="output_account"
+                                   string="Tax Output Account"
+                                   domain="([
+                                   ('company_id', '=', company_journal)])"/>
+                        </group>
+                        <group>
+                            <field name="input_account"
+                                   string="Tax Input Account"
+                                   domain="([
+                                   ('company_id', '=', company_journal)])"/>
+                            <field name="liability_account"
+                                   string="HMRC Liability Account"
+                                   domain="([('company_id', '=', company_journal)])"/>
+                            <field name="cutoff_date" string="MTD Cutoff Date"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_hmrc_posting_template_tree_view" model="ir.ui.view">
+            <field name="name">hmrc.posting.templat</field>
+            <field name="model">mtd_vat.hmrc_posting_configuration</field>
+            <field name="arch" type="xml">
+                <tree string="HMRC Posting Template" delete="false">
+                    <field name="name"/>
+                    <field name="journal_id"/>
+                    <field name="output_account"/>
+                    <field name="input_account"/>
+                    <field name="liability_account"/>
+                    <field name="cutoff_date"/>
+                </tree>
+            </field>
+        </record>
+
+    </data>
+</odoo>
