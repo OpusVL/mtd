@@ -35,6 +35,7 @@
         'base',
         'account_mtd',
         'account',
+        'l10n_uk',
     ],
     'data': [
         'data/account_tax_scope.xml',
