@@ -37,6 +37,7 @@
         'account',
     ],
     'data': [
+        'data/account_tax_scope.xml',
         'data/vat_api_scope.xml',
 
         'security/groups.xml',

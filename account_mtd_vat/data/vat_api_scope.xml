@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<openerp>
+<odoo>
 
     <!-- API and its associated Scopes -->
     <data>
@@ -120,4 +120,4 @@
             <field name="mtd_vat_view_returns_endpoint">True</field>
         </record>
     </data>
-</openerp>
+</odoo>
