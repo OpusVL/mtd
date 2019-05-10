@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <template id="assets_backend" name="mtd assets backend" inherit_id="web.assets_backend">
+            <xpath expr="." position="inside">
+                <!--<script type="text/javascript" src="/account_mtd_vat/static/src/js/vatsubmission_log_renderer.js"></script>-->
+                <script type="text/javascript" src="/account_mtd_vat/static/src/js/views/view_tree.js"></script>
+            </xpath>
+        </template>
+    </data>
+</odoo>

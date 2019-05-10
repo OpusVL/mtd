@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mtd_vat_calculation_table_list_view" model="ir.ui.view">
+            <field name="name">vat.calculation.table</field>
+            <field name="model">mtd_vat.vat_calculation_table</field>
+            <field name="arch" type="xml">
+                <tree string="VAT Calculation" create="false" delete="false" edit="false">
+                    <field name="name" string="Originator Tax Name" />
+                    <field name="company_id" string="Company" />
+                    <field name="taxes" string="Taxes name" />
+                    <field name="sum_debit" string="Sub Debit" />
+                    <field name="sum_credit" string="Sum Credit" />
+                    <field name="balance" string="Balance" />
+                    <field name="tag_id" string="Tag" />
+                    <field name="date_from" string="From" />
+                    <field name="date_to" string="To" />
+                </tree>
+            </field>
+        </record>
+
+        <record id="mtd_vat_calculation_table_form_view" model="ir.ui.view">
+            <field name="name">vat.calculation.table.form</field>
+            <field name="model">mtd_vat.vat_calculation_table</field>
+            <field name="arch" type="xml">
+                <form create="false" delete="false" edit="false">
+                    <sheet>
+                        <group>
+                            <field name="name">Originator Tax Name</field>
+                            <field name="taxes">Taxes Name</field>
+                            <field name="company_id">Copmany</field>
+                            <field name="sum_debit">Sum Debit</field>
+                            <field name="sum_credit">Sum Credit</field>
+                            <field name="balance">Balance</field>
+                            <field name="tag_id">Tag</field>
+                            <field name="date_from">From</field>
+                            <field name="date_to">To</field>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

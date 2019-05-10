@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_tax_code_template_search_mtd" model="ir.ui.view">
+            <field name="name">account.tax.code.template.search.mtd</field>
+            <field name="model">account.tax.code.template</field>
+            <field name="inherit_id" ref="account.view_tax_code_template_search"/>
+            <field name="arch" type="xml">
+                <search string="Search tax template">
+                    <field name="name" filter_domain="['|','|' ('name','ilike',self), ('code','ilike',self), ('period','ilike',self)]" string="Tax Template"/>
+                    <field name="parent_id"/>
+                    <group expand="0" string="Group By">
+                        <filter string="Parent Code" icon="terp-folder-orange" domain="[]" context="{'group_by':'parent_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

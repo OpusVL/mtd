@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mtd_vat_detailed_submission_logs_list_view" model="ir.ui.view">
+            <field name="name">vat.detailed.submission.logs</field>
+            <field name="model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="arch" type="xml">
+                <tree create="false" delete="false" edit="false">
+                    <field name="journal_id" string="Journal" />
+                    <field name="period_id" string="Period" />
+                    <field name="date" string="Date" />
+                    <field name="name" string="Name" />
+                    <field name="ref" string="Reference" />
+                    <field name="partner_id" string="Partner" />
+                    <field name="account_id" string="Account" />
+                    <field name="account_tax_id" string="Tax" />
+                    <field name="move_id" string="Journal Entry" />
+                    <field name="debit" string="Debit" />
+                    <field name="credit" string="Credit" />
+                    <field name="reconcile_ref" string="Reconcile Ref" />
+                    <field name="unique_number" string="HMRC Unique No" />
+                    <field name="company_id" string="Company" />
+                    <field name="md5_integrity_value" string="Checksum" />
+                </tree>
+            </field>
+        </record>
+        <record id="mtd_vat_detailed_submission_logs_form_view" model="ir.ui.view">
+            <field name="name">vat.detailed.submission.logs.form</field>
+            <field name="model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="arch" type="xml">
+                <form string="Detailed submission Logs" create="false" delete="false" edit="false">
+                    <sheet create="false" delete="false" edit="false">
+                        <h2>VAT Detailed Submission Record</h2>
+                        <group>
+                            <group>
+                                <field name="journal_id">Journal</field>
+                                <field name="period_id">Period</field>
+                                <field name="date">Date</field>
+                                <field name="name">Name</field>
+                                <field name="ref">Reference</field>
+                                <field name="partner_id">Partner</field>
+                                <field name="account_id">Account</field>
+                                <field name="md5_integrity_value">Checksum</field>
+                            </group>
+                            <group>
+                                <field name="account_tax_id">Tax</field>
+                                <field name="move_id">Journal Entry</field>
+                                <field name="debit">Debit</field>
+                                <field name="credit">Credit</field>
+                                <field name="reconcile_ref">Reconcile Ref</field>
+                                <field name="unique_number">HMRC Unique No</field>
+                                <field name="company_id">Company</field>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <!--<record id="view_mtd_vat_detailed_submission_logs_search" model="ir.ui.view">
+            <field name="name">mtd.vat.detailed.submission.logs.search</field>
+            <field name="model">mtd_vat.vat_detailed_submission_logs</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="company_id"/>
+                    <field name="unique_number" string='Unique Number' filter_domain="[('unique_number', 'like', self)]"/>
+                    <group position="inside" expand="0" string="Group By" >
+                        <filter name="group_by_company" string="Company" domain="[]" context="{'group_by': 'company_id'}"/>
+                        <filter name="group_by_unique_no" string="HMRC Unique No" domain="[]" context="{'group_by': 'unique_number'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>-->
+
+    </data>
+</odoo>

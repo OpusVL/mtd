@@ -22,7 +22,10 @@ class MtdIssueRequest(models.Model):
             _logger.info(
                 "json_command - we need to find the record and assign it to self"
             )
-            token_record = self.env['mtd.api_tokens'].search([('api_id', '=', record.api_id.id)])
+            token_record = self.env['mtd.api_tokens'].search([
+                ('api_id', '=', record.api_id.id),
+                ('company_id', '=', record.company_id.id)
+            ])
             access_token = token_record.access_token if token_record else ""
             # may not newed next line of code will need to look into this further while testing.
             # refresh_token = token_record.refresh_token if token_record else ""
@@ -44,8 +47,6 @@ class MtdIssueRequest(models.Model):
             return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
         except ValueError:
             api_tracker.closed = 'error'
-            import pdb;
-            pdb.set_trace()
 
             if api_tracker:
                 return werkzeug.utils.redirect(

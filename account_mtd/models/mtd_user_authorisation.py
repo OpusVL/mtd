@@ -18,11 +18,11 @@ class MtdUserAuthorisation(models.Model):
 
     @api.multi
     def get_user_authorisation(self, module_name=None, record=None):
-
         tracker_api = self.create_tracker_record(module_name, record)
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
         state = ""
         # State is optional
+
         if record.hmrc_configuration.state:
             state = "&state={}".format(record.hmrc_configuration.state)
         # scope needs to be percent encoded
@@ -50,6 +50,8 @@ class MtdUserAuthorisation(models.Model):
         return self.handle_user_authorisation_response(response, authorisation_url, tracker_api, record)
 
     def handle_user_authorisation_response(self, response=None, url=None, tracker=None, record=None):
+
+
         if response.ok:
             return {'url': url, 'type': 'ir.actions.act_url', 'target': 'self', 'res_id': record.id}
         else:
@@ -74,6 +76,7 @@ class MtdUserAuthorisation(models.Model):
     def create_tracker_record(self, module_name=None, record=None):
         # get the action id and menu id and store it in the tracker table
         # if we get an error on authorisation or while exchanging tokens we need to use these to redirect.
+
         action = self.env.ref('account_{}.action_mtd_{}'.format(module_name.split('.')[0], module_name.split('.')[1]))
         menu_id = self.env.ref('account_{}.submenu_mtd_{}'.format(module_name.split('.')[0], module_name.split('.')[1]))
 
@@ -89,5 +92,6 @@ class MtdUserAuthorisation(models.Model):
             'action': action.id,
             'menu_id': menu_id.id,
             'module_name': module_name,
+            'company_id': record.company_id.id
         })
         return tracker_api

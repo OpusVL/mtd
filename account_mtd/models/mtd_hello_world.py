@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+import requests
+import json
 import logging
+import werkzeug
+import urllib
 
 from odoo import models, fields, api, exceptions
 from datetime import datetime, timedelta
@@ -11,7 +15,7 @@ _logger = logging.getLogger(__name__)
 class MtdHelloWorld(models.Model):
     _name = 'mtd.hello_world'
     _description = "Hello world to test connection between Odoo and HMRC"
-    
+
     name = fields.Char(required=True, readonly=True)
     api_id = fields.Many2one(comodel_name="mtd.api", string="Api Name", required=True)
     hmrc_configuration = fields.Many2one(comodel_name="mtd.hmrc_configuration", string="HMRC Configuration")
@@ -19,6 +23,8 @@ class MtdHelloWorld(models.Model):
     response_from_hmrc = fields.Text(string="Response From HMRC", readonly=True)
     endpoint_name = fields.Char(string="which_button")
     path = fields.Char(string="sandbox_url")
+    company_id = fields.Many2one(comodel_name="res.company", string="Company")
+    vrn = fields.Char(related="company_id.vat", string="VAT Number", readonly=True)
 
     @api.multi
     def action_hello_world_connection(self):
@@ -60,7 +66,11 @@ class MtdHelloWorld(models.Model):
         self.path = "/hello/user"
         _logger.info(self.connection_button_clicked_log_message())
         # search for token record for the API
-        token_record = self.env['mtd.api_tokens'].search([('api_id', '=', self.api_id.id)])
+
+        token_record = self.env['mtd.api_tokens'].search([
+            ('api_id', '=', self.api_id.id),
+            ('company_id', '=', self.company_id.id)
+        ])
         _logger.info(
             "Connection button Clicked - endpoint name {name}, and the api is :- {api_id} ".format(
                 name=self.name,
@@ -106,7 +116,7 @@ class MtdHelloWorld(models.Model):
 
     def connection_button_clicked_log_message(self):
         return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
-                name=self.name,
-                redirect=self.hmrc_configuration.redirect_url,
-                path=self.path
-            )
+            name=self.name,
+            redirect=self.hmrc_configuration.redirect_url,
+            path=self.path
+        )

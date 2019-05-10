@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from odoo import models, fields, api
 
 
@@ -21,3 +23,4 @@ class MtdApiTokens(models.Model):
     refresh_token = fields.Char()
     expires_in = fields.Char()
     access_token_recieved_date = fields.Datetime()
+    company_id = fields.Char()

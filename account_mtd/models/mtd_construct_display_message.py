@@ -23,6 +23,7 @@ class MtdUserAuthorisation(models.Model):
             for error in respo_errors:
                 error_code = error["code"]
                 error_message = error["message"]
+
                 resp_error_message += "\n\nError Code: \n{}\nError Message: \n{}".format(error_code, error_message)
 
         if resp_error:

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+        <record id="mtd_vat.user_access_rule" model="ir.rule">
+            <field name="name">MTD VAT user access rule</field>
+            <field name="model_id" ref="mtd_vat"/>
+            <field name="groups" eval="[(4, ref(base.group_user))]"/>
+            <field name="domain_force">
+                ['|',('user_id', 'in', [user.id,False]), ('company_ids', 'in', [user.company_ids])]
+            </field>
+        </record>
+    </data>
+</openerp>

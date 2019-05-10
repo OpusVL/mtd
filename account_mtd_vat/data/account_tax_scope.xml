@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <function id="update_existing_acount_tax_record"
+              model="account.tax"
+              name="_update_vat_tax_scope"/>
+    </data>
+</odoo>
