@@ -27,7 +27,7 @@ class MtdUserAuthorisation(models.Model):
             state = "&state={}".format(record.hmrc_configuration.state)
         # scope needs to be percent encoded
         scope = urllib.parse.quote_plus(record.scope)
-        authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
+        authorisation_url_prefix = "{}/oauth/authorize?".format(record.hmrc_configuration.hmrc_url)
         _logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
         authorisation_url = (
             "{url}response_type=code&client_id={client_id}&scope={scope}{state}&redirect_uri={redirect}".format(
