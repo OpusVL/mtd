@@ -13,7 +13,8 @@ class VatCalculation(models.Model):
 
         if previous_period == 'yes':
             cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', company.id)])
-            date_from = cutoff_date_rec.cutoff_date
+            if cutoff_date_rec:
+                date_from = cutoff_date_rec.cutoff_date
 
         if date_from >= date_to:
             raise exceptions.Warning("Period start date is greater than period end date.\n " +
