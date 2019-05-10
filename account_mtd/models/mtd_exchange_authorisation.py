@@ -35,7 +35,7 @@ class MtdExchangeAuthorisation(models.Model):
                 'company_id': company_id,
             })
         record = self.env[api_tracker.module_name].search([('id', '=', record_id)])
-        token_location_uri = "https://test-api.service.hmrc.gov.uk/oauth/token"
+        token_location_uri = "{}/oauth/token".format(record.hmrc_configuration.hmrc_url)
         client_id = record.hmrc_configuration.client_id
         client_secret = record.hmrc_configuration.client_secret
         redirect_uri = "{}/auth-redirect".format(record.hmrc_configuration.redirect_url)
