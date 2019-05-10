@@ -7,7 +7,6 @@ import werkzeug
 import urllib
 
 from odoo import models, fields, api, exceptions
-from urllib.parse import urlparse
 
 _logger = logging.getLogger(__name__)
 
@@ -26,7 +25,7 @@ class MtdUserAuthorisation(models.Model):
         if record.hmrc_configuration.state:
             state = "&state={}".format(record.hmrc_configuration.state)
         # scope needs to be percent encoded
-        scope = urllib.parse.quote_plus(record.scope)
+        scope = urllib.quote_plus(record.scope)
         authorisation_url_prefix = "https://test-api.service.hmrc.gov.uk/oauth/authorize?"
         _logger.info("(Step 1) Get authorisation - authorisation URI used:- {}".format(authorisation_url_prefix))
         authorisation_url = (
