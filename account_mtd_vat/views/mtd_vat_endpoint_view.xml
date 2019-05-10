@@ -18,9 +18,9 @@
                                 <!--domain="([('res.user_id', '=', "-->
                             <field name="vrn" string="VAT Number"/>
                             <field name="date_from"
-                                   attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
+                                   attrs="{'invisible':[('name', 'in', ['Submit a VAT Return', 'View VAT Returns'])]}"/>
                             <field name="date_to"
-                                attrs="{'invisible':[('name', 'in', ['Submit VAT Returns', 'View VAT Returns'])]}"/>
+                                attrs="{'invisible':[('name', 'in', ['Submit a VAT Return', 'View VAT Returns'])]}"/>
                             <field name="status" attrs="{'invisible':[('name', '!=', 'VAT Obligations')]}"/>
                             <field name="gov_test_scenario" context="{'endpoint_name': name}"
                                 options="{'no_quick_create': True, 'no_create_edit' : True, 'no_open': True}"
@@ -34,21 +34,21 @@
                             <field name="obligation_company" invisible="1"/>
                             <field name="select_vat_obligation"
                                 string="Select VAT Obligation"
-                                attrs="{'invisible':[('name', 'not in', ['Submit VAT Returns', 'View VAT Returns'])]}"
+                                attrs="{'invisible':[('name', 'not in', ['Submit a VAT Return', 'View VAT Returns'])]}"
                                 domain="([('company_id', '=', obligation_company)])"
                                 options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                             <!--('status', '=', obligation_status), -->
                             <!--<field name="retrieve_vat_obligation_first"
                                    string="Please retrive VAT obligation here"
-                                attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>-->
-                            <field name="previous_period" attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
+                                attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>-->
+                            <field name="previous_period" attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
                         <group>
                             <button name="action_retrieve_vat"
                                 type="object"
                                 string="Calculate VAT"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Submit VAT Returns')]}"/>
+                                attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
                             <div class="oe_button_box oe_right">
 
 
@@ -58,7 +58,7 @@
                                     class="oe_highlight"
                                     attrs="{'invisible':['|',
                                     ('submit_vat_flag', '=', False),
-                                    ('name', '!=', 'Submit VAT Returns')
+                                    ('name', '!=', 'Submit a VAT Return')
                                     ]}"/>
                             </div>
                         </group>
@@ -125,12 +125,12 @@
                                 type="object"
                                 string="Retrieve Vat Obligation"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>-->
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT periods')]}"/>-->
                             <button name="action_vat_connection"
                                 type="object"
                                 string="Retrieve from HMRC"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}"/>
+                                attrs="{'invisible':[('name', '=', 'Submit a VAT Return')]}"/>
                         </group>
                         <group>
                             <button name="action_vat_connection"
@@ -149,14 +149,14 @@
                                 type="object"
                                 string="View Obligation Logs"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Obligations')]}"/>
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT periods')]}"/>
                             <group>
                             <button name="action_submission_log_view"
                                 type="object"
                                 string="View Submission Logs"
                                 class="oe_highlight"
                                 attrs="{'invisible':['|',
-                                ('name', '!=', 'Submit VAT Returns'),
+                                ('name', '!=', 'Submit a VAT Return'),
                                 ('submit_vat_flag', '=', False)]}"/>
                             </group>
                             <group col="1">
@@ -204,9 +204,9 @@
                                     Make a corporate credit or debit card payment</li>
                             </ul>
                         </p>
-                        <h4 attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}">
+                        <h4 attrs="{'invisible':[('name', '=', 'Submit a VAT Return')]}">
                             <u>Notify a change of circumstances:</u></h4>
-                        <p attrs="{'invisible':[('name', '=', 'Submit VAT Returns')]}">
+                        <p attrs="{'invisible':[('name', '=', 'Submit a VAT Return')]}">
                             Please do this by visiting your Business Tax Account at
                             <a xml-link="link" href="https://www.tax.service.gov.uk/account" target="_blank">https://www.tax.service.gov.uk/account</a>
                         </p>

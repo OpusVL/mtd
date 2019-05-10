@@ -533,7 +533,7 @@ class MtdVatIssueRequest(models.Model):
             processing_date,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
-            record.net_vat_due_submit,
+            abs(record.net_vat_due_submit),
             account_move_id.id)
         move_line_ids.append(liability_move_line.id)
 
@@ -547,7 +547,6 @@ class MtdVatIssueRequest(models.Model):
             hmrc_posting_config.input_account.id,
             input_move_line,
             move_lines_to_copy,
-            # period_id.id
         )
 
         # Reconcile Output tax Records
@@ -555,7 +554,6 @@ class MtdVatIssueRequest(models.Model):
             hmrc_posting_config.output_account.id,
             output_move_line,
             move_lines_to_copy,
-            # period_id.id
         )
 
     def create_account_move_line(self,processing_date, account_id, debit_credit_type, value, account_move_id):
