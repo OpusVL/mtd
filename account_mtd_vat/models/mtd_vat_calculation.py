@@ -128,7 +128,6 @@ class VatCalculation(models.Model):
         sum_debit = sum(debit)
         sum_credit = sum(credit)
         balance = 0
-        import pdb; pdb.set_trace()
         if uk_tax_scope in ['ST', 'PTR']:
             balance = (sum_credit - sum_debit)
         else:
