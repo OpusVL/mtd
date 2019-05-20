@@ -2,14 +2,23 @@
 import logging
 import json
 import ast
+import openerp.addons.decimal_precision as dp
 
-
+from openerp import models, fields, api, _
 from openerp.osv import fields, osv
 from openerp import exceptions
 
 
 class account_move_line(osv.osv):
     _inherit = "account.move.line"
+
+    @api.one
+    @api.depends('credit', 'debit', 'tax_code_id')
+    def _compute_tax_base_values_for_manual_journal_items(self):
+        if self.tax_code_id:
+            self.mtd_tax_amount = abs(self.debit - self.credit)
+        else:
+            self.mtd_tax_amount = 0.00
 
     _columns = {
         'vat': fields.boolean(string="VAT Posted", default=False, readonly=True),
@@ -21,6 +30,12 @@ class account_move_line(osv.osv):
             string="HMRC Unique Number",
             store=True,
             readonly=True
+        ),
+        'mtd_tax_amount': fields.float(
+            'Mtd Tax/Base Amount',
+            compute="_compute_tax_base_values_for_manual_journal_items",
+            digits=dp.get_precision('Account'),
+            store=True
         )
     }
 
