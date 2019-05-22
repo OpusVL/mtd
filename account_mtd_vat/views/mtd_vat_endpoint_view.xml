@@ -98,29 +98,42 @@
                             <field name="account_missmatch_flag" invisible="1"/>
                             <label for="client_type"
                                    string="Are you a business or agent?"
-                                   attrs="{'invisible':[
-                                        ('account_missmatch_flag', '=', True)]}"/>
+                                   attrs="{'invisible':['|',
+                                        ('account_missmatch_flag', '=', True),
+                                        ('name', '!=', 'Submit a VAT Return')]}"/>
 
                             <field name="client_type"
                                widget="radio"
                                nolabel="1"
                                options="{'horizontal': False}"
-                               attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
+                               attrs="{'invisible':['|',
+                               ('account_missmatch_flag', '=', True),
+                               ('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
-                        <field t-if="account_missmatch_flag=='True'" name="account_missmatch_message" style="color:Red;"/>
+                        <field name="account_missmatch_message"
+                               style="color:Red;"
+                               attrs="{'invisible':['|',
+                               ('account_missmatch_flag', '=', 'False'),
+                               ('name', '!=', 'Submit a VAT Return')]}"/>
                         <field name="business_declaration"
                                string="Declaration"
-                               attrs="{'invisible':['|',
+                               attrs="{'invisible':['|', '|',
                                ('client_type', '!=', 'business'),
-                               ('account_missmatch_flag', '=', True)]}"/>
+                               ('account_missmatch_flag', '=', True),
+                               ('name', '!=', 'Submit a VAT Return')]}"/>
                         <field name="agent_declaration"
                                string="Declaration"
-                               attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>
-                        <field name="review_text" attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
+                               attrs="{'invisible':['|', ('client_type', '!=', 'agent'),
+                               ('name', '!=', 'Submit a VAT Return')]}"/>
+                        <field name="review_text" attrs="{'invisible':['|',
+                                ('account_missmatch_flag', '=', True),
+                                ('name', '!=', 'Submit a VAT Return')]}"/>
                         <group>
                             <field name="finalise"
                                    string="I confirm and finalise"
-                                   attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
+                                   attrs="{'invisible':['|',
+                                   ('account_missmatch_flag', '=', True),
+                                   ('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
                         <group>
                             <button name="action_vat_connection"
