@@ -216,7 +216,14 @@ class MtdVATEndpoints(models.Model):
         ('no', 'No')],
         'Include Transaction of Previous period',
         required=True,
-        default = 'yes')
+        default='yes')
+    account_missmatch_flag = fields.Boolean()
+    account_missmatch_message = fields.Char(
+        readonly=True,
+        default=(
+            "There is an issue with underlying journal items for the specified period. "
+            + "\nPlease rectify those entries and calculate VAT again")
+    )
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -321,19 +328,20 @@ class MtdVATEndpoints(models.Model):
             'vat': 'no'})
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
-            ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),
+            ('code', 'in', ['1', '2', '3', '4', '5', '6', '7', '8', '9']),
             ('company_id', '=', self.company_id.id)
         ])
         name = 'Calculated VAT'
 
-        retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
+        retrieve_sum_for_codes, mtd_sum_cross_ref = retrieve_vat_code_ids.with_context(
             date_from=date_from,
             date_to=self.date_to,
             period_id=period_ids,
             fiscalyear_id=fiscalyear_ids,
             state='posted',
             vat='no',
-            company_id=self.company_id.id
+            company_id=self.company_id.id,
+            calculate_vat=True
         )._sum_period(name, context)
 
         code_dict = {
@@ -360,6 +368,14 @@ class MtdVATEndpoints(models.Model):
             self.response_from_hmrc = (
                 "No period matching to the vat obligation found Please try a different period."
             )
+        self.account_missmatch_flag = False
+        for item in retrieve_vat_code_ids:
+            if item.id in mtd_sum_cross_ref.keys() and item.code in ('1', '6', '8', '2', '9', '7', '4'):
+                # values [0] amount, values[1] credit and values[2] debit
+                values = mtd_sum_cross_ref[item.id]
+                # amount has to equal to credit
+                if values[0] != values[1]:
+                    self.account_missmatch_flag = True
 
     def retrieve_period_and_fiscalyear(self):
         retrieve_period = self.env['account.period'].search([
@@ -378,7 +394,7 @@ class MtdVATEndpoints(models.Model):
             for rec in cutoff_date_rec:
                 cutoff_date = rec.cutoff_date
 
-        return (retrieve_period, period_ids, fiscalyear_ids, cutoff_date)
+        return retrieve_period, period_ids, fiscalyear_ids, cutoff_date
 
     def _handle_vat_obligations_endpoint(self):
         vrn = self.get_vrn(self.vrn)
@@ -411,7 +427,8 @@ class MtdVATEndpoints(models.Model):
         return self.process_connection()
 
     def _handle_vat_submit_returns_endpoint(self):
-        # Check to see if we have HMRC Posting record We can not submit VAT witout a HMRC posting template for the company
+        # Check to see if we have HMRC Posting record We can not submit VAT witout a
+        # HMRC posting template for the company
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
 
@@ -495,11 +512,13 @@ class MtdVATEndpoints(models.Model):
         obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log').id
 
         redirect_url = self.hmrc_configuration.redirect_url
-        redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
+        redirect_url += (
+            "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
             +"&menu_id={menu}&action={action}".format(
-            menu=obligation_log_menu,
-            action=obligation_log_action
-        ))
+                menu=obligation_log_menu,
+                action=obligation_log_action
+            )
+        )
 
         return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
 

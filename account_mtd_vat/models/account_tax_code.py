@@ -1,8 +1,9 @@
 # -*- coding = utf-8 -*-
 import logging
 
-
+from openerp import models, fields, api, _
 from openerp.osv import fields, osv
+from openerp.tools.translate import _
 
 
 class mtd_account_tax_code(osv.osv):
@@ -62,20 +63,67 @@ class mtd_account_tax_code(osv.osv):
             where_params=where_params
         )
 
-    def _sum(self, cr, uid, ids, name, args, context, where ='', where_params=()):
+    def _sum(self, cr, uid, ids, name, args, context, where='', where_params=()):
+        parent_ids = tuple(self.search(cr, uid, [('parent_id', 'child_of', ids)]))
+        if context.get('based_on', 'invoices') == 'payments':
+            cr.execute('SELECT line.tax_code_id, sum(line.tax_amount) \
+                    FROM account_move_line AS line, \
+                        account_move AS move \
+                        LEFT JOIN account_invoice invoice ON \
+                            (invoice.move_id = move.id) \
+                    WHERE line.tax_code_id IN %s '+where+' \
+                        AND move.id = line.move_id \
+                        AND ((invoice.state = \'paid\') \
+                        OR (invoice.id IS NULL)) \
+                        GROUP BY line.tax_code_id',
+                        (parent_ids,) + where_params)
+        else:
+            cr.execute('SELECT line.tax_code_id, sum(line.tax_amount) \
+                    FROM account_move_line AS line, \
+                    account_move AS move \
+                    WHERE line.tax_code_id IN %s '+where+' \
+                    AND move.id = line.move_id \
+                    GROUP BY line.tax_code_id',
+                       (parent_ids,) + where_params)
+        res = dict(cr.fetchall())
+        obj_precision = self.pool.get('decimal.precision')
+        res2 = {}
+        for record in self.browse(cr, uid, ids, context=context):
+            def _rec_get(record):
+                amount = res.get(record.id) or 0.0
+                for rec in record.child_ids:
+                    amount += _rec_get(rec) * rec.sign
+                return amount
+            res2[record.id] = round(_rec_get(record), obj_precision.precision_get(cr, uid, 'Account'))
 
-        mtd_sum = super(mtd_account_tax_code, self)._sum(
-            cr,
-            uid,
-            ids,
-            name,
-            args,
-            context,
-            where=where,
-            where_params=where_params
-        )
+        if 'calculate_vat' in context.keys():
+            if context.get('based_on', 'invoices') == 'payments':
+                cr.execute('SELECT line.tax_code_id, sum(line.tax_amount) as amount, \
+                        sum(line.mtd_tax_amount) as mtd_amount FROM account_move_line AS line, \
+                            account_move AS move \
+                            LEFT JOIN account_invoice invoice ON \
+                                (invoice.move_id = move.id) \
+                        WHERE line.tax_code_id IN %s ' + where + ' \
+                            AND move.id = line.move_id \
+                            AND ((invoice.state = \'paid\') \
+                                OR (invoice.id IS NULL)) \
+                                GROUP BY line.tax_code_id',
+                           (parent_ids,) + where_params)
+            else:
+                cr.execute('SELECT line.tax_code_id, sum(line.tax_amount), \
+                    sum(mtd_tax_amount) as mtd_sum  \
+                    FROM account_move_line AS line, \
+                    account_move as move \
+                    WHERE line.tax_code_id IN %s '+where+' \
+                    AND move.id = line.move_id \
+                    GROUP BY line.tax_code_id',
+                    (parent_ids,) + where_params)
+            compare_dict = {}
+            for row in cr.fetchall():
 
-        return mtd_sum
+                compare_dict[row[0]]=[row[1], row[2]]
+            return res2, compare_dict
+        return res2
 
     def _sum_period(self, cr, uid, ids, name, args, context):
         if context is None:

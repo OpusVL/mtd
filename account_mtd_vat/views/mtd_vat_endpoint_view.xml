@@ -95,29 +95,32 @@
                                    readonly="1"/>
                         </group>
                         <group>
+                            <field name="account_missmatch_flag" invisible="1"/>
                             <label for="client_type"
                                    string="Are you a business or agent?"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                                   attrs="{'invisible':[
+                                        ('account_missmatch_flag', '=', True)]}"/>
 
                             <field name="client_type"
                                widget="radio"
                                nolabel="1"
                                options="{'horizontal': False}"
-                               attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                               attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
                         </group>
+                        <field t-if="account_missmatch_flag=='True'" name="account_missmatch_message" style="color:Red;"/>
                         <field name="business_declaration"
                                string="Declaration"
                                attrs="{'invisible':['|',
                                ('client_type', '!=', 'business'),
-                               ('submit_vat_flag', '=', False)]}"/>
+                               ('account_missmatch_flag', '=', True)]}"/>
                         <field name="agent_declaration"
                                string="Declaration"
                                attrs="{'invisible':[('client_type', '!=', 'agent')]}"/>
-                        <field name="review_text" attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                        <field name="review_text" attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
                         <group>
                             <field name="finalise"
                                    string="I confirm and finalise"
-                                   attrs="{'invisible':[('submit_vat_flag', '=', False)]}"/>
+                                   attrs="{'invisible':[('account_missmatch_flag', '=', True)]}"/>
                         </group>
                         <group>
                             <button name="action_vat_connection"
