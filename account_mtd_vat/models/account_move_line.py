@@ -16,7 +16,17 @@ class account_move_line(osv.osv):
     @api.depends('credit', 'debit', 'tax_code_id')
     def _compute_tax_base_values_for_manual_journal_items(self):
         if self.tax_code_id:
-            self.mtd_tax_amount = abs(self.debit - self.credit)
+            if self.tax_code_id.code in ('1', '6', '8'):
+                self.mtd_tax_amount = (self.credit - self.debit)
+            elif self.tax_code_id.code in ('2', '9', '7'):
+                self.mtd_tax_amount = (self.debit - self.credit)
+            elif self.tax_code_id.code == '4':
+                self.mtd_tax_amount = (self.debit - self.credit)
+                journal_entry_obj = self.env['account.move.line'].search([('move_id', '=', self.move_id.id)])
+                if journal_entry_obj:
+                    for line in journal_entry_obj:
+                        if line.tax_code_id.code == '2':
+                            self.mtd_tax_amount = (self.credit - self.debit)
         else:
             self.mtd_tax_amount = 0.00
 
