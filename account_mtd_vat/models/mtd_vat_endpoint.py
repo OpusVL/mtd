@@ -189,19 +189,25 @@ class MtdVATEndpoints(models.Model):
         ('business', 'Business'),
         ('agent', 'Agent')
     ])
-    business_declaration = fields.Char(readonly=True,
-        default=("When you submit this VAT information you are making a legal declaration "
-        + "\nthat the information is true and complete. "
-        + "\nA false declaration can result in prosecution.")
+    business_declaration = fields.Char(
+        readonly=True,
+        default=(
+            "When you submit this VAT information you are making a legal declaration "
+            + "\nthat the information is true and complete. "
+            + "\nA false declaration can result in prosecution.")
     )
-    agent_declaration = fields.Char(readonly=True,
-        default=("I confirm that my client has received a copy of the information contained "
-         + "\nin this return and approved the information as being correct and "
-         + "\ncomplete to the best of their knowledge and belief.")
+    agent_declaration = fields.Char(
+        readonly=True,
+        default=(
+            "I confirm that my client has received a copy of the information contained "
+            + "\nin this return and approved the information as being correct and "
+            + "\ncomplete to the best of their knowledge and belief.")
     )
-    review_text = fields.Char(readonly=True,
-        default=("Please review your VAT summary above and then tick the 'Confirm and finalise' "
-        + "checkbox and then submit to HMRC")
+    review_text = fields.Char(
+        readonly=True,
+        default=(
+            "Please review your VAT summary above and then tick the 'Confirm and finalise' "
+            + "checkbox and then submit to HMRC")
     )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
@@ -304,12 +310,12 @@ class MtdVATEndpoints(models.Model):
         self.response_from_hmrc = ""
 
         retrieve_period, period_ids, fiscalyear_ids, cutoff_date = self.retrieve_period_and_fiscalyear()
-
         date_from = self.date_from
         if cutoff_date:
             date_from = cutoff_date
 
-        context = str({'period_id': period_ids,
+        context = str({
+            'period_id': period_ids,
             'fiscalyear_id': fiscalyear_ids,
             'state': 'posted',
             'vat': 'no'})
@@ -341,7 +347,7 @@ class MtdVATEndpoints(models.Model):
             '8': 'total_value_goods_supplied_submit',
             '9': 'total_acquisitions_submit',
         }
-        if len(retrieve_period)>  0:
+        if len(retrieve_period) > 0:
             self.submit_vat_flag = True
             for item in retrieve_vat_code_ids:
                 if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
@@ -500,29 +506,34 @@ class MtdVATEndpoints(models.Model):
     @api.multi
     def action_submission_log_view(self, *args):
         submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_submission_log').id
-        submission_log_menu  = self.env.ref('account_mtd_vat.submenu_mtd_vat_submission_log').id
+        submission_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_submission_log').id
 
         redirect_url = self.hmrc_configuration.redirect_url
-        redirect_url += ("/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
+        redirect_url += (
+            "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
             +"&menu_id={menu}&action={action}".format(
-            menu=submission_log_menu,
-            action=submission_log_action
-        ))
+                menu=submission_log_menu,
+                action=submission_log_action
+            )
+        )
 
         return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
 
     def reset_vat_submission_values(self):
         self.search([('vat_due_sales_submit', '!=', False)]).write({
             'vat_due_sales_submit': self.default_get(['vat_due_sales_submit'])['vat_due_sales_submit'],
-            'vat_due_acquisitions_submit': self.default_get(['vat_due_acquisitions_submit'])[
+            'vat_due_acquisitions_submit': self.default_get(
+                ['vat_due_acquisitions_submit'])[
                 'vat_due_acquisitions_submit'],
             'total_vat_due_submit': self.default_get(['total_vat_due_submit'])['total_vat_due_submit'],
             'vat_reclaimed_submit': self.default_get(['vat_reclaimed_submit'])['vat_reclaimed_submit'],
             'net_vat_due_submit': self.default_get(['net_vat_due_submit'])['net_vat_due_submit'],
             'total_value_sales_submit': self.default_get(['total_value_sales_submit'])['total_value_sales_submit'],
-            'total_value_purchase_submit': self.default_get(['total_value_purchase_submit'])[
+            'total_value_purchase_submit': self.default_get(
+                ['total_value_purchase_submit'])[
                 'total_value_purchase_submit'],
-            'total_value_goods_supplied_submit': self.default_get(['total_value_goods_supplied_submit'])[
+            'total_value_goods_supplied_submit': self.default_get(
+                ['total_value_goods_supplied_submit'])[
                 'total_value_goods_supplied_submit'],
             'total_acquisitions_submit': self.default_get(['total_acquisitions_submit'])['total_acquisitions_submit'],
         })

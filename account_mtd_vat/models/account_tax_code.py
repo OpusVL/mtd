@@ -78,7 +78,6 @@ class mtd_account_tax_code(osv.osv):
         return mtd_sum
 
     def _sum_period(self, cr, uid, ids, name, args, context):
-
         if context is None:
             context = {}
         move_state = ('posted',)
@@ -105,7 +104,6 @@ class mtd_account_tax_code(osv.osv):
             date_to = context['date_to']
         if 'company_id' in context.keys():
             company_id = context['company_id']
-
         if vat == "":
             return self._sum(
                 cr,

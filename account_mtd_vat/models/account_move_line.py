@@ -74,12 +74,16 @@ class account_tax_chart(osv.osv_memory):
             cutoff_date_rec = self.pool.get('mtd_vat.hmrc_posting_configuration').search(cr, uid, [
                 ('name', '=', data.period_id.company_id.id)])
             if cutoff_date_rec:
-                date_from = self.pool.get('mtd_vat.hmrc_posting_configuration').browse(cr, uid, cutoff_date_rec,
+                date_from = self.pool.get('mtd_vat.hmrc_posting_configuration').browse(
+                    cr,
+                    uid,
+                    cutoff_date_rec,
                     context=context).cutoff_date
             else:
                 raise exceptions.Warning(
                     "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
-                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC Posting Template' "
+                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC " +
+                    "Posting Template' "
                 )
             fiscalyear_ids = []
             for period in period_ids:
