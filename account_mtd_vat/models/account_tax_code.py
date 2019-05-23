@@ -2,12 +2,24 @@
 import logging
 
 from openerp import models, fields, api, _
-from openerp.osv import fields, osv
-from openerp.tools.translate import _
+from openerp.osv import fields, osv, expression
+
 
 
 class mtd_account_tax_code(osv.osv):
     _inherit = "account.tax.code"
+
+    def _update_box_9_tax_code_scope(self, cr, uid):
+        context = {}
+        context['code'] = 9
+        account_tax_code_9_obj = self.pool['account.tax.code'].search(cr, uid, [('code', '=', '9')])
+        for rec in account_tax_code_9_obj:
+            box9_rec = self.pool['account.tax.code'].browse(cr, uid, rec)
+            account_tax_code_7_obj = self.pool['account.tax.code'].search(cr, uid, [('code', '=', '7'),('company_id', '=', box9_rec.company_id.id)])
+            box9_rec.parent_id = account_tax_code_7_obj[0]
+            box9_rec.sign = 1
+
+        return True
 
     def _sum_year(self, cr, uid, ids, name, args, context=None):
         if context is None:

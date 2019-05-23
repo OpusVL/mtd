@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data>
+        <function id="update_existing_box_9_acount_tax_code_record"
+              model="account.tax.code"
+              name="_update_box_9_tax_code_scope"/>
+    </data>
+</openerp>
