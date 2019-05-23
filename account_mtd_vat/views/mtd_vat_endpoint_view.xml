@@ -95,11 +95,12 @@
                                    readonly="1"/>
                         </group>
                         <group>
-                            <field name="account_missmatch_flag" invisible="1"/>
+                            <field name="account_mismatch_flag" invisible="1"/>
+                            <field name="account_match_flag" invisible="1"/>
                             <label for="client_type"
                                    string="Are you a business or agent?"
                                    attrs="{'invisible':['|',
-                                        ('account_missmatch_flag', '=', True),
+                                        ('account_match_flag', '=', False),
                                         ('name', '!=', 'Submit a VAT Return')]}"/>
 
                             <field name="client_type"
@@ -107,32 +108,35 @@
                                nolabel="1"
                                options="{'horizontal': False}"
                                attrs="{'invisible':['|',
-                               ('account_missmatch_flag', '=', True),
+                               ('account_match_flag', '=', False),
                                ('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
-                        <field name="account_missmatch_message"
-                               style="color:Red;"
-                               attrs="{'invisible':['|',
-                               ('account_missmatch_flag', '=', 'False'),
-                               ('name', '!=', 'Submit a VAT Return')]}"/>
+                        <p attrs="{'invisible':['|',
+                            ('account_mismatch_flag', '=', False),
+                            ('name', '!=', 'Submit a VAT Return')]}" style="color:Red;">
+                            In some Journal Items the Tax Base Amount does not tally with the Credit and Debit entries.
+                            <br/>Please correct these Journal Items before submitting your VAT return.
+                            <br/>Contact OpusVL if you need assistance with this.
+                            <a xml-link="link" href="https://opusvl.com/contact" target="_blank">OPUSVL Contact</a>
+                        </p>
                         <field name="business_declaration"
                                string="Declaration"
                                attrs="{'invisible':['|', '|',
                                ('client_type', '!=', 'business'),
-                               ('account_missmatch_flag', '=', True),
+                               ('account_match_flag', '=', False),
                                ('name', '!=', 'Submit a VAT Return')]}"/>
                         <field name="agent_declaration"
                                string="Declaration"
                                attrs="{'invisible':['|', ('client_type', '!=', 'agent'),
                                ('name', '!=', 'Submit a VAT Return')]}"/>
                         <field name="review_text" attrs="{'invisible':['|',
-                                ('account_missmatch_flag', '=', True),
+                                ('account_match_flag', '=', False),
                                 ('name', '!=', 'Submit a VAT Return')]}"/>
                         <group>
                             <field name="finalise"
                                    string="I confirm and finalise"
                                    attrs="{'invisible':['|',
-                                   ('account_missmatch_flag', '=', True),
+                                   ('account_match_flag', '=', False),
                                    ('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
                         <group>
@@ -149,27 +153,24 @@
                         </group>
                         <hr/>
                         <div>
+                            <field name="show_response_flag" invisible="1"/>
                             <div>
-                                <h3><label for="response_from_hmrc"/></h3>
+                                <h3><label for="response_from_hmrc" attrs="{'invisible':['|',
+                                ('view_vat_flag', '=', True),
+                                ('show_response_flag', '=', False)
+                                ]}"/></h3>
                             </div>
                             <br/>
-                            <field name="response_from_hmrc" string="" attrs="{'invisible':[
-                            ('view_vat_flag', '=', True)
+                            <field name="response_from_hmrc" string="" attrs="{'invisible':['|',
+                                ('view_vat_flag', '=', True),
+                                ('show_response_flag', '=', False)
                             ]}"/>
-                            <button name="action_go_to_obligation_logs"
+                            <!-- Need confirmation from Stuart to remove it. Until then leave it commented out. -->
+                            <!--<button name="action_go_to_obligation_logs"
                                 type="object"
                                 string="View Obligation History"
                                 class="oe_highlight"
-                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Periods')]}"/>
-                            <group>
-                            <button name="action_submission_log_view"
-                                type="object"
-                                string="View Submission Logs"
-                                class="oe_highlight"
-                                attrs="{'invisible':['|',
-                                ('name', '!=', 'Submit a VAT Return'),
-                                ('submit_vat_flag', '=', False)]}"/>
-                            </group>
+                                attrs="{'invisible':[('name', '!=', 'Retrieve VAT Periods')]}"/>-->
                             <group>
                                 <field name="view_vat_flag" invisible="1"/>
                                 <field name="period_key" invisible="1"/>

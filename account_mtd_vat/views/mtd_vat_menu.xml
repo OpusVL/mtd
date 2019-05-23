@@ -6,7 +6,7 @@
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_obligation_log"
-            name="VAT Obligation Log"
+            name="VAT Period History"
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
         <act_window id="action_mtd_vat_submission_log"
@@ -19,13 +19,13 @@
             view_mode="tree,form"
             />-->
         <record model="ir.actions.act_window" id="action_mtd_vat_detailed_submission_log">
-            <field name="name">VAT Detailed Submission Log</field>
+            <field name="name">VAT Details</field>
             <field name="res_model">mtd_vat.vat_detailed_submission_logs</field>
             <field name="view_mode">tree,form</field>
             <field name="context">{'group_by':['company_id', 'unique_number']}</field>
         </record>
         <act_window id="action_hmrc_posting_template"
-            name="HMRC Posting Template"
+            name="Accounting Set-up"
             res_model="mtd_vat.hmrc_posting_configuration"
             view_mode="tree,form" />
 
@@ -42,7 +42,7 @@
             action=""/>
 
         <menuitem id="submenu_mtd_vat_obligation_log"
-            name="VAT Obligation History"
+            name="VAT Period History"
             parent="submenu_vat_logs_hmrc"
             sequence="30"
             action="action_mtd_vat_obligation_log"/>
@@ -60,7 +60,7 @@
         <menuitem id="submenu_hmrc_posting_template"
             action="action_hmrc_posting_template"
             parent="account_mtd.submenu_mtd_hmrc_services"
-            name="Posting Template"
+            name="Accounting Set-up"
             sequence="30"/>
 
     </data>

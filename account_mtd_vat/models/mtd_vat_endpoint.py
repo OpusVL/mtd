@@ -206,8 +206,8 @@ class MtdVATEndpoints(models.Model):
     review_text = fields.Char(
         readonly=True,
         default=(
-            "Please review your VAT summary above and then tick the 'Confirm and finalise' "
-            + "checkbox and then submit to HMRC")
+            "Please review your VAT summary above. When you are satisfied it is correct, tick 'I confirm and finalise' "
+            + "and then click 'Submit VAT return.")
     )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
@@ -217,13 +217,9 @@ class MtdVATEndpoints(models.Model):
         'Include Transaction of Previous period',
         required=True,
         default='yes')
-    account_missmatch_flag = fields.Boolean()
-    account_missmatch_message = fields.Char(
-        readonly=True,
-        default=(
-            "There is an issue with underlying journal items for the specified period. "
-            + "\nPlease rectify those entries and calculate VAT again")
-    )
+    account_mismatch_flag = fields.Boolean(default=False)
+    account_match_flag = fields.Boolean(default=False)
+    show_response_flag = fields.Boolean(default = False)
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -235,6 +231,9 @@ class MtdVATEndpoints(models.Model):
         self.submit_vat_flag = False
         self.view_vat_flag = False
         self.finalise = False
+        self.account_mismatch_flag = False
+        self.account_match_flag = False
+        self.show_response_flag = False
 
         self.search([('response_from_hmrc', '!=', False)]).write({
             'response_from_hmrc': self.default_get(['response_from_hmrc'])['response_from_hmrc']
@@ -315,6 +314,8 @@ class MtdVATEndpoints(models.Model):
         self.client_type = ""
         self.finalise = False
         self.response_from_hmrc = ""
+        self.account_mismatch_flag = False
+        self.show_response_flag = True
 
         retrieve_period, period_ids, fiscalyear_ids, cutoff_date = self.retrieve_period_and_fiscalyear()
         date_from = self.date_from
@@ -356,6 +357,7 @@ class MtdVATEndpoints(models.Model):
             '9': 'total_acquisitions_submit',
         }
         if len(retrieve_period) > 0:
+            self.account_match_flag = True
             self.submit_vat_flag = True
             for item in retrieve_vat_code_ids:
                 if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
@@ -365,17 +367,20 @@ class MtdVATEndpoints(models.Model):
             # self.net_vat_due_submit = abs(self.net_vat_due_submit)
         else:
             self.submit_vat_flag = False
+            self.show_response_flag = True
             self.response_from_hmrc = (
                 "No period matching to the vat obligation found Please try a different period."
             )
-        self.account_missmatch_flag = False
+
         for item in retrieve_vat_code_ids:
             if item.id in mtd_sum_cross_ref.keys() and item.code in ('1', '6', '8', '2', '9', '7', '4'):
                 # values [0] amount, values[1] credit and values[2] debit
                 values = mtd_sum_cross_ref[item.id]
                 # amount has to equal to credit
                 if values[0] != values[1]:
-                    self.account_missmatch_flag = True
+                    self.account_mismatch_flag = True
+                    self.account_match_flag = False
+                    break
 
     def retrieve_period_and_fiscalyear(self):
         retrieve_period = self.env['account.period'].search([
@@ -446,7 +451,9 @@ class MtdVATEndpoints(models.Model):
         return self.process_connection()
 
     def get_vrn(self, vrn):
-        split_vrn = re.findall('\d+|\D+', vrn)
+        # strip any space
+        strip_vrn = vrn.replace(" ", "")
+        split_vrn = re.findall('\d+|\D+', strip_vrn)
 
         return split_vrn[1]
 
@@ -511,7 +518,7 @@ class MtdVATEndpoints(models.Model):
         obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log').id
         obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log').id
 
-        redirect_url = self.hmrc_configuration.redirect_url
+        redirect_url = self.hmrc_configuration.redirect_url.replace(" ", "")
         redirect_url += (
             "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
             +"&menu_id={menu}&action={action}".format(
@@ -527,7 +534,7 @@ class MtdVATEndpoints(models.Model):
         submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_submission_log').id
         submission_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_submission_log').id
 
-        redirect_url = self.hmrc_configuration.redirect_url
+        redirect_url = self.hmrc_configuration.redirect_url.replace(" ", "")
         redirect_url += (
             "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
             +"&menu_id={menu}&action={action}".format(
