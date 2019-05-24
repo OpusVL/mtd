@@ -116,8 +116,11 @@
                             ('name', '!=', 'Submit a VAT Return')]}" style="color:Red;">
                             In some Journal Items the Tax Base Amount does not tally with the Credit and Debit entries.
                             <br/>Please correct these Journal Items before submitting your VAT return.
-                            <br/>Contact OpusVL if you need assistance with this.
-                            <a xml-link="link" href="https://opusvl.com/contact" target="_blank">OPUSVL Contact</a>
+                            <br/>Contact OpusVL <a xml-link="link" href="https://opusvl.com/contact" target="_blank">
+                            here
+                            </a>
+                            if you need assistance with this.
+
                         </p>
                         <field name="business_declaration"
                                string="Declaration"

@@ -219,7 +219,7 @@ class MtdVATEndpoints(models.Model):
         default='yes')
     account_mismatch_flag = fields.Boolean(default=False)
     account_match_flag = fields.Boolean(default=False)
-    show_response_flag = fields.Boolean(default = False)
+    show_response_flag = fields.Boolean(default=False)
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -315,7 +315,7 @@ class MtdVATEndpoints(models.Model):
         self.finalise = False
         self.response_from_hmrc = ""
         self.account_mismatch_flag = False
-        self.show_response_flag = True
+        self.show_response_flag = False
 
         retrieve_period, period_ids, fiscalyear_ids, cutoff_date = self.retrieve_period_and_fiscalyear()
         date_from = self.date_from
