@@ -170,10 +170,6 @@
                                 attrs="{'invisible':[('finalise', '=', False)]}"/>
                         </group>
                         <hr/>
-                        <group attrs="{'invisible':['|',
-                                ('view_vat_flag', '=', True),
-                                ('show_response_flag', '=', False)
-                            ]}">
                             <field name="show_response_flag" invisible="1"/>
                             <h3><label for="response_from_hmrc" attrs="{'invisible':['|',
                                 ('view_vat_flag', '=', True),
@@ -184,7 +180,6 @@
                                 ('view_vat_flag', '=', True),
                                 ('show_response_flag', '=', False)
                             ]}"/>
-                        </group>
                         <field name="view_vat_flag" invisible="1"/>
                         <table col="1" attrs="{'invisible':[('view_vat_flag', '=', False)]}">
                             <tr>
