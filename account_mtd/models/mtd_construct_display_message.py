@@ -31,8 +31,6 @@ class MtdUserAuthorisation(models.Model):
 
         error_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(), time=datetime.now().time())
-                + "Sorry. The connection failed ! \n"
-                + "Please check the log below for details. \n\n"
                 + "Connection Status Details: \n"
                 + "Request Sent: \n{auth_url} \n\n".format(auth_url=url)
                 + "Error Code:\n{code} \n\n".format(code=code)
