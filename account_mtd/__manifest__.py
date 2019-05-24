@@ -23,7 +23,7 @@
 
 {
     'name': 'Making Tax Digital',
-    'version': '0.1',
+    'version': '0.2',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
     'summary': '',
