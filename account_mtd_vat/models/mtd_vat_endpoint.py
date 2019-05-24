@@ -393,7 +393,6 @@ class MtdVATEndpoints(models.Model):
                 "Please create HMRC Posting Templae record first "
             )
         for rec in hmrc_posting_config:
-            import pdb; pdb.set_trace()
             if not rec.output_account.reconcile:
                 raise exceptions.Warning(
                     "The account {} is not marked as reconciliable !".format(rec.output_account.name)
