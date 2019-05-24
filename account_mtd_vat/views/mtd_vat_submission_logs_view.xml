@@ -51,17 +51,80 @@
                                     class="oe_highlight"/>
                             </div>
                         </group>-->
-                        <group>
-                            <field name="vat_due_sales_submit"/>
-                            <field name="vat_due_acquisitions_submit"/>
-                            <field name="total_vat_due_submit"/>
-                            <field name="vat_reclaimed_submit"/>
-                            <field name="net_vat_due_submit"/>
-                            <field name="total_value_sales_submit"/>
-                            <field name="total_value_purchase_submit"/>
-                            <field name="total_value_goods_supplied_submit"/>
-                            <field name="total_acquisitions_submit"/>
-                        </group>
+                        <table col="1">
+                            <tr>
+                                <td width="700">
+                                    <label for="vat_due_sales_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="vat_due_sales_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="vat_due_acquisitions_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="vat_due_acquisitions_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="total_vat_due_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="total_vat_due_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="vat_reclaimed_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="vat_reclaimed_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="net_vat_due_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="net_vat_due_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="total_value_sales_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="total_value_sales_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="total_value_purchase_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="total_value_purchase_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="total_value_goods_supplied_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="total_value_goods_supplied_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td width="700">
+                                    <label for="total_acquisitions_submit" readonly="1"/>
+                                </td>
+                                <td>
+                                    <field name="total_acquisitions_submit" readonly="1"/>
+                                </td>
+                            </tr>
+                        </table>
                     </sheet>
                 </form>
             </field>

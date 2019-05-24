@@ -52,11 +52,11 @@
             action="action_mtd_vat_submission_log"/>
         <!--This menu item is only required for developer. If there are issues with the calculation use the menu item
             to view the results. -->
-        <menuitem id="submenu_mtd_vat_calculation_log"
+        <!--<menuitem id="submenu_mtd_vat_calculation_log"
             name="VAT Calculation"
             parent="submenu_vat_logs_hmrc"
             sequence="20"
-            action="action_mtd_vat_calculation"/>
+            action="action_mtd_vat_calculation"/>-->
 
         <menuitem id="submenu_mtd_vat_detailed_submission_log"
             name="View VAT Details"
