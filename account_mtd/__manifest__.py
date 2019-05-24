@@ -22,7 +22,7 @@
 
 
 {
-    'name': 'Making Tax Digital',
+    'name': 'UK HMRC MTD - Connector',
     'version': '0.2',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
