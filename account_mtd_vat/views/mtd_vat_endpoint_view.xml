@@ -86,7 +86,7 @@
                             </tr>
                             <tr>
                                 <td width="700">
-                                    <label for="vat_due_acquisitions_submit" readonly="1"/>
+                                    <label for="vat_reclaimed_submit" readonly="1"/>
                                 </td>
                                 <td>
                                     <field name="vat_reclaimed_submit" readonly="1"/>
