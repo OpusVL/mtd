@@ -201,8 +201,8 @@ class MtdVATEndpoints(models.Model):
     review_text = fields.Char(
         readonly=True,
         default=(
-            "Please review your VAT summary above and then tick the 'Confirm and finalise' "
-            + "checkbox and then submit to HMRC")
+            "Please review your VAT summary above. When you are satisfied it is correct, tick 'I confirm and finalise' "
+            + "and then click 'Submit VAT return.")
     )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
@@ -212,6 +212,7 @@ class MtdVATEndpoints(models.Model):
         'Include Transaction of Previous period',
         required=True,
         default='yes')
+    show_response_flag = fields.Boolean(default = False)
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -231,6 +232,7 @@ class MtdVATEndpoints(models.Model):
         self.submit_vat_flag = False
         self.view_vat_flag = False
         self.finalise = False
+        self.show_response_flag = False
 
         self.search([('response_from_hmrc', '!=', False)]).write({
             'response_from_hmrc': self.default_get(['response_from_hmrc'])['response_from_hmrc']
@@ -323,6 +325,7 @@ class MtdVATEndpoints(models.Model):
         self.client_type = ""
         self.finalise = False
         self.response_from_hmrc = ""
+        self.show_response_flag = False
 
         # Get the date from  and date to
         box1, box2, box3, box4, box5, box6, box7, box8, box9 = self.env[
@@ -346,53 +349,6 @@ class MtdVATEndpoints(models.Model):
         self.total_acquisitions_submit = box9
 
         return True
-        # search account_move_line for the dates for that period
-        # and if previous period has been selected then search for earlier period too. until the cutoff date.
-
-        # retrieve_period, period_ids, fiscalyear_ids = self.retrieve_period_and_fiscalyear()
-        #
-        # context = str({
-        #     'period_id': period_ids,
-        #     'fiscalyear_id': fiscalyear_ids,
-        #     'state': 'posted',
-        #     'vat': 'no'})
-        #
-        # retrieve_vat_code_ids = self.env['account.tax.code'].search([
-        #     ('code', 'in', ['1','2', '3', '4', '5', '6', '7', '8', '9']),
-        #     ('company_id', '=', self.company_id.id)
-        # ])
-        # name = 'Calculated VAT'
-        # retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
-        #     period_id=period_ids,
-        #     fiscalyear_id=fiscalyear_ids,
-        #     state='posted',
-        #     vat='no'
-        # )._sum_period(name, context)
-        #
-        # code_dict = {
-        #     '1': 'vat_due_sales_submit',
-        #     '2': 'vat_due_acquisitions_submit',
-        #     '3': 'total_vat_due_submit',
-        #     '4': 'vat_reclaimed_submit',
-        #     '5': 'net_vat_due_submit',
-        #     '6': 'total_value_sales_submit',
-        #     '7': 'total_value_purchase_submit',
-        #     '8': 'total_value_goods_supplied_submit',
-        #     '9': 'total_acquisitions_submit',
-        # }
-        # if len(retrieve_period)>  0:
-        #     self.submit_vat_flag = True
-        #     for item in retrieve_vat_code_ids:
-        #         if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
-        #             setattr(self, code_dict[item.code], retrieve_sum_for_codes[item.id])
-        #     self.total_vat_due_submit = (self.vat_due_sales_submit + self.vat_due_acquisitions_submit)
-        #     # HMRC does not take negative value therefore need to change the negative value for Net vat due field
-        #     # self.net_vat_due_submit = abs(self.net_vat_due_submit)
-        # else:
-        #     self.submit_vat_flag = False
-        #     self.response_from_hmrc = (
-        #         "No period matching to the vat obligation found Please try a different period."
-        #     )
 
     def _handle_vat_obligations_endpoint(self):
         vrn = self.get_vrn(self.vrn)
@@ -443,7 +399,9 @@ class MtdVATEndpoints(models.Model):
         return self.process_connection()
 
     def get_vrn(self, vrn):
-        split_vrn = re.findall('\d+|\D+', vrn)
+        # strip any space
+        strip_vrn = vrn.replace(" ", "")
+        split_vrn = re.findall('\d+|\D+', strip_vrn)
 
         return split_vrn[1]
 
@@ -502,36 +460,6 @@ class MtdVATEndpoints(models.Model):
                 redirect=self.hmrc_configuration.redirect_url,
                 path=self.path
             )
-
-    @api.multi
-    def action_go_to_obligation_logs(self, *args):
-        obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log').id
-        obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log').id
-
-        redirect_url = self.hmrc_configuration.redirect_url
-        redirect_url += (
-            "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
-            + "&menu_id={menu}&action={action}".format(
-                menu=obligation_log_menu,
-                action=obligation_log_action
-            ))
-
-        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
-
-    @api.multi
-    def action_submission_log_view(self, *args):
-        submission_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_submission_log').id
-        submission_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_submission_log').id
-
-        redirect_url = self.hmrc_configuration.redirect_url
-        redirect_url += (
-            "/web?#page=0&limit=80&view_type=list&model=mtd_vat.vat_obligations_logs"
-            + "&menu_id={menu}&action={action}".format(
-                menu=submission_log_menu,
-                action=submission_log_action
-            ))
-
-        return {'url': redirect_url, 'type': 'ir.actions.act_url', 'target': 'new'}
 
     def reset_vat_submission_values(self):
         self.search([('vat_due_sales_submit', '!=', False)]).write({
