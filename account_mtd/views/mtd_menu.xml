@@ -6,11 +6,11 @@
             parent="account.menu_finance"
             sequence="7"/>
         <act_window id="action_mtd_hmrc_configuration"
-            name="HMRC Configuration"
+            name="HMRC Set-up"
             res_model="mtd.hmrc_configuration"
             view_mode="tree,form" />
         <act_window id="action_mtd_hello_world"
-            name="Diagnose Connection to HMRC"
+            name="Diagnostics"
             res_model="mtd.hello_world"
             view_mode="tree,form" />
 

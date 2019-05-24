@@ -140,7 +140,7 @@ class MtdVatIssueRequest(models.Model):
             "json_command - received respponse of the request:- {response}, ".format(response=response) +
             "and its text:- {response_token}".format(response_token=response_token)
         )
-
+        record.show_response_flag = True
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
@@ -340,6 +340,7 @@ class MtdVatIssueRequest(models.Model):
                 + "Please check the response below.\n\n{message}".format(message=display_message)
         )
         record.response_from_hmrc = success_message
+        record.show_response_flag = True
 
     def add_obligation_logs(self, response=None, record=None):
 
@@ -379,6 +380,7 @@ class MtdVatIssueRequest(models.Model):
         #record.show_obligation_link = True
 
         record.response_from_hmrc = success_message
+        record.show_response_flag = True
         record.obligation_log_link = "Please check the VAT logs here"
 
     def update_write_obligation(self, log, received, obligation_logs, record):
