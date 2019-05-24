@@ -392,12 +392,21 @@ class MtdVATEndpoints(models.Model):
                 "Chart of Taxes can not be generated!\n " +
                 "Please create HMRC Posting Templae record first "
             )
+        for rec in hmrc_posting_config:
+            import pdb; pdb.set_trace()
+            if not rec.output_account.reconcile:
+                raise exceptions.Warning(
+                    "The account {} is not marked as reconciliable !".format(rec.output_account.name)
+                )
+            elif not rec.input_account.reconcile:
+                raise exceptions.Warning(
+                    "The account {} is not marked as reconciliable !".format(rec.output_account.name)
+                )
 
         vrn = self.get_vrn(self.vrn)
         period_key = urllib.parse.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
-
         return self.process_connection()
 
     def get_vrn(self, vrn):
