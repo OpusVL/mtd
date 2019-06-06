@@ -59,7 +59,7 @@ class MtdVATEndpoints(models.Model):
     response_from_hmrc = fields.Text(string="Response from HMRC", readonly=True, default="")
     path = fields.Char(string="sandbox_url")
     endpoint_name = fields.Char(string="which_button")
-    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs', defaule="")
+    select_vat_obligation = fields.Many2one(comodel_name='mtd_vat.vat_obligations_logs', default="")
     # retrieve_vat_obligation_first = fields.Many2one(
     #     comodel_name='mtd_vat.vat_endpoints',
     #     compute='_compute_retrieve_vat_obligation_rec')
