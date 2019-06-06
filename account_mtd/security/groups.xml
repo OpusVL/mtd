@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <openerp>
     <data>
-        <record id="mtd_gorups_category" model="ir.module.category">
+        <record id="mtd_groups_category" model="ir.module.category">
             <field name="name">MTD user group</field>
         </record>
         <record id="mtd_admin" model="res.groups">
