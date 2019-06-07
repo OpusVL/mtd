@@ -5,11 +5,11 @@
             <field name="name">MTD user group</field>
         </record>
         <record id="mtd_admin" model="res.groups">
-            <field name="category_id" ref="mtd_gorups_category"/>
+            <field name="category_id" ref="mtd_groups_category"/>
             <field name="name">Administrator</field>
         </record>
         <record id="mtd_user" model="res.groups">
-            <field name="category_id" ref="mtd_gorups_category"/>
+            <field name="category_id" ref="mtd_groups_category"/>
             <field name="name">User</field>
         </record>
     </data>

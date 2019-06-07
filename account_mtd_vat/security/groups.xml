@@ -5,11 +5,11 @@
             <field name="name">MTD VAT</field>
         </record>
         <record id="mtd_vat_admin" model="res.groups">
-            <field name="category_id" ref="mtd_vat_gorups_category"/>
+            <field name="category_id" ref="mtd_vat_groups_category"/>
             <field name="name">Administrator</field>
         </record>
         <record id="mtd_vat_user" model="res.groups">
-            <field name="category_id" ref="mtd_vat_gorups_category"/>
+            <field name="category_id" ref="mtd_vat_groups_category"/>
             <field name="name">User</field>
         </record>
     </data>
