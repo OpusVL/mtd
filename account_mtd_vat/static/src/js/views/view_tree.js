@@ -26,22 +26,30 @@ var instance = openerp;
                 }
                 action.context = c;
                 if (action.src_model == 'account.tax.code' && action.res_model == 'account.move.line') {
-                // Ideally, we shouldn't fudge the domain like this, but instead eval it and convert it to a list of tuples instead of a string
-                // Then we can properly add the additional domain criteria in, instead of just stitching it onto the end of the string
-                // We assume the existing domain is always going to be the same like this.
-                    if ((typeof c.__eval_context.vat !== 'Undefined') && (c.__eval_context.vat != "")){
-                        var vat = c.__eval_context.vat
-                        action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('date', '>=', '" + c.__eval_context.date_from +
-                        "'), ('date', '<=', '" + c.__eval_context.date_to +
-                        "'), ('vat', '=', " + c.__eval_context.vat + ")]")
-                    } else {
-                        action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('date', '>=', '" + c.__eval_context.date_from +
-                        "'), ('date', '<=', '" + c.__eval_context.date_to + "')]")
-                    }
+                    var eval_context = c.get_eval_context();
+                    var CaseCodeModel = new openerp.Model('account.tax.code');
+                    CaseCodeModel.call(
+                        'move_line_domain',
+                        [],
+                        {
+                            tax_code_id: eval_context.active_id,
+                            entry_state_filter: eval_context.state,
+                            date_from: eval_context.date_from,
+                            date_to: eval_context.date_to,
+                            company_id: eval_context.company_id,
+                            vat_filter: eval_context.vat,   // In funny tristate string format
+                            as_string: true,
+                        }
+                    )
+                    .then(function (returned_domain) {
+                        action.domain = returned_domain;
+                        return self.do_action(action);   // Do async call inside then to prevent races.
+                    });
                 }
-                return self.do_action(action);
+                else
+                {
+                    return self.do_action(action);
+                }
             });
         },
     });

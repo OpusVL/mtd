@@ -9,6 +9,33 @@ from openerp.osv import fields, osv, expression
 class mtd_account_tax_code(osv.osv):
     _inherit = "account.tax.code"
 
+    def move_line_domain(self, cr, uid,
+            tax_code_id, entry_state_filter, date_from, date_to, company_id,
+            vat_filter, as_string=False):
+        """
+        vat_filter: String 'True' or 'False' to filter, falsey value if we
+            don't care
+        entry_state_filter: 'all' or 'posted'
+        """
+        assert state_filter in ('all', 'posted'), "Invalid state_filter"
+        wanted_journal_entry_states = \
+            ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
+        domain = [
+            ('state', '!=', 'draft'),
+            ('account_move_id.state', 'in', wanted_journal_entry_states),
+            ('tax_code_id', 'child_of', tax_code_id),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+        ]
+        if vat_filter:  # TODO use 'all' for all like with state_filter
+            assert vat_filter in ('True', 'False'), \
+                "Invalid value {!r} for vat_filter".format(vat_filter)
+            wanted_vat_value = (vat_filter == 'True')
+            domain.append(('vat', '=', wanted_vat_value))
+        # TODO see if action.domain in JS can cope with data structure
+        #  instead of string, in which case this nasty hack isn't needed
+        return repr(domain) if as_string else domain
+
     def _update_box_9_tax_code_scope(self, cr, uid):
         context = {}
         context['code'] = 9
