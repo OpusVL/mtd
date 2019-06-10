@@ -177,20 +177,6 @@ class mtd_account_tax_code(osv.osv):
         # In practice, the chart of taxes is only going to be quite small
         # so repeating something reasonably quick 8 times probably isn't an
         # issue.
-        def sum_for_one_code(cr, uid, tax_code_id, sign, context):
-            move_line_ids = cr.move_line_ids_for_one_code(uid, tax_code_id,
-                context)
-            if move_line_ids:
-                return (
-                    self._sum(cr, uid, [tax_code_id], name, args, context,
-                        where='AND line.id IN %s',
-                        where_params=(tuple(move_line_ids),),
-                    )
-                    [tax_code_id]
-                )
-            else:
-                return 0.0  # "IN ()" invalid in SQL
-
         def move_line_ids_for_one_code(cr, uid, tax_code_id, context):
             move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
                 cr, uid,
@@ -218,22 +204,6 @@ class mtd_account_tax_code(osv.osv):
             )
         else:
             return 0.0  # "IN ()" invalid in SQL
-
-        tax_code_sign = {}
-        # tax_code_sign = {
-        #     result['id']: result['sign']
-        #     for result
-        #     in self.read(cr, uid, ids, ['id', 'sign'], context=context)
-        # }
-        sums = {
-            tax_code_id: sum_for_one_code(
-                cr, uid,
-                tax_code_id=tax_code_id,
-                sign=tax_code_sign[tax_code_id],
-                context=context)
-            for tax_code_id in ids
-        }
-        return sums
 
     _columns = {
         'sum': fields.function(_sum_year, string="Year Sum"),
