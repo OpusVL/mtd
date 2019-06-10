@@ -48,6 +48,7 @@ class mtd_account_tax_code(osv.osv):
         return True
 
     def _sum_year(self, cr, uid, ids, name, args, context=None):
+        # TODO does this need same treatment as _sum_period?
         if context is None:
             context = {}
         move_state = ('posted',)
@@ -135,6 +136,8 @@ class mtd_account_tax_code(osv.osv):
             res2[record.id] = round(_rec_get(record), obj_precision.precision_get(cr, uid, 'Account'))
 
         if 'calculate_vat' in context.keys():
+            # TODO split this out as it's not going to work on new scheme (
+            #  probably)
             if context.get('based_on', 'invoices') == 'payments':
                 cr.execute('SELECT line.tax_code_id, sum(line.tax_amount) as amount, \
                         sum(line.mtd_tax_amount) as mtd_amount FROM account_move_line AS line, \
