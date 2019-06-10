@@ -179,7 +179,8 @@ class mtd_account_tax_code(osv.osv):
         # so repeating something reasonably quick 8 times probably isn't an
         # issue.
         move_line_ids = frozenset().union(*(
-            move_line_ids_for_one_code(cr, uid, tax_code_id, context)
+            self._move_line_ids_for_chart_of_taxes_row(
+                cr, uid, tax_code_id, context)
             for tax_code_id in ids
         ))
         if move_line_ids:
