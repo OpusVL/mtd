@@ -17,6 +17,10 @@ class mtd_account_tax_code(osv.osv):
             don't care
         entry_state_filter: 'all' or 'posted'
         """
+        # This is and should remain a pure function on the arguments,
+        # other than cr and uid.
+        # We accept cr, uid purely to make the javascript openerp.Model call
+        # happy
         assert entry_state_filter in ('all', 'posted'), "Invalid state_filter"
         wanted_journal_entry_states = \
             ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
