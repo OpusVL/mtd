@@ -177,21 +177,6 @@ class mtd_account_tax_code(osv.osv):
         # In practice, the chart of taxes is only going to be quite small
         # so repeating something reasonably quick 8 times probably isn't an
         # issue.
-        def move_line_ids_for_one_code(cr, uid, tax_code_id, context):
-            move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
-                cr, uid,
-                tax_code_id=tax_code_id,
-                entry_state_filter=context['state'],
-                date_from=context['date_from'],
-                date_to=context['date_to'],
-                company_id=context['company_id'],
-                vat_filter=context['vat'],
-            )
-            move_line_obj = self.pool['account.move.line']
-            move_line_ids = move_line_obj.search(
-                cr, uid, move_line_domain, context=context)
-            return move_line_ids
-
         move_line_ids = frozenset().union(*(
             move_line_ids_for_one_code(cr, uid, tax_code_id, context)
             for tax_code_id in ids
@@ -202,7 +187,23 @@ class mtd_account_tax_code(osv.osv):
                 where_params=(tuple(move_line_ids),),
             )
         else:
-            return 0.0  # "IN ()" invalid in SQL
+            return {id_: 0.0 for id_ in ids} # "IN ()" invalid in SQL
+
+    def _move_line_ids_for_chart_of_taxes_row(self, cr, uid, tax_code_id, context):
+        move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
+            cr, uid,
+            tax_code_id=tax_code_id,
+            entry_state_filter=context['state'],
+            date_from=context['date_from'],
+            date_to=context['date_to'],
+            company_id=context['company_id'],
+            vat_filter=context['vat'],
+        )
+        move_line_obj = self.pool['account.move.line']
+        move_line_ids = move_line_obj.search(
+            cr, uid, move_line_domain, context=context)
+        return move_line_ids
+
 
     _columns = {
         'sum': fields.function(_sum_year, string="Year Sum"),
