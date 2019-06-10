@@ -22,7 +22,7 @@ class mtd_account_tax_code(osv.osv):
             ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
         domain = [
             ('state', '!=', 'draft'),
-            ('account_move_id.state', 'in', wanted_journal_entry_states),
+            ('move_id.state', 'in', wanted_journal_entry_states),
             ('tax_code_id', 'child_of', tax_code_id),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
