@@ -171,6 +171,7 @@ class mtd_account_tax_code(osv.osv):
         return res2
 
     def _sum_period(self, cr, uid, ids, name, args, context):
+        # TODO missing test
         # The algorithm from Odoo core might be slightly more efficient,
         # but owing to bug O1851 I'm trading a little speed for detail/sum
         # parity.
