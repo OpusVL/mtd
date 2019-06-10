@@ -39,7 +39,6 @@ var instance = openerp;
                             date_to: eval_context.date_to,
                             company_id: eval_context.company_id,
                             vat_filter: eval_context.vat,   // In funny tristate string format
-                            as_string: true,
                         }
                     )
                     .then(function (returned_domain) {

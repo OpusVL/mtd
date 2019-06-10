@@ -11,7 +11,7 @@ class mtd_account_tax_code(osv.osv):
 
     def move_line_domain_for_chart_of_taxes_row(self, cr, uid,
             tax_code_id, entry_state_filter, date_from, date_to, company_id,
-            vat_filter, as_string=False):
+            vat_filter):
         """
         vat_filter: String 'True' or 'False' to filter, falsey value if we
             don't care
@@ -33,9 +33,7 @@ class mtd_account_tax_code(osv.osv):
                 "Invalid value {!r} for vat_filter".format(vat_filter)
             wanted_vat_value = (vat_filter == 'True')
             domain.append(('vat', '=', wanted_vat_value))
-        # TODO see if action.domain in JS can cope with data structure
-        #  instead of string, in which case this nasty hack isn't needed
-        return repr(domain) if as_string else domain
+        return domain
 
     def _update_box_9_tax_code_scope(self, cr, uid):
         context = {}
