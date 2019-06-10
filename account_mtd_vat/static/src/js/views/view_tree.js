@@ -29,7 +29,7 @@ var instance = openerp;
                     var eval_context = c.get_eval_context();
                     var CaseCodeModel = new openerp.Model('account.tax.code');
                     CaseCodeModel.call(
-                        'move_line_domain',
+                        'move_line_domain_for_chart_of_taxes_row',
                         [],
                         {
                             tax_code_id: eval_context.active_id,

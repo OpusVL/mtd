@@ -9,7 +9,7 @@ from openerp.osv import fields, osv, expression
 class mtd_account_tax_code(osv.osv):
     _inherit = "account.tax.code"
 
-    def move_line_domain(self, cr, uid,
+    def move_line_domain_for_chart_of_taxes_row(self, cr, uid,
             tax_code_id, entry_state_filter, date_from, date_to, company_id,
             vat_filter, as_string=False):
         """
