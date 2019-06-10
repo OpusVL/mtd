@@ -28,6 +28,7 @@ var instance = openerp;
                 if (action.src_model == 'account.tax.code' && action.res_model == 'account.move.line') {
                     var eval_context = c.get_eval_context();
                     var CaseCodeModel = new openerp.Model('account.tax.code');
+                    var promise_from_do_action;
                     CaseCodeModel.call(
                         'move_line_domain_for_chart_of_taxes_row',
                         [],
@@ -43,13 +44,16 @@ var instance = openerp;
                     )
                     .then(function (returned_domain) {
                         action.domain = returned_domain;
-                        return self.do_action(action);   // Do async call inside then to prevent races.
+                        // Making async call after this then() caused a race condition
+                        promise_from_do_action = self.do_action(action);
+                        return promise_from_do_action;  // Unsure if this is necessary along with above assignment
                     });
                 }
                 else
                 {
-                    return self.do_action(action);
+                    promise_from_do_action = self.do_action(action);
                 }
+                return promise_from_do_action;
             });
         },
     });
