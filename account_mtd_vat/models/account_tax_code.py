@@ -172,11 +172,26 @@ class mtd_account_tax_code(osv.osv):
 
     def _sum_period(self, cr, uid, ids, name, args, context):
         # The algorithm from Odoo core might be slightly more efficient,
-        # but owing to bug O1851 I'm trading a little speed for simplicity.
+        # but owing to bug O1851 I'm trading a little speed for detail/sum
+        # parity.
         # In practice, the chart of taxes is only going to be quite small
         # so repeating something reasonably quick 8 times probably isn't an
         # issue.
         def sum_for_one_code(cr, uid, tax_code_id, sign, context):
+            move_line_ids = cr.move_line_ids_for_one_code(uid, tax_code_id,
+                context)
+            if move_line_ids:
+                return (
+                    self._sum(cr, uid, [tax_code_id], name, args, context,
+                        where='AND line.id IN %s',
+                        where_params=(tuple(move_line_ids),),
+                    )
+                    [tax_code_id]
+                )
+            else:
+                return 0.0  # "IN ()" invalid in SQL
+
+        def move_line_ids_for_one_code(cr, uid, tax_code_id, context):
             move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
                 cr, uid,
                 tax_code_id=tax_code_id,
@@ -185,25 +200,31 @@ class mtd_account_tax_code(osv.osv):
                 date_to=context['date_to'],
                 company_id=context['company_id'],
                 vat_filter=context['vat'],
-                with_children=False,
+                with_children=True,
             )
             move_line_obj = self.pool['account.move.line']
             move_line_ids = move_line_obj.search(
                 cr, uid, move_line_domain, context=context)
-            raw_tax_total = move_line_obj._sum_of_tax_amounts(cr, uid,
-                move_line_ids, context=context)
-            signed_tax_total = raw_tax_total * sign
-            rounded_tax_total = round(
-                signed_tax_total,
-                self.pool['decimal.precision'].precision_get(cr, uid, 'Account')
-            )
-            return rounded_tax_total
+            return move_line_ids
 
-        tax_code_sign = {
-            result['id']: result['sign']
-            for result
-            in self.read(cr, uid, ids, ['id', 'sign'], context=context)
-        }
+        move_line_ids = frozenset().union(*(
+            move_line_ids_for_one_code(cr, uid, tax_code_id, context)
+            for tax_code_id in ids
+        ))
+        if move_line_ids:
+            return self._sum(cr, uid, ids, name, args, context,
+                where='AND line.id IN %s',
+                where_params=(tuple(move_line_ids),),
+            )
+        else:
+            return 0.0  # "IN ()" invalid in SQL
+
+        tax_code_sign = {}
+        # tax_code_sign = {
+        #     result['id']: result['sign']
+        #     for result
+        #     in self.read(cr, uid, ids, ['id', 'sign'], context=context)
+        # }
         sums = {
             tax_code_id: sum_for_one_code(
                 cr, uid,
