@@ -21,11 +21,6 @@ class mtd_account_tax_code(osv.osv):
         # We accept cr, uid purely to make the javascript openerp.Model call
         # happy
         assert entry_state_filter in ('all', 'posted'), "Invalid state_filter"
-        vat_clauses = {
-            'posted': [('vat', '=', True)],
-            'unposted': [('vat', '=', False)],
-            'all': [],
-        }
         wanted_journal_entry_states = \
             ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
         domain = [
@@ -36,6 +31,11 @@ class mtd_account_tax_code(osv.osv):
             ('date', '>=', date_from),
             ('date', '<=', date_to),
         ]
+        vat_clauses = {
+            'posted': [('vat', '=', True)],
+            'unposted': [('vat', '=', False)],
+            'all': [],
+        }
         domain += vat_clauses[vat_filter]
         return domain
 
