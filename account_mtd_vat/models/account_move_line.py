@@ -58,12 +58,12 @@ class account_tax_chart(osv.osv_memory):
         'date_to': fields.date(string='Effective date to'),
         'company_id': fields.many2one('res.company', 'Company'),
         'vat_posted': fields.selection([
-            ('yes', 'Yes'),
-            ('no', 'No'),
+            ('posted', 'Yes'),
+            ('unposted', 'No'),
             ('all', 'All')],
             'VAT Posted',
             required=True,
-            default='no'),
+            default='unposted'),
         'previous_period': fields.selection([
             ('yes', 'Yes'),
             ('no', 'No')],
@@ -101,19 +101,13 @@ class account_tax_chart(osv.osv_memory):
                 if fiscalyear_id not in fiscalyear_ids:
                     fiscalyear_ids.append(fiscalyear_id)
 
-        vat = ''
-        if data.vat_posted == 'yes':
-            vat = 'True'
-        elif data.vat_posted == 'no':
-            vat = 'False'
-
         context = result['context']
         new_context = ast.literal_eval(context)
         new_context['company_id'] = data.company_id.id
         new_context['date_from'] = date_from
         new_context["date_to"] = data.date_to
         new_context['period_id'] = period_ids
-        new_context['vat'] = vat
+        new_context['vat'] = data.vat_posted
         new_context['fiscalyear_id'] = fiscalyear_ids
         result['context'] = new_context
 

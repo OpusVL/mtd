@@ -13,8 +13,7 @@ class mtd_account_tax_code(osv.osv):
             tax_code_id, entry_state_filter, date_from, date_to, company_id,
             vat_filter):
         """
-        vat_filter: String 'True' or 'False' to filter, falsey value if we
-            don't care
+        vat_filter: 'all', 'posted' or 'unposted'
         entry_state_filter: 'all' or 'posted'
         """
         # This is and should remain a pure function on the arguments,
@@ -22,6 +21,11 @@ class mtd_account_tax_code(osv.osv):
         # We accept cr, uid purely to make the javascript openerp.Model call
         # happy
         assert entry_state_filter in ('all', 'posted'), "Invalid state_filter"
+        vat_clauses = {
+            'posted': [('vat', '=', True)],
+            'unposted': [('vat', '=', False)],
+            'all': [],
+        }
         wanted_journal_entry_states = \
             ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
         domain = [
@@ -32,11 +36,7 @@ class mtd_account_tax_code(osv.osv):
             ('date', '>=', date_from),
             ('date', '<=', date_to),
         ]
-        if vat_filter:  # TODO use 'all' for all like with state_filter
-            assert vat_filter in ('True', 'False'), \
-                "Invalid value {!r} for vat_filter".format(vat_filter)
-            wanted_vat_value = (vat_filter == 'True')
-            domain.append(('vat', '=', wanted_vat_value))
+        domain += vat_clauses[vat_filter]
         return domain
 
     def _update_box_9_tax_code_scope(self, cr, uid):

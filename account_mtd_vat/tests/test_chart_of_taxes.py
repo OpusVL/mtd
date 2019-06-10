@@ -10,7 +10,7 @@ class ChartOfTaxesDomainTests(common.TransactionCase):
                 date_from='2018-12-01',
                 date_to='2019-02-28',
                 company_id=1,
-                vat_filter='False',
+                vat_filter='unposted',
             )
         )
         expected_domain = [
