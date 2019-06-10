@@ -17,7 +17,7 @@ class mtd_account_tax_code(osv.osv):
             don't care
         entry_state_filter: 'all' or 'posted'
         """
-        assert state_filter in ('all', 'posted'), "Invalid state_filter"
+        assert entry_state_filter in ('all', 'posted'), "Invalid state_filter"
         wanted_journal_entry_states = \
             ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
         domain = [
