@@ -24,6 +24,7 @@ class mtd_account_tax_code(osv.osv):
             ('state', '!=', 'draft'),
             ('move_id.state', 'in', wanted_journal_entry_states),
             ('tax_code_id', 'child_of', tax_code_id),
+            ('company_id', '=', company_id),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
         ]
