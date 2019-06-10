@@ -11,7 +11,7 @@ class mtd_account_tax_code(osv.osv):
 
     def move_line_domain_for_chart_of_taxes_row(self, cr, uid,
             tax_code_id, entry_state_filter, date_from, date_to, company_id,
-            vat_filter):
+            vat_filter, with_children):
         """
         vat_filter: String 'True' or 'False' to filter, falsey value if we
             don't care
@@ -27,7 +27,7 @@ class mtd_account_tax_code(osv.osv):
         domain = [
             ('state', '!=', 'draft'),
             ('move_id.state', 'in', wanted_journal_entry_states),
-            ('tax_code_id', 'child_of', tax_code_id),
+            ('tax_code_id', 'child_of' if with_children else '=', tax_code_id),
             ('company_id', '=', company_id),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
@@ -171,54 +171,48 @@ class mtd_account_tax_code(osv.osv):
         return res2
 
     def _sum_period(self, cr, uid, ids, name, args, context):
-        if context is None:
-            context = {}
-        move_state = ('posted',)
-        if context.get('state', False) == 'all':
-            move_state = ('draft', 'posted',)
-        if context.get('period_id', False):
-            period_id = context['period_id']
-        else:
-            period_id = self.pool.get('account.period').find(cr, uid, context=context)
-            if not period_id:
-                return dict.fromkeys(ids, 0.0)
-            period_id = [period_id[0]]
-        vat = ''
-        if 'vat' in context.keys() and context['vat'] != "":
-            vat = False
-            if context['vat'] == 'True':
-                vat = True
-        date_from = None
-        date_to = None
-        company_id = None
-        if 'date_from' in context.keys():
-            date_from = context['date_from']
-        if 'date_to' in context.keys():
-            date_to = context['date_to']
-        if 'company_id' in context.keys():
-            company_id = context['company_id']
-        if vat == "":
-            return self._sum(
-                cr,
-                uid,
-                ids,
-                name,
-                args,
-                context,
-                where=' AND line.date >= %s AND line.date <= %s AND move.state IN %s AND line.company_id = %s',
-                where_params=(date_from, date_to, move_state, company_id)
+        # The algorithm from Odoo core might be slightly more efficient,
+        # but owing to bug O1851 I'm trading a little speed for simplicity.
+        # In practice, the chart of taxes is only going to be quite small
+        # so repeating something reasonably quick 8 times probably isn't an
+        # issue.
+        def sum_for_one_code(cr, uid, tax_code_id, sign, context):
+            move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
+                cr, uid,
+                tax_code_id=tax_code_id,
+                entry_state_filter=context['state'],
+                date_from=context['date_from'],
+                date_to=context['date_to'],
+                company_id=context['company_id'],
+                vat_filter=context['vat'],
+                with_children=False,
             )
-        else:
-            return self._sum(
-                cr,
-                uid,
-                ids,
-                name,
-                args,
-                context,
-                where=' AND line.date >= %s AND line.date <= %s AND move.state IN %s AND line.vat = %s AND line.company_id = %s',
-                where_params=(date_from, date_to, move_state, vat, company_id)
+            move_line_obj = self.pool['account.move.line']
+            move_line_ids = move_line_obj.search(
+                cr, uid, move_line_domain, context=context)
+            raw_tax_total = move_line_obj._sum_of_tax_amounts(cr, uid,
+                move_line_ids, context=context)
+            signed_tax_total = raw_tax_total * sign
+            rounded_tax_total = round(
+                signed_tax_total,
+                self.pool['decimal.precision'].precision_get(cr, uid, 'Account')
             )
+            return rounded_tax_total
+
+        tax_code_sign = {
+            result['id']: result['sign']
+            for result
+            in self.read(cr, uid, ids, ['id', 'sign'], context=context)
+        }
+        sums = {
+            tax_code_id: sum_for_one_code(
+                cr, uid,
+                tax_code_id=tax_code_id,
+                sign=tax_code_sign[tax_code_id],
+                context=context)
+            for tax_code_id in ids
+        }
+        return sums
 
     _columns = {
         'sum': fields.function(_sum_year, string="Year Sum"),

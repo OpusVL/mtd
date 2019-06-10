@@ -30,6 +30,27 @@ class account_move_line(osv.osv):
         else:
             self.mtd_tax_amount = 0.00
 
+    def _sum_of_tax_amounts(self, cr, uid, ids, context=None):
+        """Return sum of tax_amounts for ids, unrounded.
+
+        You will need to use decimal precision stuff to round to 'Account'
+        accuracy when you are done with any further computations you wish
+        to do on the result.
+        """
+        if ids:
+            sql = """
+                SELECT SUM(tax_amount)
+                FROM account_move_line
+                WHERE id in %s
+            """
+            params = (tuple(ids),)
+            cr.execute(sql, params)
+            (total_tax,) = cr.fetchone()
+            return total_tax
+        else:
+            # "in ()" in SQL not valid
+            return 0.0
+
     _columns = {
         'vat': fields.boolean(string="VAT Posted", default=False, readonly=True),
         'vat_submission_id': fields.many2one('mtd_vat.vat_submission_logs', string='VAT Submission Period'),
