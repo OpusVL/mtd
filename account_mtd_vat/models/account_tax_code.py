@@ -11,7 +11,7 @@ class mtd_account_tax_code(osv.osv):
 
     def move_line_domain_for_chart_of_taxes_row(self, cr, uid,
             tax_code_id, entry_state_filter, date_from, date_to, company_id,
-            vat_filter, with_children):
+            vat_filter):
         """
         vat_filter: String 'True' or 'False' to filter, falsey value if we
             don't care
@@ -27,7 +27,7 @@ class mtd_account_tax_code(osv.osv):
         domain = [
             ('state', '!=', 'draft'),
             ('move_id.state', 'in', wanted_journal_entry_states),
-            ('tax_code_id', 'child_of' if with_children else '=', tax_code_id),
+            ('tax_code_id', 'child_of', tax_code_id),
             ('company_id', '=', company_id),
             ('date', '>=', date_from),
             ('date', '<=', date_to),
@@ -186,7 +186,6 @@ class mtd_account_tax_code(osv.osv):
                 date_to=context['date_to'],
                 company_id=context['company_id'],
                 vat_filter=context['vat'],
-                with_children=True,
             )
             move_line_obj = self.pool['account.move.line']
             move_line_ids = move_line_obj.search(
