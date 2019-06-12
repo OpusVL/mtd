@@ -4,13 +4,15 @@ class ChartOfTaxesDomainTests(common.TransactionCase):
     def test_domain_for_O1851_example(self):
         result = (
             self.env['account.tax.code']
-            .move_line_domain_for_chart_of_taxes_row(
-                tax_code_id=8,
-                entry_state_filter='all',
+            .with_context(
+                state='all',
                 date_from='2018-12-01',
                 date_to='2019-02-28',
                 company_id=1,
-                vat_filter='unposted',
+                vat='unposted',
+            )
+            .move_line_domain_for_chart_of_taxes_row(
+                tax_code_id=8,
             )
         )
         expected_domain = [
