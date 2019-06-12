@@ -1,41 +1,61 @@
 # -*- coding = utf-8 -*-
 import logging
 
-from openerp import models, fields, api, _
+from openerp import models, fields, api, _, exceptions
 from openerp.osv import fields, osv, expression
 
-
+LOG = logging.getLogger(__name__)
 
 class mtd_account_tax_code(osv.osv):
     _inherit = "account.tax.code"
 
-    def move_line_domain_for_chart_of_taxes_row(self, cr, uid,
-            tax_code_id, entry_state_filter, date_from, date_to, company_id,
-            vat_filter):
+    def move_line_domain_for_chart_of_taxes_row(self, cr, uid, tax_code_id,
+            context):
         """
-        vat_filter: 'all', 'posted' or 'unposted'
-        entry_state_filter: 'all' or 'posted'
+        tax_code_id: int
+        context: must contain at least keys:
+          date_to: string in format %Y-%m-%d
+          date_from: string in format %Y-%m-%d
+          company_id: int
+          vat: 'all', 'posted' or 'unposted'
+          state: 'all' or 'posted' (required journal entry states)
         """
-        # This is and should remain a pure function on the arguments,
-        # other than cr and uid.
+        # This method is and should remain a pure function on tax_code_id and
+        # context.
         # We accept cr, uid purely to make the javascript openerp.Model call
         # happy
+
+        def param_or_user_error(ctx, key):
+            try:
+                return ctx[key]
+            except KeyError:
+                headline = "Missing parameters for chart of taxes."
+                LOG.exception("%s  See exception." % (headline,))
+                raise exceptions.Warning(
+                    "%s\n"
+                    "This is usually caused by refreshing the webpage from a"
+                    " previous chart of taxes report." % (headline,)
+                )
+
+        entry_state_filter = param_or_user_error(context, 'state')
         assert entry_state_filter in ('all', 'posted'), "Invalid state_filter"
         wanted_journal_entry_states = \
-            ('draft', 'posted') if entry_state_filter == 'all' else ('posted',)
+            ('draft', 'posted') if entry_state_filter == 'all' \
+                else ('posted',)
         domain = [
             ('state', '!=', 'draft'),
             ('move_id.state', 'in', wanted_journal_entry_states),
             ('tax_code_id', 'child_of', tax_code_id),
-            ('company_id', '=', company_id),
-            ('date', '>=', date_from),
-            ('date', '<=', date_to),
+            ('company_id', '=', param_or_user_error(context, 'company_id')),
+            ('date', '>=', param_or_user_error(context, 'date_from')),
+            ('date', '<=', param_or_user_error(context, 'date_to')),
         ]
         vat_clauses = {
             'posted': [('vat', '=', True)],
             'unposted': [('vat', '=', False)],
             'all': [],
         }
+        vat_filter = param_or_user_error(context, 'vat')
         domain += vat_clauses[vat_filter]
         return domain
 
@@ -178,11 +198,8 @@ class mtd_account_tax_code(osv.osv):
         # In practice, the chart of taxes is only going to be quite small
         # so repeating something reasonably quick 8 times probably isn't an
         # issue.
-        move_line_ids = frozenset().union(*(
-            self._move_line_ids_for_chart_of_taxes_row(
-                cr, uid, tax_code_id, context)
-            for tax_code_id in ids
-        ))
+        move_line_ids = self._move_line_ids_for_chart_of_taxes_rows(
+                cr, uid, ids, context)
         if move_line_ids:
             return self._sum(cr, uid, ids, name, args, context,
                 where='AND line.id IN %s',
@@ -195,13 +212,7 @@ class mtd_account_tax_code(osv.osv):
 
     def _move_line_ids_for_chart_of_taxes_row(self, cr, uid, tax_code_id, context):
         move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
-            cr, uid,
-            tax_code_id=tax_code_id,
-            entry_state_filter=context['state'],
-            date_from=context['date_from'],
-            date_to=context['date_to'],
-            company_id=context['company_id'],
-            vat_filter=context['vat'],
+            cr, uid, tax_code_id=tax_code_id, context=context,
         )
         move_line_obj = self.pool['account.move.line']
         move_line_ids = move_line_obj.search(

@@ -34,11 +34,7 @@ var instance = openerp;
                         [],
                         {
                             tax_code_id: eval_context.active_id,
-                            entry_state_filter: eval_context.state,
-                            date_from: eval_context.date_from,
-                            date_to: eval_context.date_to,
-                            company_id: eval_context.company_id,
-                            vat_filter: eval_context.vat,
+                            context: eval_context,
                         }
                     )
                     .then(function (returned_domain) {
