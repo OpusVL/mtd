@@ -189,6 +189,12 @@ class mtd_account_tax_code(osv.osv):
             cr, uid, move_line_domain, context=context)
         return move_line_ids
 
+    def _move_line_ids_for_chart_of_taxes_rows(self, cr, uid, ids, context):
+        return frozenset().union(*[
+            self._move_line_ids_for_chart_of_taxes_row(
+                cr, uid, tax_code_id, context=context)
+            for tax_code_id in ids
+        ])
 
     _columns = {
         'sum': fields.function(_sum_year, string="Year Sum"),
