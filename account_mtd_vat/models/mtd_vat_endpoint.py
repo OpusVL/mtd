@@ -321,7 +321,7 @@ class MtdVATEndpoints(models.Model):
             'period_id': period_ids,
             'fiscalyear_id': fiscalyear_ids,
             'state': 'posted',
-            'vat': 'no'})
+            'vat': 'unposted'})
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
             ('code', 'in', ['1', '2', '3', '4', '5', '6', '7', '8', '9']),
@@ -335,7 +335,7 @@ class MtdVATEndpoints(models.Model):
             period_id=period_ids,
             fiscalyear_id=fiscalyear_ids,
             state='posted',
-            vat='no',
+            vat='unposted',
             company_id=self.company_id.id,
         )._sum_period(name, context)
 
