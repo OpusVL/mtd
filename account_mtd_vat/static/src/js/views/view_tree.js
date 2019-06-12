@@ -26,22 +26,30 @@ var instance = openerp;
                 }
                 action.context = c;
                 if (action.src_model == 'account.tax.code' && action.res_model == 'account.move.line') {
-                // Ideally, we shouldn't fudge the domain like this, but instead eval it and convert it to a list of tuples instead of a string
-                // Then we can properly add the additional domain criteria in, instead of just stitching it onto the end of the string
-                // We assume the existing domain is always going to be the same like this.
-                    if ((typeof c.__eval_context.vat !== 'Undefined') && (c.__eval_context.vat != "")){
-                        var vat = c.__eval_context.vat
-                        action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('date', '>=', '" + c.__eval_context.date_from +
-                        "'), ('date', '<=', '" + c.__eval_context.date_to +
-                        "'), ('vat', '=', " + c.__eval_context.vat + ")]")
-                    } else {
-                        action.domain = ("[('tax_code_id', 'child_of', active_id), ('state', '!=', 'draft'), " +
-                        "('date', '>=', '" + c.__eval_context.date_from +
-                        "'), ('date', '<=', '" + c.__eval_context.date_to + "')]")
-                    }
+                    var eval_context = c.get_eval_context();
+                    var CaseCodeModel = new openerp.Model('account.tax.code');
+                    var promise_from_do_action;
+                    CaseCodeModel.call(
+                        'move_line_domain_for_chart_of_taxes_row',
+                        [],
+                        {
+                            tax_code_id: eval_context.active_id,
+                            context: eval_context,
+                        }
+                    )
+                    .then(function (returned_domain) {
+                        action.domain = returned_domain;
+                        // Making async call after this then() caused a race condition
+                        promise_from_do_action = self.do_action(action);
+                        return promise_from_do_action;  // Unsure if this is necessary along with above assignment
+                    });
+                    // TODO catch exceptions.Warning from Python and display error dialog
                 }
-                return self.do_action(action);
+                else
+                {
+                    promise_from_do_action = self.do_action(action);
+                }
+                return promise_from_do_action;
             });
         },
     });

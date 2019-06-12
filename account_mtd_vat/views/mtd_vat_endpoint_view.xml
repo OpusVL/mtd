@@ -95,25 +95,18 @@
                                    readonly="1"/>
                         </group>
                         <group>
-                            <field name="account_mismatch_flag" invisible="1"/>
-                            <field name="account_match_flag" invisible="1"/>
                             <label for="client_type"
                                    string="Are you a business or agent?"
-                                   attrs="{'invisible':['|',
-                                        ('account_match_flag', '=', False),
-                                        ('name', '!=', 'Submit a VAT Return')]}"/>
+                                   attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
 
                             <field name="client_type"
                                widget="radio"
                                nolabel="1"
                                options="{'horizontal': False}"
-                               attrs="{'invisible':['|',
-                               ('account_match_flag', '=', False),
-                               ('name', '!=', 'Submit a VAT Return')]}"/>
+                               attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
-                        <p attrs="{'invisible':['|',
-                            ('account_mismatch_flag', '=', False),
-                            ('name', '!=', 'Submit a VAT Return')]}" style="color:Red;">
+                        <p attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"
+                           style="color:Red;">
                             In some Journal Items the Tax Base Amount does not tally with the Credit and Debit entries.
                             <br/>Please correct these Journal Items before submitting your VAT return.
                             <br/>Contact OpusVL <a xml-link="link" href="https://opusvl.com/contact" target="_blank">
@@ -124,23 +117,19 @@
                         </p>
                         <field name="business_declaration"
                                string="Declaration"
-                               attrs="{'invisible':['|', '|',
+                               attrs="{'invisible':['|',
                                ('client_type', '!=', 'business'),
-                               ('account_match_flag', '=', False),
                                ('name', '!=', 'Submit a VAT Return')]}"/>
                         <field name="agent_declaration"
                                string="Declaration"
                                attrs="{'invisible':['|', ('client_type', '!=', 'agent'),
                                ('name', '!=', 'Submit a VAT Return')]}"/>
-                        <field name="review_text" attrs="{'invisible':['|',
-                                ('account_match_flag', '=', False),
-                                ('name', '!=', 'Submit a VAT Return')]}"/>
+                        <field name="review_text"
+                               attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
                         <group>
                             <field name="finalise"
                                    string="I confirm and finalise"
-                                   attrs="{'invisible':['|',
-                                   ('account_match_flag', '=', False),
-                                   ('name', '!=', 'Submit a VAT Return')]}"/>
+                                   attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
                         </group>
                         <group>
                             <button name="action_vat_connection"
