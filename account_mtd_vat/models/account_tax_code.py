@@ -189,7 +189,9 @@ class mtd_account_tax_code(osv.osv):
                 where_params=(tuple(move_line_ids),),
             )
         else:
-            return {id_: 0.0 for id_ in ids} # "IN ()" invalid in SQL
+            # "IN ()" invalid in SQL
+            all_zeros = {id_: 0.0 for id_ in ids}
+            return all_zeros
 
     def _move_line_ids_for_chart_of_taxes_row(self, cr, uid, tax_code_id, context):
         move_line_domain = self.move_line_domain_for_chart_of_taxes_row(
