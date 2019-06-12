@@ -11,9 +11,7 @@ class ChartOfTaxesDomainTests(common.TransactionCase):
                 company_id=1,
                 vat='unposted',
             )
-            .move_line_domain_for_chart_of_taxes_row(
-                tax_code_id=8,
-            )
+            .move_line_domain_for_chart_of_taxes_row(tax_code_id=8)
         )
         expected_domain = [
             ('date', '>=', '2018-12-01'),
