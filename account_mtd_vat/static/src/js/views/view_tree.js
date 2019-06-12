@@ -43,6 +43,7 @@ var instance = openerp;
                         promise_from_do_action = self.do_action(action);
                         return promise_from_do_action;  // Unsure if this is necessary along with above assignment
                     });
+                    // TODO catch exceptions.Warning from Python and display error dialog
                 }
                 else
                 {
