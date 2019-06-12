@@ -217,8 +217,6 @@ class MtdVATEndpoints(models.Model):
         'Include Transaction of Previous period',
         required=True,
         default='yes')
-    account_mismatch_flag = fields.Boolean(default=False)
-    account_match_flag = fields.Boolean(default=False)
     show_response_flag = fields.Boolean(default=False)
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
@@ -231,8 +229,6 @@ class MtdVATEndpoints(models.Model):
         self.submit_vat_flag = False
         self.view_vat_flag = False
         self.finalise = False
-        self.account_mismatch_flag = False
-        self.account_match_flag = False
         self.show_response_flag = False
 
         self.search([('response_from_hmrc', '!=', False)]).write({
@@ -314,7 +310,6 @@ class MtdVATEndpoints(models.Model):
         self.client_type = ""
         self.finalise = False
         self.response_from_hmrc = ""
-        self.account_mismatch_flag = False
         self.show_response_flag = False
 
         retrieve_period, period_ids, fiscalyear_ids, cutoff_date = self.retrieve_period_and_fiscalyear()
@@ -334,7 +329,7 @@ class MtdVATEndpoints(models.Model):
         ])
         name = 'Calculated VAT'
 
-        retrieve_sum_for_codes, mtd_sum_cross_ref = retrieve_vat_code_ids.with_context(
+        retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
             date_from=date_from,
             date_to=self.date_to,
             period_id=period_ids,
@@ -342,7 +337,6 @@ class MtdVATEndpoints(models.Model):
             state='posted',
             vat='no',
             company_id=self.company_id.id,
-            calculate_vat=True
         )._sum_period(name, context)
 
         code_dict = {
@@ -357,7 +351,6 @@ class MtdVATEndpoints(models.Model):
             '9': 'total_acquisitions_submit',
         }
         if len(retrieve_period) > 0:
-            self.account_match_flag = True
             self.submit_vat_flag = True
             for item in retrieve_vat_code_ids:
                 if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
@@ -371,16 +364,6 @@ class MtdVATEndpoints(models.Model):
             self.response_from_hmrc = (
                 "No period matching to the vat obligation found Please try a different period."
             )
-
-        for item in retrieve_vat_code_ids:
-            if item.id in mtd_sum_cross_ref.keys() and item.code in ('1', '6', '8', '2', '9', '7', '4'):
-                # values [0] amount, values[1] credit and values[2] debit
-                values = mtd_sum_cross_ref[item.id]
-                # amount has to equal to credit
-                if values[0] != values[1]:
-                    self.account_mismatch_flag = True
-                    self.account_match_flag = False
-                    break
 
     def retrieve_period_and_fiscalyear(self):
         retrieve_period = self.env['account.period'].search([
