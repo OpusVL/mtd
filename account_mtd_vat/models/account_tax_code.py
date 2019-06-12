@@ -158,36 +158,6 @@ class mtd_account_tax_code(osv.osv):
                     amount += _rec_get(rec) * rec.sign
                 return amount
             res2[record.id] = round(_rec_get(record), obj_precision.precision_get(cr, uid, 'Account'))
-
-        if 'calculate_vat' in context.keys():
-            # TODO split this out as it's not going to work on new scheme (
-            #  probably)
-            if context.get('based_on', 'invoices') == 'payments':
-                cr.execute('SELECT line.tax_code_id, sum(line.tax_amount) as amount, \
-                        sum(line.mtd_tax_amount) as mtd_amount FROM account_move_line AS line, \
-                            account_move AS move \
-                            LEFT JOIN account_invoice invoice ON \
-                                (invoice.move_id = move.id) \
-                        WHERE line.tax_code_id IN %s ' + where + ' \
-                            AND move.id = line.move_id \
-                            AND ((invoice.state = \'paid\') \
-                                OR (invoice.id IS NULL)) \
-                                GROUP BY line.tax_code_id',
-                           (parent_ids,) + where_params)
-            else:
-                cr.execute('SELECT line.tax_code_id, sum(line.tax_amount), \
-                    sum(mtd_tax_amount) as mtd_sum  \
-                    FROM account_move_line AS line, \
-                    account_move as move \
-                    WHERE line.tax_code_id IN %s '+where+' \
-                    AND move.id = line.move_id \
-                    GROUP BY line.tax_code_id',
-                    (parent_ids,) + where_params)
-            compare_dict = {}
-            for row in cr.fetchall():
-
-                compare_dict[row[0]]=[row[1], row[2]]
-            return res2, compare_dict
         return res2
 
     def _sum_period(self, cr, uid, ids, name, args, context):
