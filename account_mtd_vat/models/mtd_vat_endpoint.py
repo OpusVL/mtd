@@ -292,7 +292,7 @@ class MtdVATEndpoints(models.Model):
             date_to=self.date_to,
             target_move='posted',
             previous_period=self.previous_period,
-            vat_posted='no',
+            vat_posted='unposted',
             company_id=self.company_id.id))
 
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
