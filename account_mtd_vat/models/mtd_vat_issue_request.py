@@ -236,12 +236,16 @@ class MtdVatIssueRequest(models.Model):
 
         response_logs = json.loads(response.text)
 
+        # TODO this logic is replicated - use value from created submission_log
+        #  instead
         charge_Ref_Number="No Data Found"
         if 'chargeRefNumber' in response_logs.keys():
             charge_Ref_Number=response_logs['chargeRefNumber']
 
-        submission_log = self.create_submission_log_entry(response_logs, record, charge_Ref_Number)
+        submission_log = self.create_submission_log_entry(response.text, record)
 
+        # TODO this logic is replicated - use values from created submission_log
+        #  instead
         success_message = (
                 "Date {date}     Time {time} \n".format(date=datetime.now().date(),
                                                         time=datetime.now().time())
@@ -257,20 +261,17 @@ class MtdVatIssueRequest(models.Model):
 
         self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
 
-    def create_submission_log_entry(self, response_logs, record, charge_Ref_Number):
+    def create_submission_log_entry(self, response_text, record):
 
         submission_logs = self.env['mtd_vat.vat_submission_logs']
 
         submission_log = submission_logs.create({
             'name': "{} - {}".format(record.date_from, record.date_to),
+            'response_text': response_text,
             'start': record.date_from,
             'end': record.date_to,
             'submission_status': "Successful",
             'vrn': record.vrn,
-            'unique_number': response_logs['formBundleNumber'],
-            'payment_indicator': response_logs['paymentIndicator'],
-            'charge_ref_number': charge_Ref_Number,
-            'processing_date': response_logs['processingDate'],
             'vat_due_sales_submit': record.vat_due_sales_submit,
             'vat_due_acquisitions_submit': record.vat_due_acquisitions_submit,
             'total_vat_due_submit': record.total_vat_due_submit,
