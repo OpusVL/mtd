@@ -27,7 +27,7 @@
                                 <field name="status" attrs="{'invisible':[('name', '!=', 'Retrieve VAT Periods')]}"/>
                                 <field name="select_vat_obligation"
                                        string="Select VAT Obligation"
-                                       domain="([('company_id', '=', obligation_company)])"
+                                       domain="([('company_id', '=', obligation_company), ('status', '=', obligation_status)])"
                                        attrs="{'invisible':[('name', 'not in', ['Submit a VAT Return', 'View VAT Returns'])]}"
                                        options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="previous_period"
