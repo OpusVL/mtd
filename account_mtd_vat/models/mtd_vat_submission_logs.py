@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
+import json
 import logging
+import operator
 
-from odoo import models, fields, api
+import dateutil.parser
+
+from openerp import models, fields, api
 
 _logger = logging.getLogger(__name__)
 
@@ -10,16 +14,21 @@ class MtdVATSubmissionLogs(models.Model):
     _name = 'mtd_vat.vat_submission_logs'
     _description = "Vat Submission Log"
 
+    response_text = fields.Text(
+        help="Actual string returned by HMRC API, hopefully in JSON")
     name = fields.Char(string="Period")
     submission_status = fields.Char()
     company_id = fields.Many2one('res.company', string="Company", readonly=True)
     vrn = fields.Char(string="VAT Number")
     start = fields.Date()
     end = fields.Date()
-    unique_number = fields.Char(string="HMRC Unique Number")
-    payment_indicator = fields.Char()
-    charge_ref_number = fields.Char()
-    processing_date = fields.Datetime()
+    unique_number = fields.Char(
+        string="HMRC Unique Number",
+        compute='_compute_response_fields',
+    )
+    payment_indicator = fields.Char(compute='_compute_response_fields')
+    charge_ref_number = fields.Char(compute='_compute_response_fields')
+    processing_date = fields.Datetime(compute='_compute_response_fields')
     redirect_url = fields.Char()
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), readonly=True)
     vat_due_acquisitions_submit = fields.Float(
@@ -64,15 +73,20 @@ class MtdVATSubmissionLogs(models.Model):
     ])
     md5_integrity_value = fields.Char(string="Checksum", readonly=True)
 
+    @api.one
+    @api.depends('response_text')
+    def _compute_response_fields(self):
+        response = self.response_text
+        parsed_response = json.loads(response) if response else dict()
+        self.unique_number = parsed_response.get('formBundleNumber', False)
+        self.payment_indicator = parsed_response.get('paymentIndicator', False)
+        self.charge_ref_number = \
+            parsed_response.get('chargeRefNumber', 'No Data Found')
+        processing_date_str = parsed_response.get('processingDate', False)
+        self.processing_date = \
+            processing_date_str and datetime_iso2odoo(processing_date_str)
 
-    # @api.multi
-    # def action_Detailed_submission_Log_view(self, *args):
-    #
-    #     return {
-    #          'view_mode': 'list',
-    #          'view_type':'list',
-    #          'res_model': 'mtd_vat.vat_detailed_submission_logs',
-    #          'type': 'ir.actions.act_window',
-    #          'target': 'self',
-    #          'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
-    #      }
+
+def datetime_iso2odoo(iso_string):
+    datetime_obj = dateutil.parser.parse(iso_string)
+    return fields.Datetime.to_string(datetime_obj)
