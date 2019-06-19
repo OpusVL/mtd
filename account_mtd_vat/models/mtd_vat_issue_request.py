@@ -263,6 +263,7 @@ class MtdVatIssueRequest(models.Model):
             date=current_time.date(),
         )
 
+    @api.model
     def create_submission_log_entry(self, response_text, record):
         return self.env['mtd_vat.vat_submission_logs'].create({
             'name': "{} - {}".format(record.date_from, record.date_to),
