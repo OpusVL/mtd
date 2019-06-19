@@ -58,6 +58,7 @@ class MtdVatIssueRequest(models.Model):
 
     @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
+        # TODO command not used?
         try:
             # TODO take record (with more descriptive name) as param instead
             #  of module_name and record_id.  Also we can't do anything without
