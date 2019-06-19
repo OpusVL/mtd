@@ -29,6 +29,7 @@ class MtdVATSubmissionLogs(models.Model):
     payment_indicator = fields.Char(compute='_compute_response_fields')
     charge_ref_number = fields.Char(compute='_compute_response_fields')
     processing_date = fields.Datetime(compute='_compute_response_fields')
+    raw_processing_date = fields.Char(compute='_compute_response_fields')
     redirect_url = fields.Char()
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), readonly=True)
     vat_due_acquisitions_submit = fields.Float(
@@ -96,9 +97,10 @@ class MtdVATSubmissionLogs(models.Model):
         self.payment_indicator = parsed_response.get('paymentIndicator', False)
         self.charge_ref_number = \
             parsed_response.get('chargeRefNumber', 'No Data Found')
-        processing_date_str = parsed_response.get('processingDate', False)
+        self.raw_processing_date = parsed_response.get('processingDate', False)
         self.processing_date = \
-            processing_date_str and datetime_iso2odoo(processing_date_str)
+            self.raw_processing_date and datetime_iso2odoo(
+                self.raw_processing_date)
 
 
 def datetime_iso2odoo(iso_string):
