@@ -410,7 +410,6 @@ class MtdVatIssueRequest(models.Model):
                 'vrn': record.vrn
             })
 
-
     def display_view_returns(self, response, record):
         response_logs = json.loads(response.text)
         record.period_key = response_logs['periodKey']
