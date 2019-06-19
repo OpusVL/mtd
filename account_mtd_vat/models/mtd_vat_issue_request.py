@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import textwrap
 import json
 import logging
 import werkzeug
@@ -231,31 +232,33 @@ class MtdVatIssueRequest(models.Model):
 
     def add_submit_vat_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
-
-        # TODO this logic is replicated - use value from created submission_log
-        #  instead
-        charge_Ref_Number="No Data Found"
-        if 'chargeRefNumber' in response_logs.keys():
-            charge_Ref_Number=response_logs['chargeRefNumber']
-
         submission_log = self.create_submission_log_entry(response.text, record)
-
-        # TODO this logic is replicated - use values from created submission_log
-        #  instead
-        success_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-                                                        time=datetime.now().time())
-                + "\nCongratulations ! The submission has been made successfully to HMRC. \n\n"
-                + "Period: {}\n".format(record.date_from, record.date_to)
-                + "Unique number: {}\n".format(response_logs['formBundleNumber'])
-                + "Payment indicator: {}\n".format(response_logs['paymentIndicator'])
-                + "Charge ref number: {}\n".format(charge_Ref_Number)
-                + "Processing date: {}\n\n".format(response_logs['processingDate'])
-                + "Please check the submission logs for details."
+        record.response_from_hmrc = self._success_message(
+            submission_log_entry=submission_log,
+            current_time=datetime.now(),
         )
-        record.response_from_hmrc = success_message
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
 
-        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log, response_logs['processingDate'])
+    @api.model
+    def _success_message(self, submission_log_entry, current_time):
+        template = """
+            Date {date}     Time {time}
+            
+            Congratulations ! The submission has been made successfully to HMRC.
+            
+            Period: {log.start} - {log.end}
+            Unique number: {log.unique_number}
+            Payment indicator: {log.payment_indicator}
+            Charge ref number: {log.charge_ref_number}
+            Processing date: {log.raw_processing_date}
+            Please check the submission logs for details.
+            """
+        stripped_template = textwrap.dedent(template).strip()
+        return stripped_template.format(
+            log=submission_log_entry,
+            time=current_time.time(),
+            date=current_time.date(),
+        )
 
     def create_submission_log_entry(self, response_text, record):
 
