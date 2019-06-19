@@ -426,7 +426,6 @@ class MtdVatIssueRequest(models.Model):
 
 
     def display_view_returns(self, response, record):
-
         response_logs = json.loads(response.text)
         record.period_key = response_logs['periodKey']
         record.vat_due_sales = response_logs['vatDueSales']
