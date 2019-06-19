@@ -425,20 +425,19 @@ class MtdVatIssueRequest(models.Model):
         record.total_acquisitions = response_logs['totalAcquisitionsExVAT']
 
     def build_submit_vat_params(self, record):
-        params = {
-        "periodKey": urllib.parse.quote_plus(record.period_key_submit),
-        "vatDueSales": record.vat_due_sales_submit,
-        "vatDueAcquisitions": record.vat_due_acquisitions_submit,
-        "totalVatDue": record.total_vat_due_submit,
-        "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
-        "netVatDue": abs(record.net_vat_due_submit),
-        "totalValueSalesExVAT": record.total_value_sales_submit,
-        "totalValuePurchasesExVAT": record.total_value_purchase_submit,
-        "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
-        "totalAcquisitionsExVAT": record.total_acquisitions_submit,
-        "finalised": record.finalise
+        return {
+            "periodKey": urllib.quote_plus(record.period_key_submit),
+            "vatDueSales": record.vat_due_sales_submit,
+            "vatDueAcquisitions": record.vat_due_acquisitions_submit,
+            "totalVatDue": record.total_vat_due_submit,
+            "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
+            "netVatDue": abs(record.net_vat_due_submit),
+            "totalValueSalesExVAT": record.total_value_sales_submit,
+            "totalValuePurchasesExVAT": record.total_value_purchase_submit,
+            "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
+            "totalAcquisitionsExVAT": record.total_acquisitions_submit,
+            "finalised": record.finalise
         }
-        return params
 
     def get_hash_object_for_submission(self, unique_number, company_id):
 
