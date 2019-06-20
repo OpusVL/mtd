@@ -20,3 +20,12 @@ class MtdVATObligationLogs(models.Model):
     received = fields.Char()
     company_id = fields.Many2one('res.company', string="Company", readonly=True)
     vrn = fields.Char(string="VAT Number")
+    have_sent_submission_successfully = fields.Boolean(
+        help="Whether Odoo thinks the submission has been sent"
+        # In face of at least the sandbox API failing to return the right
+        # status after submission
+    )
+
+    @api.multi
+    def is_fulfilled(self):
+        return self.status == 'F'
