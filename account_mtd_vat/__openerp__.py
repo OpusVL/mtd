@@ -23,7 +23,7 @@
 
 {
     'name': 'UK HMRC MTD - VAT',
-    'version': '0.9',
+    'version': '0.10',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
     'summary': '',
