@@ -25,6 +25,7 @@ class MtdVATSubmissionLogs(models.Model):
     unique_number = fields.Char(
         string="HMRC Unique Number",
         compute='_compute_response_fields',
+        store=True,
     )
     payment_indicator = fields.Char(compute='_compute_response_fields')
     charge_ref_number = fields.Char(compute='_compute_response_fields')
@@ -73,7 +74,6 @@ class MtdVATSubmissionLogs(models.Model):
         ('agent', 'Agent')
     ])
     md5_integrity_value = fields.Char(string="Checksum", readonly=True)
-
 
     @api.multi
     def action_Detailed_submission_Log_view(self, *args):
