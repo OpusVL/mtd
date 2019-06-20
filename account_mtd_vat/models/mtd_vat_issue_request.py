@@ -237,8 +237,8 @@ class MtdVatIssueRequest(models.Model):
         record.response_from_hmrc = success_message
 
     def add_submit_vat_returns(self, response=None, record=None):
-
         response_logs = json.loads(response.text)
+        submission_log = self.create_submission_log_entry(response.text, record)
         record.response_from_hmrc = self._success_message(
             submission_log_entry=submission_log,
             current_time=datetime.now(),
