@@ -260,7 +260,6 @@ class MtdVatIssueRequest(models.Model):
         )
 
     def create_submission_log_entry(self, response_text, record):
-
         return self.env['mtd_vat.vat_submission_logs'].create({
             'name': "{} - {}".format(record.date_from, record.date_to),
             'response_text': response_text,
