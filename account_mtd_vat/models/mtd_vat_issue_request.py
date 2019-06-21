@@ -425,7 +425,7 @@ class MtdVatIssueRequest(models.Model):
         record.total_value_goods_supplied = response_logs['totalValueGoodsSuppliedExVAT']
         record.total_acquisitions = response_logs['totalAcquisitionsExVAT']
 
-    def build_submit_vat_params(self, record=None):
+    def build_submit_vat_params(self, record):
         params = {
         "periodKey": urllib.parse.quote_plus(record.period_key_submit),
         "vatDueSales": record.vat_due_sales_submit,
