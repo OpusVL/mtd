@@ -41,7 +41,7 @@ class Authorize(http.Controller):
                     {menu_path} to try again.
                 </p>
             """
-            menu_path = self.env.ref('account_mtd.mtd_menu').display_name
+            menu_path = http.request.env.ref('account_mtd.mtd_menu').display_name
             # TODO add a link back to Accounting menu???
             #  could be even more accurate if all the api_trackers happened
             #  to be from the same place (which we likely can record)
