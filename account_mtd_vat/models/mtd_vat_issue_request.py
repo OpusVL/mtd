@@ -263,7 +263,7 @@ class MtdVatIssueRequest(models.Model):
 
         submission_logs = self.env['mtd_vat.vat_submission_logs']
 
-        submission_log = submission_logs.create({
+        return submission_logs.create({
             'name': "{} - {}".format(record.date_from, record.date_to),
             'response_text': response_text,
             'start': record.date_from,
@@ -282,7 +282,6 @@ class MtdVatIssueRequest(models.Model):
             'company_id': record.company_id.id,
             'redirect_url': record.hmrc_configuration.redirect_url
         })
-        return submission_log
 
     def copy_account_move_lines_to_storage(self, record, unique_number, submission_log, processing_date):
 
