@@ -159,6 +159,7 @@ class MtdVatIssueRequest(models.Model):
                 self.display_view_returns(response, record)
             elif record.endpoint_name == "submit-vat-returns":
                 record.submit_vat_flag=True
+                self.notify_submit_vat_returns_success(endpoint_record=record)
                 self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
 
@@ -233,9 +234,16 @@ class MtdVatIssueRequest(models.Model):
         )
         record.response_from_hmrc = success_message
 
+    def notify_submit_vat_returns_success(self, endpoint_record):
+        endpoint_record.select_vat_obligation\
+            .have_sent_submission_successfully = True
+        self.env.cr.commit()   # Make sure crash later doesn't lose this status
+
     def add_submit_vat_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
         submission_log = self.create_submission_log_entry(response.text, record)
+        # Make sure crash later doesn't wipe out the submission log entry
+        self.env.cr.commit()
         record.response_from_hmrc = self._success_message(
             submission_log_entry=submission_log,
             current_time=datetime.now(),
