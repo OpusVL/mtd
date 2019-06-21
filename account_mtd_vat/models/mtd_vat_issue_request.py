@@ -60,7 +60,9 @@ class MtdVatIssueRequest(models.Model):
     @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
         try:
-
+            # TODO take record (with more descriptive name) as param instead
+            #  of module_name and record_id.  Also we can't do anything without
+            #  it so no point making the parameter optional
             record = self.env[module_name].search([('id', '=', record_id)])
             _logger.info(
                 "json_command - we need to find the record and assign it to self"
