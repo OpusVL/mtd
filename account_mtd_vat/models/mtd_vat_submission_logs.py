@@ -87,7 +87,6 @@ class MtdVATSubmissionLogs(models.Model):
              'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
          }
 
-
     @api.one
     @api.depends('response_text')
     def _compute_response_fields(self):
@@ -101,7 +100,6 @@ class MtdVATSubmissionLogs(models.Model):
         self.processing_date = \
             self.raw_processing_date and datetime_iso2odoo(
                 self.raw_processing_date)
-
 
 def datetime_iso2odoo(iso_string):
     datetime_obj = dateutil.parser.parse(iso_string)
