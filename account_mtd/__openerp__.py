@@ -23,7 +23,7 @@
 
 {
     'name': 'UK HMRC MTD - Connector',
-    'version': '0.5',
+    'version': '0.10',
     'author': 'OpusVL',
     'website': 'http://opusvl.com/',
     'summary': '',
