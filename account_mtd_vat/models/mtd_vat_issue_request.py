@@ -293,7 +293,7 @@ class MtdVatIssueRequest(models.Model):
             'redirect_url': record.hmrc_configuration.redirect_url
         })
 
-    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log, processing_date):
+    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
         journal_item_ids = self.env['mtd_vat.vat_endpoints'].get_journal_item_ids_from_calculation_table(
             record.date_from,
@@ -320,7 +320,7 @@ class MtdVatIssueRequest(models.Model):
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
         # create journal records and then reconcile records
-        self.create_journal_record_for_submission(move_lines_to_copy, record, processing_date)
+        self.create_journal_record_for_submission(move_lines_to_copy, record)
 
         #get md5 hash value
         hash_object = self.get_hash_object_for_submission(unique_number, record.company_id.id)
@@ -487,7 +487,7 @@ class MtdVatIssueRequest(models.Model):
             ])
             submission_log_record.md5_integrity_value = hash_value.hexdigest()
 
-    def create_journal_record_for_submission(self, move_lines_to_copy, record, processing_date):
+    def create_journal_record_for_submission(self, move_lines_to_copy, record):
 
         account_move = self.env['account.move']
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
@@ -496,7 +496,7 @@ class MtdVatIssueRequest(models.Model):
         account_move_id = account_move.create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': processing_date,
+            'date': datetime.now().date(),
             'journal_id': hmrc_posting_config.journal_id.id
         })
 
@@ -513,7 +513,6 @@ class MtdVatIssueRequest(models.Model):
 
         # 2 create input move line
         input_move_line = self.create_account_move_line(
-            processing_date,
             hmrc_posting_config.input_account.id,
             input_credit_debit,
             input_value,
@@ -529,7 +528,6 @@ class MtdVatIssueRequest(models.Model):
 
         # 2 create output move line
         output_move_line = self.create_account_move_line(
-            processing_date,
             hmrc_posting_config.output_account.id,
             output_credit_debit,
             record.vat_due_sales_submit,
@@ -542,7 +540,6 @@ class MtdVatIssueRequest(models.Model):
             debit_credit_type = "debit"
 
         liability_move_line = self.create_account_move_line(
-            processing_date,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
             abs(record.net_vat_due_submit),
@@ -570,14 +567,14 @@ class MtdVatIssueRequest(models.Model):
             # period_id.id
         )
 
-    def create_account_move_line(self,processing_date, account_id, debit_credit_type, value, account_move_id):
+    def create_account_move_line(self, account_id, debit_credit_type, value, account_move_id):
 
         account_move_line = self.env['account.move.line']
 
         move_line_id = account_move_line.with_context(check_move_validity=False).create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': processing_date,
+            'date': datetime.now().date(),
             'account_id': account_id,
             '{}'.format(debit_credit_type): value,
             'move_id': account_move_id
