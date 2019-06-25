@@ -1,9 +1,7 @@
 from openerp.tests import common
 
-from .utils import arbitrary
+from .utils import all_records_in_model, arbitrary
 
-def all_records_in_model(odoo_model):
-    return odoo_model.search([])
 
 class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
         common.TransactionCase):
