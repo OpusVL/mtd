@@ -27,19 +27,22 @@ class account_account(osv.osv):
         'reconcile': old_api_fields.function(
             fnct=methodproxy('_reconcile_flag'),
             fnct_inv=methodproxy('_set_reconcile_flag'),
+            fnct_search=methodproxy('_search_for_reconcile_flag'),
             method=True,
             string='Allow Reconciliation',
             type='boolean',
             help="Check this box if this account allows reconciliation of journal items."),
     }
 
-    def _reconcile_flag(self, cr, uid, ids, field_name, arg, context):
-        assert field_name == 'reconcile', "Only handles reconcile flag"
-        allow_reconciliation_on_all_accounts = (
+    def _allow_reconciliation_on_all_accounts(self, context):
+        return (
             (context or {})
             .get('ignore_allow_reconciliation_flag_for_mtd', False)
         )
-        if allow_reconciliation_on_all_accounts:
+
+    def _reconcile_flag(self, cr, uid, ids, field_name, arg, context):
+        assert field_name == 'reconcile', "Only handles reconcile flag"
+        if self._allow_reconciliation_on_all_accounts(context):
             return {id_: {'reconcile': True} for id_ in ids}
         else:
             accounts = self.read(
@@ -54,3 +57,19 @@ class account_account(osv.osv):
         assert field_name == 'reconcile', "Only handles reconcile flag"
         updates = {'non_mtd_reconcilable': field_value}
         return self.write(cr, uid, ids, updates, context=context)
+
+    def _search_for_reconcile_flag(self, cr, uid, obj, name, args, context):
+        # From the old API docs:
+        # obj is the same as self, and name receives the field name.
+        # args is a list of 3-part tuples containing search criteria for this field,
+        # although the search function may be called separately for each tuple.
+        assert name == 'reconcile', "Only handles reconcile flag"
+        if self._allow_reconciliation_on_all_accounts(context):
+            match_any_account = []
+            return match_any_account
+        else:
+            return [
+                ('non_mtd_reconcilable', operator, value)
+                for (field, operator, value) in args
+                if field == 'reconcile'
+            ]
