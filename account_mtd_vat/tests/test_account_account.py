@@ -1,6 +1,6 @@
 from openerp.tests import common
 
-from .utils import all_records_in_model, arbitrary
+from .utils import all_records_in_model, arbitrary_from
 
 
 class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
@@ -10,9 +10,9 @@ class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
         self.Account = self.env['account.account']
         # Make sure we have at least one of each in the database
         all_accounts = all_records_in_model(self.Account)
-        reconcilable = arbitrary(all_accounts)
+        reconcilable = arbitrary_from(all_accounts)
         reconcilable.non_mtd_reconcilable = True
-        nonreconcilable = arbitrary(all_accounts - reconcilable)
+        nonreconcilable = arbitrary_from(all_accounts - reconcilable)
         nonreconcilable.non_mtd_reconcilable = False
 
     def test_search_for_reconcile_True(self):
@@ -29,7 +29,7 @@ class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
 class GivenAccount(common.TransactionCase):
     def setUp(self):
         super(GivenAccount, self).setUp()
-        self.account = arbitrary(self.all_accounts())
+        self.account = arbitrary_from(self.all_accounts())
         self.account.non_mtd_reconcilable = self.initial_non_mtd_reconcilable()
 
     def all_accounts(self):
