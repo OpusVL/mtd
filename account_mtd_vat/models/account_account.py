@@ -40,7 +40,7 @@ class account_account(osv.osv):
     def _allow_reconciliation_on_all_accounts(self, context):
         return (
             (context or {})
-            .get('ignore_allow_reconciliation_flag_for_mtd', False)
+            .get('allow_reconciliation_on_all_accounts', False)
         )
 
     def _reconcile_flag(self, cr, uid, ids, field_name, arg, context):
