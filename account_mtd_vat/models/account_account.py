@@ -3,17 +3,20 @@ from operator import methodcaller
 from openerp import api, fields, models
 from openerp.osv import osv, fields as old_api_fields
 
+
+def methodproxy(method_name):
+    """Return function that calls named method."""
+    def _methodproxy(self, *args, **kwargs):
+        method = getattr(self, method_name)
+        return method(*args, **kwargs)
+    return _methodproxy
+
+
 class AccountAccount(models.Model):
     _inherit = "account.account"
 
     non_mtd_reconcilable = fields.Boolean()
 
-
-def methodproxy(method_name):
-    def _methodproxy(self, *args, **kwargs):
-        method = getattr(self, method_name)
-        return method(*args, **kwargs)
-    return _methodproxy
 
 class account_account(osv.osv):
     _inherit = "account.account"
