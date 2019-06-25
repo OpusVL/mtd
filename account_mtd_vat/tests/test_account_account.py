@@ -29,11 +29,9 @@ class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
 class GivenAccount(common.TransactionCase):
     def setUp(self):
         super(GivenAccount, self).setUp()
-        self.account = arbitrary_from(self.all_accounts())
+        self.account = arbitrary_from(
+            all_records_in_model(self.env['account.account']))
         self.account.non_mtd_reconcilable = self.initial_non_mtd_reconcilable()
-
-    def all_accounts(self):
-        return self.env['account.account'].search([])
 
     def initial_non_mtd_reconcilable(self):
         self.skipTest("ABSTRACT: initial_non_mtd_reconcilable")
