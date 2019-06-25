@@ -9,16 +9,24 @@ class AccountAccount(models.Model):
     non_mtd_reconcilable = fields.Boolean()
 
 
+def methodproxy(method_name):
+    def _methodproxy(self, *args, **kwargs):
+        method = getattr(self, method_name)
+        return method(*args, **kwargs)
+    return _methodproxy
+
 class account_account(osv.osv):
     _inherit = "account.account"
 
     # Must convert to compute in old API because original field was in old API
     # (in v8 at least)
+    # API Documentation here:
+    #   https://doc.odoo.com/v6.0/developer/2_5_Objects_Fields_Methods/field_type.html#functional-fields
     # PORTING TO NEWER ODOO: If declared in new API, do compute in new API
     _columns = {
         'reconcile': old_api_fields.function(
-            fnct=lambda self, *args, **kwargs:
-                self._reconcile_flag(*args, **kwargs),
+            fnct=methodproxy('_reconcile_flag'),
+            fnct_inv=methodproxy('_set_reconcile_flag'),
             method=True,
             string='Allow Reconciliation',
             type='boolean',
@@ -26,6 +34,7 @@ class account_account(osv.osv):
     }
 
     def _reconcile_flag(self, cr, uid, ids, field_name, arg, context):
+        assert field_name == 'reconcile', "Only handles reconcile flag"
         allow_reconciliation_on_all_accounts = (
             (context or {})
             .get('ignore_allow_reconciliation_flag_for_mtd', False)
@@ -39,3 +48,9 @@ class account_account(osv.osv):
                 account['id']: account['non_mtd_reconcilable']
                 for account in accounts
             }
+
+    def _set_reconcile_flag(self, cr, uid, ids, field_name, field_value, arg,
+            context):
+        assert field_name == 'reconcile', "Only handles reconcile flag"
+        updates = {'non_mtd_reconcilable': field_value}
+        return self.write(cr, uid, ids, updates, context=context)
