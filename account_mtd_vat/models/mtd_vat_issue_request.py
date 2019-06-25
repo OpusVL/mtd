@@ -433,7 +433,7 @@ class MtdVatIssueRequest(models.Model):
 
     def build_submit_vat_params(self, record):
         return {
-            "periodKey": urllib.quote_plus(record.period_key_submit),
+            "periodKey": urllib.parse.quote_plus(record.period_key_submit),
             "vatDueSales": record.vat_due_sales_submit,
             "vatDueAcquisitions": record.vat_due_acquisitions_submit,
             "totalVatDue": record.total_vat_due_submit,
