@@ -8,9 +8,9 @@ class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
     def setUp(self):
         super(GivenBothReconcilableAndNonReconcilableAccounts_Tests, self).setUp()
         self.Account = self.env['account.account']
-        self._make_one_account_of_each_reconcilable_state()
+        self._make_us_have_at_least_one_reconcilable_and_unreconcilable_account()
 
-    def _make_one_account_of_each_reconcilable_state(self):
+    def _make_us_have_at_least_one_reconcilable_and_unreconcilable_account(self):
         all_accounts = all_records_in_model(self.Account)
         reconcilable = arbitrary_from(all_accounts)
         reconcilable.non_mtd_reconcilable = True
