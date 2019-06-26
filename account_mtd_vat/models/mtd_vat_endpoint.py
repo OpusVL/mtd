@@ -455,7 +455,6 @@ class MtdVATEndpoints(models.Model):
                 "We have no access token and refresh token found"
             )
             authorisation_tracker = self.env['mtd.api_request_tracker'].search([
-                ('api_id', '=', self.api_id.id),
                 ('closed', '=', False)
             ])
         create_date = fields.Datetime.from_string(authorisation_tracker.create_date)
