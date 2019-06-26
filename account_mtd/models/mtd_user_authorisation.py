@@ -62,6 +62,16 @@ class MtdUserAuthorisation(models.Model):
             # close the request so a new request can be made.
             tracker.closed = 'response'
 
+            # If we are trying to gain authorisation from Vat module then we need to set the flag to show the
+            # response_from_hmrc field otherwise the response will not be displayed to the user.
+            # this flag does not exist in the connector module
+            # response_from_hmrc field otherwise the response will not be displayed to the user. and not show the
+            # view vat_return
+            # these flags do not exist in the connector module
+            if record._name.startswith("mtd_vat"):
+                record.show_response_flag = True
+                record.view_vat_flag = False
+
             return werkzeug.utils.redirect(
                 '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
                     id=record.id,
