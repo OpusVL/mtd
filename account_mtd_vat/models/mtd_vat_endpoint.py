@@ -513,7 +513,6 @@ class MtdVATEndpoints(models.Model):
 
     @api.one
     def handle_user_authorisation_error(self, record):
-
         # The user authorisation failed therfore we need to handle the display of the response by setting the flags
         # so that the response is displaed tot he user.
         record.show_response_flag = True
