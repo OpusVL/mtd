@@ -37,15 +37,15 @@ class account_account(osv.osv):
             help="Check this box if this account allows reconciliation of journal items."),
     }
 
-    def _allow_reconciliation_on_all_accounts(self, context):
+    def _reconciliation_allowed_on_all_accounts(self, context):
         return (
             (context or {})
-            .get('allow_reconciliation_on_all_accounts', False)
+            .get('reconciliation_allowed_on_all_accounts', False)
         )
 
     def _reconcile_flag(self, cr, uid, ids, field_name, arg, context):
         assert field_name == 'reconcile', "Only handles reconcile flag"
-        if self._allow_reconciliation_on_all_accounts(context):
+        if self._reconciliation_allowed_on_all_accounts(context):
             return {id_: {'reconcile': True} for id_ in ids}
         else:
             accounts = self.read(
@@ -67,7 +67,7 @@ class account_account(osv.osv):
         # args is a list of 3-part tuples containing search criteria for this field,
         # although the search function may be called separately for each tuple.
         assert name == 'reconcile', "Only handles reconcile flag"
-        if self._allow_reconciliation_on_all_accounts(context):
+        if self._reconciliation_allowed_on_all_accounts(context):
             match_any_account = []
             return match_any_account
         else:
