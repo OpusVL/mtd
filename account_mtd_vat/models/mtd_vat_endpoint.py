@@ -381,8 +381,23 @@ class MtdVATEndpoints(models.Model):
 
         return self.process_connection()
 
+    def _obligation_fulfilled(self):
+        # TODO resync with HMRC first
+        return self.select_vat_obligation.is_fulfilled()
+
+    def _we_think_we_have_previously_submitted_successfully(self):
+        # Because HMRC, at least on the sandbox, doesn't return back the
+        # right obligation status on the obligations endpoint after submitting.
+        return self.select_vat_obligation.have_sent_submission_successfully
+
     def _handle_vat_submit_returns_endpoint(self):
-        # Check to see if we have HMRC Posting record We can not submit VAT witout a HMRC posting template for a company
+        if self._obligation_fulfilled() \
+                or self._we_think_we_have_previously_submitted_successfully():
+            raise exceptions.Warning(
+                "VAT return has already been submitted for this obligation."
+            )
+        # Check to see if we have HMRC Posting record We can not submit VAT without a
+        # HMRC posting template for the company
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
 
@@ -441,7 +456,6 @@ class MtdVATEndpoints(models.Model):
                 "We have no access token and refresh token found"
             )
             authorisation_tracker = self.env['mtd.api_request_tracker'].search([
-                ('api_id', '=', self.api_id.id),
                 ('closed', '=', False)
             ])
         create_date = fields.Datetime.from_string(authorisation_tracker.create_date)
