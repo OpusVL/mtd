@@ -572,11 +572,10 @@ class MtdVatIssueRequest(models.Model):
     def create_account_move_line(self, processing_date, account_id, debit_credit_type, value, account_move_id):
 
         account_move_line = self.env['account.move.line']
-
         move_line_id = account_move_line.with_context(check_move_validity=False).create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': processing_date,
+            'date': processing_date.date(),
             'account_id': account_id,
             '{}'.format(debit_credit_type): value,
             'move_id': account_move_id
