@@ -64,6 +64,9 @@ class MtdUserAuthorisation(models.Model):
             record.response_from_hmrc = error_message
             # close the request so a new request can be made.
             tracker.closed = 'response'
+            # Handle user authorisation error for VAT view endpoints
+            if hasattr(record, 'handle_user_authorisation_error'):
+                record.handle_user_authorisation_error(record)
 
             return werkzeug.utils.redirect(
                 '/web#id={id}&view_type=form&model=mtd.hello_world&menu_id={menu}&action={action}'.format(
