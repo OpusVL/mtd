@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import requests
+import textwrap
 import json
 import logging
 import werkzeug
@@ -57,8 +58,11 @@ class MtdVatIssueRequest(models.Model):
 
     @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
+        # TODO command not used?
         try:
-
+            # TODO take record (with more descriptive name) as param instead
+            #  of module_name and record_id.  Also we can't do anything without
+            #  it so no point making the parameter optional
             record = self.env[module_name].search([('id', '=', record_id)])
             _logger.info(
                 "json_command - we need to find the record and assign it to self"
@@ -154,6 +158,7 @@ class MtdVatIssueRequest(models.Model):
                 self.display_view_returns(response, record)
             elif record.endpoint_name == "submit-vat-returns":
                 record.submit_vat_flag=True
+                self.notify_submit_vat_returns_success(endpoint_record=record)
                 self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
 
@@ -228,44 +233,52 @@ class MtdVatIssueRequest(models.Model):
         )
         record.response_from_hmrc = success_message
 
+    def notify_submit_vat_returns_success(self, endpoint_record):
+        endpoint_record.select_vat_obligation\
+            .have_sent_submission_successfully = True
+        self.env.cr.commit()   # Make sure crash later doesn't lose this status
+
     def add_submit_vat_returns(self, response=None, record=None):
         response_logs = json.loads(response.text)
-
-        charge_Ref_Number="No Data Found"
-        if 'chargeRefNumber' in response_logs.keys():
-            charge_Ref_Number=response_logs['chargeRefNumber']
-
-        submission_log = self.create_submission_log_entry(response_logs, record, charge_Ref_Number)
-
-        success_message = (
-                "Date {date}     Time {time} \n".format(date=datetime.now().date(),
-                                                        time=datetime.now().time())
-                + "\nCongratulations ! The submission has been made successfully to HMRC. \n\n"
-                + "Period: {}\n".format(record.date_from, record.date_to)
-                + "Unique number: {}\n".format(response_logs['formBundleNumber'])
-                + "Payment indicator: {}\n".format(response_logs['paymentIndicator'])
-                + "Charge ref number: {}\n".format(charge_Ref_Number)
-                + "Processing date: {}\n\n".format(response_logs['processingDate'])
-                + "Please check the submission logs for details."
+        submission_log = self.create_submission_log_entry(response.text, record)
+        # Make sure crash later doesn't wipe out the submission log entry
+        self.env.cr.commit()
+        record.response_from_hmrc = self._success_message(
+            submission_log_entry=submission_log,
+            current_time=datetime.now(),
         )
-        record.response_from_hmrc = success_message
+        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log)
 
-        self.copy_account_move_lines_to_storage(record, response_logs['formBundleNumber'], submission_log, response_logs['processingDate'])
+    @api.model
+    def _success_message(self, submission_log_entry, current_time):
+        template = """
+            Date {date}     Time {time}
+            
+            Congratulations ! The submission has been made successfully to HMRC.
+            
+            Period: {log.start} - {log.end}
+            Unique number: {log.unique_number}
+            Payment indicator: {log.payment_indicator}
+            Charge ref number: {log.charge_ref_number}
+            Processing date: {log.raw_processing_date}
+            Please check the submission logs for details.
+            """
+        stripped_template = textwrap.dedent(template).strip()
+        return stripped_template.format(
+            log=submission_log_entry,
+            time=current_time.time(),
+            date=current_time.date(),
+        )
 
-    def create_submission_log_entry(self, response_logs, record, charge_Ref_Number):
-
-        submission_logs = self.env['mtd_vat.vat_submission_logs']
-
-        submission_log = submission_logs.create({
+    @api.model
+    def create_submission_log_entry(self, response_text, record):
+        return self.env['mtd_vat.vat_submission_logs'].create({
             'name': "{} - {}".format(record.date_from, record.date_to),
+            'response_text': response_text,
             'start': record.date_from,
             'end': record.date_to,
             'submission_status': "Successful",
             'vrn': record.vrn,
-            'unique_number': response_logs['formBundleNumber'],
-            'payment_indicator': response_logs['paymentIndicator'],
-            'charge_ref_number': charge_Ref_Number,
-            'processing_date': response_logs['processingDate'],
             'vat_due_sales_submit': record.vat_due_sales_submit,
             'vat_due_acquisitions_submit': record.vat_due_acquisitions_submit,
             'total_vat_due_submit': record.total_vat_due_submit,
@@ -278,9 +291,8 @@ class MtdVatIssueRequest(models.Model):
             'company_id': record.company_id.id,
             'redirect_url': record.hmrc_configuration.redirect_url
         })
-        return submission_log
 
-    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log, processing_date):
+    def copy_account_move_lines_to_storage(self, record, unique_number, submission_log):
 
         journal_item_ids = self.env['mtd_vat.vat_endpoints'].get_journal_item_ids_from_calculation_table(
             record.date_from,
@@ -307,7 +319,7 @@ class MtdVatIssueRequest(models.Model):
         self.set_vat_for_account_move_line(move_lines_to_copy, unique_number, submission_log)
 
         # create journal records and then reconcile records
-        self.create_journal_record_for_submission(move_lines_to_copy, record, processing_date)
+        self.create_journal_record_for_submission(move_lines_to_copy, record, submission_log)
 
         #get md5 hash value
         hash_object = self.get_hash_object_for_submission(unique_number, record.company_id.id)
@@ -406,9 +418,7 @@ class MtdVatIssueRequest(models.Model):
                 'vrn': record.vrn
             })
 
-
-    def display_view_returns(self, response=None, record=None):
-
+    def display_view_returns(self, response, record):
         response_logs = json.loads(response.text)
         record.period_key = response_logs['periodKey']
         record.vat_due_sales = response_logs['vatDueSales']
@@ -421,21 +431,20 @@ class MtdVatIssueRequest(models.Model):
         record.total_value_goods_supplied = response_logs['totalValueGoodsSuppliedExVAT']
         record.total_acquisitions = response_logs['totalAcquisitionsExVAT']
 
-    def build_submit_vat_params(self, record=None):
-        params = {
-        "periodKey": urllib.quote_plus(record.period_key_submit),
-        "vatDueSales": record.vat_due_sales_submit,
-        "vatDueAcquisitions": record.vat_due_acquisitions_submit,
-        "totalVatDue": record.total_vat_due_submit,
-        "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
-        "netVatDue": abs(record.net_vat_due_submit),
-        "totalValueSalesExVAT": record.total_value_sales_submit,
-        "totalValuePurchasesExVAT": record.total_value_purchase_submit,
-        "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
-        "totalAcquisitionsExVAT": record.total_acquisitions_submit,
-        "finalised": record.finalise
+    def build_submit_vat_params(self, record):
+        return {
+            "periodKey": urllib.quote_plus(record.period_key_submit),
+            "vatDueSales": record.vat_due_sales_submit,
+            "vatDueAcquisitions": record.vat_due_acquisitions_submit,
+            "totalVatDue": record.total_vat_due_submit,
+            "vatReclaimedCurrPeriod": record.vat_reclaimed_submit,
+            "netVatDue": abs(record.net_vat_due_submit),
+            "totalValueSalesExVAT": record.total_value_sales_submit,
+            "totalValuePurchasesExVAT": record.total_value_purchase_submit,
+            "totalValueGoodsSuppliedExVAT": record.total_value_goods_supplied_submit,
+            "totalAcquisitionsExVAT": record.total_acquisitions_submit,
+            "finalised": record.finalise
         }
-        return params
 
     def get_hash_object_for_submission(self, unique_number, company_id):
 
@@ -477,7 +486,7 @@ class MtdVatIssueRequest(models.Model):
             ])
             submission_log_record.md5_integrity_value = hash_value.hexdigest()
 
-    def create_journal_record_for_submission(self, move_lines_to_copy, record, processing_date):
+    def create_journal_record_for_submission(self, move_lines_to_copy, record, submission_log):
 
         account_move = self.env['account.move']
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
@@ -486,7 +495,7 @@ class MtdVatIssueRequest(models.Model):
         account_move_id = account_move.create({
             'name': 'HMRC VAT Submission',
             'ref': 'HMRC VAT Submission',
-            'date': processing_date,
+            'date': submission_log.processing_date,
             'journal_id': hmrc_posting_config.journal_id.id
         })
 
@@ -503,7 +512,7 @@ class MtdVatIssueRequest(models.Model):
 
         # 2 create input move line
         input_move_line = self.create_account_move_line(
-            processing_date,
+            submission_log.processing_date,
             hmrc_posting_config.input_account.id,
             input_credit_debit,
             input_value,
@@ -519,7 +528,7 @@ class MtdVatIssueRequest(models.Model):
 
         # 2 create output move line
         output_move_line = self.create_account_move_line(
-            processing_date,
+            submission_log.processing_date,
             hmrc_posting_config.output_account.id,
             output_credit_debit,
             record.vat_due_sales_submit,
@@ -532,7 +541,7 @@ class MtdVatIssueRequest(models.Model):
             debit_credit_type = "debit"
 
         liability_move_line = self.create_account_move_line(
-            processing_date,
+            submission_log.processing_date,
             hmrc_posting_config.liability_account.id,
             debit_credit_type,
             abs(record.net_vat_due_submit),
@@ -558,7 +567,7 @@ class MtdVatIssueRequest(models.Model):
             move_lines_to_copy,
         )
 
-    def create_account_move_line(self,processing_date, account_id, debit_credit_type, value, account_move_id):
+    def create_account_move_line(self, processing_date, account_id, debit_credit_type, value, account_move_id):
 
         account_move_line = self.env['account.move.line']
 
