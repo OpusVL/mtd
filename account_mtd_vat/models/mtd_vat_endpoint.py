@@ -463,6 +463,13 @@ class MtdVATEndpoints(models.Model):
         else:
             return self.env['mtd.user_authorisation'].get_user_authorisation(self._name, self)
 
+    @api.one
+    def handle_user_authorisation_error(self, record):
+        # The user authorisation failed therfore we need to handle the display of the response by setting the flags
+        # so that the response is displaed tot he user.
+        record.show_response_flag = True
+        record.view_vat_flag = False
+
     def connection_button_clicked_log_message(self):
         return "Connection button Clicked - endpoint name {name}, redirect URL:- {redirect}, Path url:- {path}".format(
                 name=self.name,
