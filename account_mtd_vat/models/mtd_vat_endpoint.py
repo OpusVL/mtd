@@ -396,7 +396,7 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning(
                 "VAT return has already been submitted for this obligation."
             )
-        # Check to see if we have HMRC Posting record We can not submit VAT witout a
+        # Check to see if we have HMRC Posting record We can not submit VAT without a
         # HMRC posting template for the company
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
