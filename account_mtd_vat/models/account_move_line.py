@@ -38,7 +38,6 @@ class account_move_line(osv.osv):
             'unique_number',
             type='char',
             string="HMRC Unique Number",
-            store=True,
             readonly=True
         ),
         'mtd_tax_amount': fields.float(
