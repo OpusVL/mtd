@@ -11,6 +11,5 @@ class AccountMoveLine(models.Model):
     unique_number = fields.Char(
         related='vat_submission_id.unique_number',
         string="HMRC Unique Number",
-        store=True,
         readonly=True
     )
