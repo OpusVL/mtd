@@ -615,6 +615,7 @@ class MtdVatIssueRequest(models.Model):
         context = {}
         # active_ids are the ones that would have been ticked in the GUI
         context['active_ids'] = move_line_account_id
+        context['reconciliation_allowed_on_all_accounts'] = True
 
         account_move_line_obj.reconcile(self._cr, self._uid, move_line_account_id, 'manual', account_id, period_id, journal_id, context=context)
 
