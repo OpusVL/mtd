@@ -31,6 +31,9 @@ class account_move_line(osv.osv):
             self.mtd_tax_amount = 0.00
 
     def list_partners_to_reconcile(self, cr, uid, context=None, filter_domain=False):
+        # Note this will ignore reconciliation_allowed_on_all_accounts in the
+        # context.  If we need to not ignore it, you need to not include
+        # the non_mtd_reconcilable clause from WHERE if that context is True.
         line_ids = []
         if filter_domain:
             line_ids = self.search(cr, uid, filter_domain, context=context)
@@ -41,7 +44,7 @@ class account_move_line(osv.osv):
                 FROM account_move_line l
                 RIGHT JOIN account_account a ON (a.id = l.account_id)
                 RIGHT JOIN res_partner p ON (l.partner_id = p.id)
-                    WHERE a.reconcile IS TRUE
+                    WHERE a.non_mtd_reconcilable IS TRUE
                     AND l.reconcile_id IS NULL
                     AND l.state <> 'draft'
                     %s
