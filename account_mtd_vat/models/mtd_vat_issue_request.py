@@ -537,8 +537,11 @@ class MtdVatIssueRequest(models.Model):
         move_line_ids.append(output_move_line.id)
 
         # create account move line entry for HMRC liability Account
+        # if record.net_vat_due_submit < 0:
+        # can not use the above field to work out the credit and debit as we are using the
+        # abs on the field in the first place
         debit_credit_type = "credit"
-        if record.net_vat_due_submit < 0:
+        if (record.total_vat_due_submit - record.vat_reclaimed_submit) < 0:
             debit_credit_type = "debit"
 
         liability_move_line = self.create_account_move_line(
