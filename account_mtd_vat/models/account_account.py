@@ -15,7 +15,9 @@ def methodproxy(method_name):
 class AccountAccount(models.Model):
     _inherit = "account.account"
 
-    non_mtd_reconcilable = fields.Boolean()
+    non_mtd_reconcilable = fields.Boolean(
+        string='Allow Reconciliation',
+    )
 
 
 class account_account(osv.osv):
