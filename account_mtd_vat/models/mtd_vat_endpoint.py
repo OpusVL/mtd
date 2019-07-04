@@ -6,6 +6,9 @@ import re
 from openerp import models, fields, api, exceptions
 from datetime import datetime, timedelta
 
+from ..hmrc_vat import Box
+from ..dictutils import map_keys, restrict_with_fill_values
+
 _logger = logging.getLogger(__name__)
 
 
@@ -324,12 +327,12 @@ class MtdVATEndpoints(models.Model):
             'vat': 'unposted'})
 
         retrieve_vat_code_ids = self.env['account.tax.code'].search([
-            ('code', 'in', ['1', '2', '3', '4', '5', '6', '7', '8', '9']),
+            ('code', 'in', list(Box.all_box_codes())),
             ('company_id', '=', self.company_id.id)
         ])
         name = 'Calculated VAT'
 
-        retrieve_sum_for_codes = retrieve_vat_code_ids.with_context(
+        sum_period_result = retrieve_vat_code_ids.with_context(
             date_from=date_from,
             date_to=self.date_to,
             period_id=period_ids,
@@ -339,25 +342,37 @@ class MtdVATEndpoints(models.Model):
             company_id=self.company_id.id,
         )._sum_period(name, context)
 
+        def tax_code_id_to_box_code(tax_code_id):
+            return retrieve_vat_code_ids\
+                .filtered(lambda c: c.id == tax_code_id)\
+                .code
+
+        # _sum_period doesn't always return all boxes, and the ones it does
+        #  are account.tax.code ids not the box codes themselves
+        base_box_sums = restrict_with_fill_values(
+            map_keys(tax_code_id_to_box_code, sum_period_result),
+            wanted_keys=(Box.all_box_codes() - Box.computed_box_codes()),
+            fill_value=0,
+        )
+        box_values = Box.compute_all(base_box_sums)
         code_dict = {
-            '1': 'vat_due_sales_submit',
-            '2': 'vat_due_acquisitions_submit',
-            '3': 'total_vat_due_submit',
-            '4': 'vat_reclaimed_submit',
-            '5': 'net_vat_due_submit',
-            '6': 'total_value_sales_submit',
-            '7': 'total_value_purchase_submit',
-            '8': 'total_value_goods_supplied_submit',
-            '9': 'total_acquisitions_submit',
+            Box.VAT_DUE_SALES: 'vat_due_sales_submit',
+            Box.VAT_DUE_ACQUISITIONS: 'vat_due_acquisitions_submit',
+            Box.TOTAL_VAT_DUE: 'total_vat_due_submit',
+            Box.VAT_RECLAIMED_ON_INPUTS: 'vat_reclaimed_submit',
+            Box.NET_VAT_DUE: 'net_vat_due_submit',
+            Box.TOTAL_VALUE_SALES: 'total_value_sales_submit',
+            Box.TOTAL_VALUE_PURCHASES: 'total_value_purchase_submit',
+            Box.TOTAL_VALUE_GOODS_SUPPLIED: 'total_value_goods_supplied_submit',
+            Box.TOTAL_VALUE_ACQUISITIONS: 'total_acquisitions_submit',
         }
         if len(retrieve_period) > 0:
+            # TODO this if doesn't encompass everything it should
             self.submit_vat_flag = True
-            for item in retrieve_vat_code_ids:
-                if item.id in retrieve_sum_for_codes.keys() and item.code in code_dict.keys():
-                    setattr(self, code_dict[item.code], retrieve_sum_for_codes[item.id])
-            self.total_vat_due_submit = (self.vat_due_sales_submit + self.vat_due_acquisitions_submit)
-            # HMRC does not take negative value therefore need to change the negative value for Net vat due field
-            self.net_vat_due_submit = abs(self.net_vat_due_submit)
+            self.update({
+                field: box_values[boxcode]
+                for (boxcode, field) in code_dict.items()
+            })
         else:
             self.submit_vat_flag = False
             self.show_response_flag = True
