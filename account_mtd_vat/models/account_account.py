@@ -15,7 +15,7 @@ def methodproxy(method_name):
 class AccountAccount(models.Model):
     _inherit = "account.account"
 
-    non_mtd_reconcilable = fields.Boolean(
+    is_reconcilable_by_user = fields.Boolean(
         string='Allow Reconciliation',
     )
 
@@ -51,16 +51,16 @@ class account_account(osv.osv):
             return {id_: {'reconcile': True} for id_ in ids}
         else:
             accounts = self.read(
-                cr, uid, ids, ['id', 'non_mtd_reconcilable'], context=context)
+                cr, uid, ids, ['id', 'is_reconcilable_by_user'], context=context)
             return {
-                account['id']: account['non_mtd_reconcilable']
+                account['id']: account['is_reconcilable_by_user']
                 for account in accounts
             }
 
     def _set_reconcile_flag(self, cr, uid, ids, field_name, field_value, arg,
             context):
         assert field_name == 'reconcile', "Only handles reconcile flag"
-        updates = {'non_mtd_reconcilable': field_value}
+        updates = {'is_reconcilable_by_user': field_value}
         return self.write(cr, uid, ids, updates, context=context)
 
     def _search_for_reconcile_flag(self, cr, uid, obj, name, args, context):
@@ -74,7 +74,7 @@ class account_account(osv.osv):
             return match_any_account
         else:
             return [
-                ('non_mtd_reconcilable', operator, value)
+                ('is_reconcilable_by_user', operator, value)
                 for (field, operator, value) in args
                 if field == 'reconcile'
             ]

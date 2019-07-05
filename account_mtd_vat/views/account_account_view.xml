@@ -10,7 +10,7 @@
                     <attribute name="invisible">1</attribute>
                 </field>
                 <field name="reconcile" position="after">
-                    <field name="non_mtd_reconcilable"/>
+                    <field name="is_reconcilable_by_user"/>
                 </field>
             </field>
         </record>
