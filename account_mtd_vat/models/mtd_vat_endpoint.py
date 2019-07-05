@@ -356,22 +356,22 @@ class MtdVATEndpoints(models.Model):
         )
         box_values = Box.compute_all(base_box_sums)
         code_dict = {
-            Box.VAT_DUE_SALES: 'vat_due_sales_submit',
-            Box.VAT_DUE_ACQUISITIONS: 'vat_due_acquisitions_submit',
-            Box.TOTAL_VAT_DUE: 'total_vat_due_submit',
-            Box.VAT_RECLAIMED_ON_INPUTS: 'vat_reclaimed_submit',
-            Box.NET_VAT_DUE: 'net_vat_due_submit',
-            Box.TOTAL_VALUE_SALES: 'total_value_sales_submit',
-            Box.TOTAL_VALUE_PURCHASES: 'total_value_purchase_submit',
-            Box.TOTAL_VALUE_GOODS_SUPPLIED: 'total_value_goods_supplied_submit',
-            Box.TOTAL_VALUE_ACQUISITIONS: 'total_acquisitions_submit',
+            'vat_due_sales_submit': Box.VAT_DUE_SALES,
+            'vat_due_acquisitions_submit': Box.VAT_DUE_ACQUISITIONS,
+            'total_vat_due_submit': Box.TOTAL_VAT_DUE,
+            'vat_reclaimed_submit': Box.VAT_RECLAIMED_ON_INPUTS,
+            'net_vat_due_submit': Box.NET_VAT_DUE,
+            'total_value_sales_submit': Box.TOTAL_VALUE_SALES,
+            'total_value_purchase_submit': Box.TOTAL_VALUE_PURCHASES,
+            'total_value_goods_supplied_submit': Box.TOTAL_VALUE_GOODS_SUPPLIED,
+            'total_acquisitions_submit': Box.TOTAL_VALUE_ACQUISITIONS,
         }
         if len(retrieve_period) > 0:
             # TODO this if doesn't encompass everything it should
             self.submit_vat_flag = True
             self.update({
                 field: box_values[boxcode]
-                for (boxcode, field) in code_dict.items()
+                for (field, boxcode) in code_dict.items()
             })
         else:
             self.submit_vat_flag = False
