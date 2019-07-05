@@ -332,7 +332,7 @@ class MtdVATEndpoints(models.Model):
         ])
         name = 'Calculated VAT'
 
-        sum_period_result = retrieve_vat_code_ids.with_context(
+        sums_for_tax_code_ids = retrieve_vat_code_ids.with_context(
             date_from=date_from,
             date_to=self.date_to,
             period_id=period_ids,
@@ -350,7 +350,7 @@ class MtdVATEndpoints(models.Model):
         # _sum_period doesn't always return all boxes, and the ones it does
         #  are account.tax.code ids not the box codes themselves
         base_box_sums = restrict_with_fill_values(
-            map_keys(tax_code_id_to_box_code, sum_period_result),
+            map_keys(tax_code_id_to_box_code, sums_for_tax_code_ids),
             wanted_keys=(Box.all_box_codes() - Box.computed_box_codes()),
             fill_value=0,
         )
