@@ -355,7 +355,7 @@ class MtdVATEndpoints(models.Model):
             fill_value=0,
         )
         box_values = Box.compute_all(base_box_sums)
-        code_dict = {
+        field_box_map = {
             'vat_due_sales_submit': Box.VAT_DUE_SALES,
             'vat_due_acquisitions_submit': Box.VAT_DUE_ACQUISITIONS,
             'total_vat_due_submit': Box.TOTAL_VAT_DUE,
@@ -371,7 +371,7 @@ class MtdVATEndpoints(models.Model):
             self.submit_vat_flag = True
             self.update({
                 field: box_values[boxcode]
-                for (field, boxcode) in code_dict.items()
+                for (field, boxcode) in field_box_map.items()
             })
         else:
             self.submit_vat_flag = False
