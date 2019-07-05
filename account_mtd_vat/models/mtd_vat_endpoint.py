@@ -342,7 +342,7 @@ class MtdVATEndpoints(models.Model):
         self.vat_due_acquisitions_submit = box2
         self.total_vat_due_submit = box3
         self.vat_reclaimed_submit = box4
-        self.net_vat_due_submit = box5
+        self.net_vat_due_submit = abs(box5)
         self.total_value_sales_submit = box6
         self.total_value_purchase_submit = box7
         self.total_value_goods_supplied_submit = box8
