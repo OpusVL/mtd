@@ -332,15 +332,19 @@ class MtdVATEndpoints(models.Model):
         ])
         name = 'Calculated VAT'
 
-        sums_for_tax_code_ids = retrieve_vat_code_ids.with_context(
-            date_from=date_from,
-            date_to=self.date_to,
-            period_id=period_ids,
-            fiscalyear_id=fiscalyear_ids,
-            state='posted',
-            vat='unposted',
-            company_id=self.company_id.id,
-        )._sum_period(name, context)
+        sums_for_tax_code_ids = (
+            retrieve_vat_code_ids
+            .with_context(
+                date_from=date_from,
+                date_to=self.date_to,
+                period_id=period_ids,
+                fiscalyear_id=fiscalyear_ids,
+                state='posted',
+                vat='unposted',
+                company_id=self.company_id.id,
+            )
+            ._sum_period(name, context)
+        )
 
         def tax_code_id_to_box_code(tax_code_id):
             return retrieve_vat_code_ids\
