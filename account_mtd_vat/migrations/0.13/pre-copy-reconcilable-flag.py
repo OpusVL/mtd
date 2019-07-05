@@ -1,21 +1,23 @@
 def migrate(cr, installed_version):
-    cr.execute("""
+    if not column_exists(cr, schema='public', table='account_account',
+            column='is_reconcilable_by_user'):
+        cr.execute("""
+            ALTER TABLE account_account
+            RENAME COLUMN reconcile TO is_reconcilable_by_user 
+        """)
+
+
+def column_exists(cr, schema, table, column):
+    sql = """
         select exists (
             SELECT 1
             FROM information_schema.columns
             WHERE
-                table_schema='public'
-                AND table_name='account_account'
-                AND column_name='is_reconcilable_by_user'
+                table_schema=%s
+                AND table_name=%s
+                AND column_name=%s
         )
-    """)
-    (column_already_exists,) = cr.fetchone()
-    if not column_already_exists:
-        cr.execute("""
-        ALTER TABLE account_account
-        ADD COLUMN is_reconcilable_by_user BOOLEAN 
-    """)
-    cr.execute("""
-        UPDATE account_account
-            SET is_reconcilable_by_user = reconcile
-    """)
+    """
+    cr.execute(sql, (schema, table, column,))
+    (exists,) = cr.fetchone()
+    return exists
