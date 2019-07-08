@@ -452,18 +452,15 @@ class MtdVATEndpoints(models.Model):
         # HMRC posting template for the company
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
-
         if not hmrc_posting_config:
             raise exceptions.Warning(
                 "Chart of Taxes can not be generated!\n " +
                 "Please create HMRC Posting Template record first"
             )
-
         vrn = self.get_vrn(self.vrn)
         period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
-
         return self.process_connection()
 
     def get_vrn(self, vrn):
