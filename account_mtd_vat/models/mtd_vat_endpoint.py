@@ -456,7 +456,6 @@ class MtdVATEndpoints(models.Model):
                 "Please create HMRC Posting Template record first"
             )
         vrn = self.get_vrn(self.vrn)
-        period_key = urllib.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
         return self.process_connection()
