@@ -30,6 +30,38 @@ class account_move_line(osv.osv):
         else:
             self.mtd_tax_amount = 0.00
 
+    def list_partners_to_reconcile(self, cr, uid, context=None, filter_domain=False):
+        # Note this will ignore reconciliation_allowed_on_all_accounts in the
+        # context.  If we need to not ignore it, you need to not include
+        # the is_reconcilable_by_user clause from WHERE if that context is True.
+        line_ids = []
+        if filter_domain:
+            line_ids = self.search(cr, uid, filter_domain, context=context)
+        where_clause = filter_domain and "AND l.id = ANY(%s)" or ""
+        cr.execute(
+             """SELECT partner_id FROM (
+                SELECT l.partner_id, p.last_reconciliation_date, SUM(l.debit) AS debit, SUM(l.credit) AS credit, MAX(l.create_date) AS max_date
+                FROM account_move_line l
+                RIGHT JOIN account_account a ON (a.id = l.account_id)
+                RIGHT JOIN res_partner p ON (l.partner_id = p.id)
+                    WHERE a.is_reconcilable_by_user IS TRUE
+                    AND l.reconcile_id IS NULL
+                    AND l.state <> 'draft'
+                    %s
+                    GROUP BY l.partner_id, p.last_reconciliation_date
+                ) AS s
+                WHERE debit > 0 AND credit > 0 AND (last_reconciliation_date IS NULL OR max_date > last_reconciliation_date)
+                ORDER BY last_reconciliation_date"""
+            % where_clause, (line_ids,))
+        ids = [x[0] for x in cr.fetchall()]
+        if not ids:
+            return []
+
+        # To apply the ir_rules
+        partner_obj = self.pool.get('res.partner')
+        ids = partner_obj.search(cr, uid, [('id', 'in', ids)], context=context)
+        return partner_obj.name_get(cr, uid, ids, context=context)
+
     _columns = {
         'vat': fields.boolean(string="VAT Posted", default=False, readonly=True),
         'vat_submission_id': fields.many2one('mtd_vat.vat_submission_logs', string='VAT Submission Period'),
