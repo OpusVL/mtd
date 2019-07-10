@@ -405,7 +405,7 @@ class MtdVATEndpoints(models.Model):
         if not hmrc_posting_config:
             raise exceptions.Warning(
                 "Chart of Taxes can not be generated!\n " +
-                "Please create HMRC Posting Templae record first "
+                "Please create HMRC Posting Template record first "
             )
         vrn = self.get_vrn(self.vrn)
         period_key = urllib.parse.quote_plus(self.select_vat_obligation.period_key)
