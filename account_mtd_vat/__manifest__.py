@@ -32,9 +32,7 @@
     'images': [
     ],
     'depends': [
-        'base',
         'account_mtd',
-        'account',
         'l10n_uk',
     ],
     'data': [
