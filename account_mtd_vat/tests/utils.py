@@ -1,4 +1,4 @@
-def arbitrary(iterable):
+def arbitrary_from(iterable):
     try:
         return next(iter(iterable))
     except StopIteration:
