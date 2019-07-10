@@ -1,11 +1,40 @@
 from odoo.tests import common
 from .utils import arbitrary
 
+
+def all_records_in_model(odoo_model):
+    return odoo_model.search([])
+
+class GivenBothReconcilableAndNonReconcilableAccounts_Tests(
+        common.TransactionCase):
+    def setUp(self):
+        super(GivenBothReconcilableAndNonReconcilableAccounts_Tests, self).setUp()
+        self.Account = self.env['account.account']
+        # Make sure we have at least one of each in the database
+        all_accounts = all_records_in_model(self.Account)
+        reconcilable = arbitrary(all_accounts)
+        reconcilable.non_mtd_reconcilable = True
+        nonreconcilable = arbitrary(all_accounts - reconcilable)
+        nonreconcilable.non_mtd_reconcilable = False
+
+    def test_search_for_reconcile_True(self):
+        result = self.Account.search([('reconcile', '=', True)])
+        self.assertTrue(all(a.non_mtd_reconcilable for a in result),
+            "All matches must be non_mtd_reconcilable")
+
+    def test_search_for_reconcile_False(self):
+        result = self.Account.search([('reconcile', '=', False)])
+        self.assertTrue(all((not a.non_mtd_reconcilable) for a in result),
+            "All matches must not be non_mtd_reconcilable")
+
 class GivenAccount(common.TransactionCase):
     def setUp(self):
         super(GivenAccount, self).setUp()
-        self.account = arbitrary(self.env['account.account'].search([]))
+        self.account = arbitrary(self.all_accounts)
         self.account.non_mtd_reconcilable = self.initial_non_mtd_reconcilable()
+
+    def all_accounts(self):
+        return self.env['account.account'].search([])
 
     def initial_non_mtd_reconcilable(self):
         self.skipTest("ABSTRACT: initial_non_mtd_reconcilable")
