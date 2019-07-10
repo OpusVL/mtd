@@ -397,8 +397,6 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning(
                 "VAT return has already been submitted for this obligation."
             )
-        # Check to see if we have HMRC Posting record We can not submit VAT without a
-        # HMRC posting template for the company
         hmrc_posting_template_for_company = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
 
@@ -408,7 +406,6 @@ class MtdVATEndpoints(models.Model):
                 "Please create HMRC Posting Template record first "
             )
         vrn = self.get_vrn(self.vrn)
-        period_key = urllib.parse.quote_plus(self.select_vat_obligation.period_key)
         self.path = "/organisations/vat/{vrn}/returns".format(vrn=vrn)
         self.endpoint_name = "submit-vat-returns"
         return self.process_connection()
