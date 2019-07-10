@@ -9,7 +9,7 @@ class AccountMoveLine(models.Model):
     def list_partners_to_reconcile(self, filter_domain=False):
         # Note this will ignore reconciliation_allowed_on_all_accounts in the
         # context.  If we need to not ignore it, you need to not include
-        # the non_mtd_reconcilable clause from WHERE if that context is True.
+        # the not_reconcilable_by_user clause from WHERE if that context is True.
         line_ids = []
         if filter_domain:
             line_ids = self.search(filter_domain)

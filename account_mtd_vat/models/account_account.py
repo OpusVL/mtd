@@ -12,13 +12,13 @@ class AccountAccount(models.Model):
             if self._context.get('_reconciliation_allowed_on_all_accounts', False):
                 account.reconcile = True
             else:
-                account.reconcile = account.non_mtd_reconcilable
+                account.reconcile = account.not_reconcilable_by_user
 
     @api.multi
     def _set_reconcile(self):
-        self.non_mtd_reconcilable = self.reconcile
+        self.isnt_reconcilable_by_user = self.reconcile
 
-    non_mtd_reconcilable = fields.Boolean('Non MTD Reconcilable')
+    not_reconcilable_by_user = fields.Boolean('Not reconcilable by user')
     website_track = fields.Boolean('Tracks on Website', compute='_compute_website_track', inverse='_set_website_menu')
     reconcile = fields.Boolean(string='Allow Reconciliation',
                                compute='_compute_reconcile',

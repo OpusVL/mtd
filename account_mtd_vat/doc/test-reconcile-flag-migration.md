@@ -34,15 +34,15 @@ HEAD is now at eaa5c26... Merge pull request #46 from OpusVL/mtd-vat-8.0-O1832-w
 * Make extra sure mtd-vat-11.0 checks out OK (albeit with warning about a detached head)
   * If not, you should find another earlier tag or explicit commit number to check out.
 
-In the following SQL run we do the backwards migration so we have a fair test.  If this one fails saying that the `non_mtd_reconcilable` column does not exist, that's fine for now.
+In the following SQL run we do the backwards migration so we have a fair test.  If this one fails saying that the `not_reconcilable_by_user` column does not exist, that's fine for now.
 
-Simply downgrading will lose the data we currently have in `is_reconcilable_by_user` and
+Simply downgrading will lose the data we currently have in `not_reconcilable_by_user` and
 all `reconcile` flags will end up False, which we don't want as it will mess up your
 database and make our test more likely to pass falsely.
 
 ``` 
 $ docker-compose exec postgresql psql -U odoo "$DBNAME"
-mtd-vat=# ALTER TABLE account_account RENAME COLUMN is_reconcilable_by_user TO reconcile;
+mtd-vat=# ALTER TABLE account_account RENAME COLUMN not_reconcilable_by_user TO reconcile;
 mtd-vat=# \q
 ```
 
@@ -52,9 +52,9 @@ $ docker-compose run --rm odoo \
     -d "$DBNAME" -u account_mtd,account_mtd_vat \
     --max-cron-threads=0 --stop-after-init
 $ docker-compose exec postgresql psql -U odoo "$DBNAME"
-mtd-vat=# select distinct reconcile, is_reconcilable_by_user from account_account;
-ERROR:  column "is_reconcilable_by_user" does not exist
-LINE 1: select distinct reconcile, is_reconcilable_by_user from account...
+mtd-vat=# select distinct reconcile, not_reconcilable_by_user from account_account;
+ERROR:  column "not_reconcilable_by_user" does not exist
+LINE 1: select distinct reconcile, not_reconcilable_by_user from account...
 mtd-vat=# select distinct reconcile from account_account;
  reconcile 
 -----------
@@ -80,8 +80,8 @@ $ docker-compose run --rm --service-ports odoo \
     -d "$DBNAME" -u account_mtd,account_mtd_vat \
     --max-cron-threads=0 --stop-after-init
 $ docker-compose exec postgresql psql -U odoo "$DBNAME"
-mtd-vat=# select distinct is_reconcilable_by_user from account_account;
- is_reconcilable_by_user 
+mtd-vat=# select distinct not_reconcilable_by_user from account_account;
+ not_reconcilable_by_user 
 -------------------------
  f
  t
