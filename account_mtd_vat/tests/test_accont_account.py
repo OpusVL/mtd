@@ -18,6 +18,20 @@ class GivenAccount(common.TransactionCase):
         )
 
 
+    def test_set_core_reconcile_flag_True_copies_to_non_mtd_reconcilable(self):
+        self.account.reconcile = True
+        self.assertTrue(self.account.non_mtd_reconcilable,
+            "copied to non_mtd_reconcilable")
+        self.assertTrue(self.account.reconcile,
+            "reflected in computed reconcile flag")
+
+    def test_set_core_reconcile_flag_False_copies_to_non_mtd_reconcilable(self):
+        self.account.reconcile = False
+        self.assertFalse(self.account.non_mtd_reconcilable,
+            "copied to non_mtd_reconcilable")
+        self.assertFalse(self.account.reconcile,
+            "reflected in computed reconcile flag")
+
 class GivenNonUserReconcilableAccount_Tests(GivenAccount):
     def initial_non_mtd_reconcilable(self):
         return False
