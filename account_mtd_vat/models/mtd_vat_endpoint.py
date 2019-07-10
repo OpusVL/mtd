@@ -397,10 +397,10 @@ class MtdVATEndpoints(models.Model):
             )
         # Check to see if we have HMRC Posting record We can not submit VAT without a
         # HMRC posting template for the company
-        hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
+        hmrc_posting_template_for_company = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', self.company_id.id)])
 
-        if not hmrc_posting_config:
+        if not hmrc_posting_template_for_company:
             raise exceptions.Warning(
                 "Chart of Taxes can not be generated!\n " +
                 "Please create HMRC Posting Template record first "
