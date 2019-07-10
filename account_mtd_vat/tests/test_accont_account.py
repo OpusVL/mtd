@@ -39,7 +39,7 @@ class GivenAccount(common.TransactionCase):
     def test_reconcile_True_with_context(self):
         self.assertTrue(
             self.account
-            .with_context(allow_reconciliation_on_all_accounts=True)
+            .with_context(reconciliation_allowed_on_all_accounts=True)
             .reconcile
         )
 
