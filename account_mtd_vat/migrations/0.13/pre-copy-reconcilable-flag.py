@@ -6,16 +6,16 @@ def migrate(cr, installed_version):
                 WHERE
                     table_schema='public'
                     AND table_name='account_account'
-                    AND column_name='non_mtd_reconcilable'
+                    AND column_name='not_reconcilable_by_user'
             )
         """)
     (column_already_exists,) = cr.fetchone()
     if not column_already_exists:
         cr.execute("""
             ALTER TABLE account_account
-            ADD COLUMN non_mtd_reconcilable BOOLEAN 
+            ADD COLUMN not_reconcilable_by_user BOOLEAN 
         """)
     cr.execute("""
             UPDATE account_account
-                SET non_mtd_reconcilable = reconcile
+                SET not_reconcilable_by_user = reconcile
         """)
