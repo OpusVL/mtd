@@ -3,8 +3,6 @@
 from odoo import fields, api, models
 
 
-
-
 class AccountAccount(models.Model):
     _inherit = "account.account"
 

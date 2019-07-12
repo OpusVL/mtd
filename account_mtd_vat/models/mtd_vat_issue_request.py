@@ -596,7 +596,6 @@ class MtdVatIssueRequest(models.Model):
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
         context = self._context.copy()
-        context['active_ids'] = move_line_account_id
         context['reconciliation_allowed_on_all_accounts'] = True
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
