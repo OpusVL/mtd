@@ -33,6 +33,7 @@
     ],
     'depends': [
         'base',
+        'account',
     ],
     'data': [
         'data/api_scope.xml',
