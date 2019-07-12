@@ -9,7 +9,7 @@ class AccountAccount(models.Model):
     @api.multi
     def _compute_reconcile(self):
         for account in self:
-            if self._context.get('_reconciliation_allowed_on_all_accounts', False):
+            if self._context.get('reconciliation_allowed_on_all_accounts', False):
                 account.reconcile = True
             else:
                 account.reconcile = account.not_reconcilable_by_user

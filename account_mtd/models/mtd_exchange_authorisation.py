@@ -107,6 +107,8 @@ class MtdExchangeAuthorisation(models.Model):
                 response_token=response_token
             )
             record.response_from_hmrc = error_message
+            if hasattr(record, 'handle_user_authorisation_error'):
+                record.handle_user_authorisation_error(record)
             _logger.info(
                 "(Step 2) exchange authorisation code - log:- {}".format(error_message)
             )
