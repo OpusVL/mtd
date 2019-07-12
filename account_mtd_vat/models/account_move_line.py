@@ -6,6 +6,7 @@ from odoo import models, fields, exceptions, api
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
 
+    # The below function is not being used. We may need to remove it in future
     def list_partners_to_reconcile(self, filter_domain=False):
         # Note this will ignore reconciliation_allowed_on_all_accounts in the
         # context.  If we need to not ignore it, you need to not include
