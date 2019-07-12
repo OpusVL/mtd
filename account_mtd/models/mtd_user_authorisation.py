@@ -19,7 +19,8 @@ class MtdUserAuthorisation(models.Model):
     @api.multi
     def get_user_authorisation(self, module_name=None, record=None):
         tracker_api = self.create_tracker_record(module_name, record)
-        normalised_redirect_url = record.hmrc_configuration.redirect_url
+        normalised_redirect_url = \
+            record.hmrc_configuration.redirect_url.rstrip('/')
         redirect_uri = "{}/auth-redirect".format(normalised_redirect_url)
         state = ""
         # State is optional
@@ -99,3 +100,4 @@ class MtdUserAuthorisation(models.Model):
             'company_id': record.company_id.id
         })
         return tracker_api
+
