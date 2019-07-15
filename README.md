@@ -1,33 +1,10 @@
-# account\_invoice\_delivery\_address
+# Making Tax Digital
 
-Add delivery address field to Invoices.
-
-Note this exposes it in the UI, and makes it available, but does not add it to the printouts.
-
-The technical name of the field is `partner_shipping_id` on model `account.invoice`.
-
-# account\_invoice\_delivery\_address\_sale
-
-Copy delivery address when creating an invoice from a Sale Order.
-
-Installed automatically if `account_invoice_delivery_address` and `sale` are installed together.
-
-# account\_invoice\_delivery\_address\_stock
-
-Copy delivery address when creating an invoice from a Delivery Order.
-
-Installed automatically if `account_invoice_delivery_address` and `stock` are installed together.
-
-# account\_invoice\_line\_edit\_form
-
-In the invoice form, force the form to be used when the user adds or edits an invoice line, rather than
-editing inline.
-
-This enables you to add richer fields and features to the invoice line GUI than can be achieved in the tree view.
+This is the source file repository for OpusVL Making Tax Digital Odoo modules. If you would like to purchase an licence, please visit our Odoo App Store page: <https://apps.odoo.com/apps/modules/browse?author=OpusVL>
 
 # Copyright and License
 
-Copyright (C) 2016 OpusVL
+Copyright (C) 2019 OpusVL
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
