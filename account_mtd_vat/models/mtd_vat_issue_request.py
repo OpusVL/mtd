@@ -592,8 +592,6 @@ class MtdVatIssueRequest(models.Model):
         for line in move_lines_for_period:
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
-        import pdb; pdb.set_trace()
-
         context = self._context.copy()
         context['reconciliation_allowed_on_all_accounts'] = True
         account_move_line_obj = self.env['account.move.line']

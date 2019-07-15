@@ -16,10 +16,9 @@ class AccountAccount(models.Model):
 
     @api.multi
     def _set_reconcile(self):
-        self.isnt_reconcilable_by_user = self.reconcile
+        self.not_reconcilable_by_user = self.reconcile
 
     not_reconcilable_by_user = fields.Boolean('Not reconcilable by user')
-    website_track = fields.Boolean('Tracks on Website', compute='_compute_website_track', inverse='_set_website_menu')
     reconcile = fields.Boolean(string='Allow Reconciliation',
                                compute='_compute_reconcile',
                                inverse='_set_reconcile',
