@@ -1,6 +1,18 @@
 # Making Tax Digital
 
-This is the source file repository for OpusVL Making Tax Digital Odoo modules. If you would like to purchase an licence, please visit our Odoo App Store page: <https://apps.odoo.com/apps/modules/browse?author=OpusVL>
+This is the source file repository for OpusVL Making Tax Digital Odoo modules. 
+
+## Support and key management
+
+Support and key management services are available from the Odoo Marketplace <https://apps.odoo.com/apps/modules/browse?author=OpusVL> or directly from OpusVL <https://opusvl.com>.
+
+The purchase price of the VAT module includes the following services for a single VAT number for a period of 12 months;
+
+- Access to the modules
+- HMRC key management
+- Support from our UK-based team
+- Inclusive of any upgrades or improvements
+- Access keys will be provided directly by OpusVL after purchase (please allow 2 working days for delivery).
 
 # Copyright and License
 
