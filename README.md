@@ -1,4 +1,4 @@
-# Making Tax Digital
+# Making Tax Digital with Odoo
 
 This is the source file repository for OpusVL Making Tax Digital Odoo modules. 
 
