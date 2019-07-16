@@ -1,33 +1,22 @@
-# account\_invoice\_delivery\_address
+# Making Tax Digital with Odoo
 
-Add delivery address field to Invoices.
+This is the source file repository for OpusVL Making Tax Digital Odoo modules. 
 
-Note this exposes it in the UI, and makes it available, but does not add it to the printouts.
+## Support and key management
 
-The technical name of the field is `partner_shipping_id` on model `account.invoice`.
+Support and key management services are available from the Odoo Marketplace <https://apps.odoo.com/apps/modules/browse?author=OpusVL> or directly from OpusVL <https://opusvl.com>.
 
-# account\_invoice\_delivery\_address\_sale
+The purchase price of the VAT module includes the following services for a single VAT number for a period of 12 months;
 
-Copy delivery address when creating an invoice from a Sale Order.
-
-Installed automatically if `account_invoice_delivery_address` and `sale` are installed together.
-
-# account\_invoice\_delivery\_address\_stock
-
-Copy delivery address when creating an invoice from a Delivery Order.
-
-Installed automatically if `account_invoice_delivery_address` and `stock` are installed together.
-
-# account\_invoice\_line\_edit\_form
-
-In the invoice form, force the form to be used when the user adds or edits an invoice line, rather than
-editing inline.
-
-This enables you to add richer fields and features to the invoice line GUI than can be achieved in the tree view.
+- Access to the modules
+- HMRC key management
+- Support from our UK-based team
+- Inclusive of any upgrades or improvements
+- Access keys will be provided directly by OpusVL after purchase (please allow 2 working days for delivery).
 
 # Copyright and License
 
-Copyright (C) 2016 OpusVL
+Copyright (C) 2019 OpusVL
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -46,5 +35,5 @@ If you require assistance, support, or further development of this
 software, please contact OpusVL using the details below:
 
 * Telephone: +44 (0)1788 298 410
-* Email: community@opusvl.com
-* Web: http://opusvl.com
+* Email: hello@opusvl.com
+* Web: https://opusvl.com
