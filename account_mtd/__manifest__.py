@@ -25,11 +25,11 @@
     'name': 'UK HMRC MTD - Connector',
     'version': '0.5',
     'author': 'OpusVL',
-    'website': 'http://opusvl.com/',
+    'website': 'https://opusvl.com/',
     'summary': '',
     'category': '',
     'description': 'Making Tax Digital for VAT - 12.0',
-    'images': [
+    'images': ['static/description/MTD-Connector.png'
     ],
     'depends': [
         'base',
