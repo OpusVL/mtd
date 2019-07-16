@@ -29,7 +29,7 @@
     'summary': '',
     'category': '',
     'description': 'Making Tax Digital for VAT - 11.0',
-    'images': [
+    'images': ['static/description/MTD-Cover-Image.png'
     ],
     'depends': [
         'account_mtd',
@@ -64,6 +64,8 @@
     'license': 'AGPL-3',
     'installable': True,
     'auto_install': False,
+    'price':'550',
+    'currency':'EUR'
 
 }
 

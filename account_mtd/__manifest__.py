@@ -29,7 +29,7 @@
     'summary': '',
     'category': '',
     'description': 'Making Tax Digital for VAT - 11.0',
-    'images': [
+    'images': ['static/description/MTD-Connector.png'
     ],
     'depends': [
         'base',
