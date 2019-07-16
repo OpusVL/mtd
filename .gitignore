@@ -90,3 +90,7 @@ ENV/
 
 # Backup files
 *~
+
+# testing html page
+
+**/**/testing.html
