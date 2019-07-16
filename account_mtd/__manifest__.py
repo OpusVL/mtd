@@ -26,9 +26,9 @@
     'version': '0.7',
     'author': 'OpusVL',
     'website': 'https://opusvl.com/',
-    'summary': '',
-    'category': '',
-    'description': 'Making Tax Digital for VAT - 11.0',
+    'summary': 'This module enables Odoo Community and Enterprise to establish an authenticated connection to the HMRC’s Making Tax Digital platform.',
+    'category': 'accounting',
+    'description': 'This module enables Odoo Community and Enterprise to establish an authenticated connection to the HMRC’s Making Tax Digital platform.',
     'images': ['static/description/MTD-Connector.png'
     ],
     'depends': [
