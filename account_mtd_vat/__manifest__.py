@@ -25,11 +25,11 @@
     'name': 'UK HMRC MTD- VAT',
     'version': '0.6',
     'author': 'OpusVL',
-    'website': 'http://opusvl.com/',
-    'summary': '',
-    'category': '',
-    'description': 'Making Tax Digital for VAT - 10.0',
-    'images': [
+    'website': 'https://opusvl.com/',
+    'summary': 'This module enables the collation and transmission of VAT data from Odoo to HMRC in line with Making Tax Digital requirements. From your sales and purchases in Odoo, your VAT liability is automatically calculated and submitted to HMRC.',
+    'category': 'accounting',
+    'description': 'This module enables the collation and transmission of VAT data from Odoo to HMRC in line with Making Tax Digital requirements. From your sales and purchases in Odoo, your VAT liability is automatically calculated and submitted to HMRC.',
+    'images': ['static/description/MTD-Cover-Image.png'
     ],
     'depends': [
         'account_mtd',
@@ -64,6 +64,8 @@
     'license': 'AGPL-3',
     'installable': True,
     'auto_install': False,
+    'price': 550,
+    'currency':'EUR'
 
 }
 

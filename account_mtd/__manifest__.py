@@ -25,11 +25,11 @@
     'name': 'UK HMRC MTD - Connector',
     'version': '0.6',
     'author': 'OpusVL',
-    'website': 'http://opusvl.com/',
-    'summary': '',
-    'category': '',
-    'description': 'Making Tax Digital for VAT - 10.0',
-    'images': [
+    'website': 'https://opusvl.com/',
+    'summary': 'This module enables Odoo Community and Enterprise to establish an authenticated connection to the HMRC’s Making Tax Digital platform.',
+    'category': 'accounting',
+    'description': 'HMRC now require VAT submissions to be made via their on-line automated service for all UK VAT registered businesses. The purpose of this module is to securely connect to HMRC and provide the HMRC connection required for Making Tax Digital. ',
+    'images': ['static/description/MTD-Connector.png'
     ],
     'depends': [
         'base',
