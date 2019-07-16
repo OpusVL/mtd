@@ -25,7 +25,7 @@
     'name': 'UK HMRC MTD- VAT',
     'version': '0.7',
     'author': 'OpusVL',
-    'website': 'http://opusvl.com/',
+    'website': 'https://opusvl.com/',
     'summary': '',
     'category': '',
     'description': 'Making Tax Digital for VAT - 11.0',
@@ -64,7 +64,7 @@
     'license': 'AGPL-3',
     'installable': True,
     'auto_install': False,
-    'price':'550',
+    'price':550,
     'currency':'EUR'
 
 }
