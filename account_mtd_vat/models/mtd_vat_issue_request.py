@@ -592,10 +592,12 @@ class MtdVatIssueRequest(models.Model):
         for line in move_lines_for_period:
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
-
+        context = self._context.copy()
+        context['reconciliation_allowed_on_all_accounts'] = True
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
-        line_ids.reconcile()
+        line_ids.with_context(context).reconcile()
+        line_ids.with_context(context).compute_full_after_batch_reconcile()
 
 
 class RetrievePeriodId(models.Model):
