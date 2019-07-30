@@ -31,6 +31,7 @@ from . import (
     account_move_line,
     account_tax_code,
     hmrc_posting_configuration,
+    partner,
     res_company
 
 )
