@@ -19,7 +19,7 @@ class res_partner(osv.osv):
             FROM account_move_line l
             RIGHT JOIN account_account a ON (a.id = l.account_id)
             RIGHT JOIN res_partner p ON (l.partner_id = p.id)
-            WHERE a.reconcile IS TRUE
+            WHERE a.is_reconcilable_by_user IS TRUE
             AND p.id = %s
             AND l.reconcile_id IS NULL
             AND (p.last_reconciliation_date IS NULL OR l.date > p.last_reconciliation_date)
