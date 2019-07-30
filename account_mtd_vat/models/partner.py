@@ -5,6 +5,7 @@ from openerp import SUPERUSER_ID
 from openerp.osv import fields, osv
 from openerp import api
 
+
 class res_partner(osv.osv):
     _name = 'res.partner'
     _inherit = 'res.partner'
