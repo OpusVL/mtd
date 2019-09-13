@@ -20,19 +20,14 @@ class VatCalculation(models.Model):
         if date_from >= date_to:
             raise exceptions.Warning("Period start date is greater than period end date.\n " +
                                      "Please check the obligation date with HMRC posting date.")
-        all_account_move_lines = self.env['account.move.line'].search([
-            ('company_id', '=', company.id),
-            ('date', '>=', date_vat_period),
-            ('date', '<=', date_to),
-            ('vat', '=', vat_posted)])
 
         sale_purchase_tax_code = self.env['account.tax'].search([])
 
         for record in sale_purchase_tax_code:
-            self.calculate_originator_taxcode_balance(record, all_account_move_lines, date_from, date_to,
-                                                      company.id, date_vat_period)
-            self.calculate_taxes_taxcode_balance(record, all_account_move_lines, date_from, date_to,
-                                                 company.id, date_vat_period)
+            self.calculate_originator_taxcode_balance(record, date_from, date_to,
+                                                      company.id, date_vat_period, vat_posted)
+            self.calculate_taxes_taxcode_balance(record, date_from, date_to,
+                                                 company.id, date_vat_period, vat_posted)
 
         # work out the 9 VAT boxes
         calculation_table = self.env['mtd_vat.vat_calculation_table'].search([('date_from', '=', date_from),
@@ -109,14 +104,17 @@ class VatCalculation(models.Model):
         sum_value = sum(balance)
         return sum_value
 
-    def calculate_originator_taxcode_balance(self, tax_code_record, all_account_move_lines, date_from, date_to,
-                                             company_id, date_vat_period):
-        tax_code_id = [tax_code_record.id]
+    def calculate_originator_taxcode_balance(self, tax_code_record, date_from, date_to,
+                                             company_id, date_vat_period, vat_posted):
         tax_tag_name = tax_code_record.tag_ids.name
         uk_tax_scope = tax_code_record.vat_tax_scope
 
-        move_lines_for_tax = all_account_move_lines.with_context(filter_tax_code=tax_code_id).filtered(
-            lambda move_line: move_line.tax_line_id.id in move_line._context['filter_tax_code'])
+        move_lines_for_tax = self.env['account.move.line'].search([
+            ('company_id', '=', company_id),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+            ('vat', '=', vat_posted),
+            ('tax_line_id.id', '=', tax_code_record.id)])
 
         line_ids = []
         credit = []
@@ -150,14 +148,17 @@ class VatCalculation(models.Model):
                 company_id,
                 date_vat_period)
 
-    def calculate_taxes_taxcode_balance(self, tax_code_record, all_account_move_lines, date_from, date_to,
-                                        company_id, date_vat_period):
-        tax_code_id = [tax_code_record.id]
+    def calculate_taxes_taxcode_balance(self, tax_code_record, date_from, date_to,
+                                        company_id, date_vat_period, vat_posted):
         tax_tag_name = tax_code_record.tag_ids.name
         uk_tax_scope = tax_code_record.vat_tax_scope
 
-        move_lines_for_tax = all_account_move_lines.with_context(filter_tax_code=tax_code_id).filtered(
-            lambda move_line: move_line.tax_ids.id in move_line._context['filter_tax_code'])
+        move_lines_for_tax = self.env['account.move.line'].search([
+            ('company_id', '=', company_id),
+            ('date', '>=', date_from),
+            ('date', '<=', date_to),
+            ('vat', '=', vat_posted),
+            ('tax_ids.id', '=', tax_code_record.id)])
 
         line_ids = []
         credit = []
