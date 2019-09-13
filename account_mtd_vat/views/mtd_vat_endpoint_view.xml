@@ -32,6 +32,7 @@
                                        options="{'no_quick_create': True, 'no_create_edit' : True}"/>
                                 <field name="previous_period"
                                     attrs="{'invisible':[('name', '!=', 'Submit a VAT Return')]}"/>
+                                <field name="date_vat_period" invisible="1"/>
                             </group>
                             <field name="gov_test_scenario"
                                    context="{'endpoint_name': name}"

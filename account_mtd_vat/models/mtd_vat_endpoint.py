@@ -213,6 +213,18 @@ class MtdVATEndpoints(models.Model):
         required=True,
         default='yes')
     show_response_flag = fields.Boolean(default = False)
+    date_vat_period = fields.Date(string='Date Vat Period', compute='_compute_date_period', store=True)
+
+    @api.depends('date_from', 'previous_period')
+    def _compute_date_period(self):
+        for vat_endpoint in self:
+            date_vat_period = vat_endpoint.date_from
+            if vat_endpoint.previous_period == 'yes':
+                cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=',
+                                                                                          vat_endpoint.company_id.id)])
+                if cutoff_date_rec:
+                    date_vat_period = cutoff_date_rec.cutoff_date
+            vat_endpoint.date_vat_period = date_vat_period
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
@@ -226,7 +238,7 @@ class MtdVATEndpoints(models.Model):
         else:
             self.finalise_flag = False
 
-    @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
+    @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration', 'previous_period')
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_fields(self):
         self.submit_vat_flag = False
@@ -333,7 +345,7 @@ class MtdVATEndpoints(models.Model):
             self.company_id,
             self.date_from,
             self.date_to,
-            self.previous_period,
+            self.date_vat_period,
             vat_posted=False
         )
 

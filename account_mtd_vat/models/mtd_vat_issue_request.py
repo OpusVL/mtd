@@ -297,7 +297,7 @@ class MtdVatIssueRequest(models.Model):
         journal_item_ids = self.env['mtd_vat.vat_endpoints'].get_journal_item_ids_from_calculation_table(
             record.date_from,
             record.date_to,
-            record.company_id
+            record.company_id,
         )
         move_lines_to_copy = self.env['account.move.line'].search([
             ('id', 'in', journal_item_ids)])

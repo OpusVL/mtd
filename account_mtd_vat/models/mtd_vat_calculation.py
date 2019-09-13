@@ -5,31 +5,34 @@ from odoo import models, fields, api, exceptions
 
 _logger = logging.getLogger(__name__)
 
+import sys
+sys.path.append("/mnt/pycharm-debug")
+import pydevd_pycharm
+pydevd_pycharm.settrace('10.10.4.172', port=21348, suspend=False)
+
 
 class VatCalculation(models.Model):
     _name = 'mtd_vat.vat_calculation'
 
-    def retrieve_account_move_lines_for_vat_calculation(self, company, date_from, date_to, previous_period, vat_posted):
-
-        if previous_period == 'yes':
-            cutoff_date_rec = self.env['mtd_vat.hmrc_posting_configuration'].search([('name', '=', company.id)])
-            if cutoff_date_rec:
-                date_from = cutoff_date_rec.cutoff_date
+    def retrieve_account_move_lines_for_vat_calculation(self, company, date_from, date_to,
+                                                        date_vat_period, vat_posted):
 
         if date_from >= date_to:
             raise exceptions.Warning("Period start date is greater than period end date.\n " +
                                      "Please check the obligation date with HMRC posting date.")
         all_account_move_lines = self.env['account.move.line'].search([
             ('company_id', '=', company.id),
-            ('date', '>=', date_from),
+            ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted)])
 
         sale_purchase_tax_code = self.env['account.tax'].search([])
 
         for record in sale_purchase_tax_code:
-            self.calculate_originator_taxcode_balance(record, all_account_move_lines, date_from, date_to, company.id)
-            self.calculate_taxes_taxcode_balance(record, all_account_move_lines, date_from, date_to, company.id)
+            self.calculate_originator_taxcode_balance(record, all_account_move_lines, date_from, date_to,
+                                                      company.id, date_vat_period)
+            self.calculate_taxes_taxcode_balance(record, all_account_move_lines, date_from, date_to,
+                                                 company.id, date_vat_period)
 
         # work out the 9 VAT boxes
         calculation_table = self.env['mtd_vat.vat_calculation_table'].search([('date_from', '=', date_from),
@@ -107,7 +110,7 @@ class VatCalculation(models.Model):
         return sum_value
 
     def calculate_originator_taxcode_balance(self, tax_code_record, all_account_move_lines, date_from, date_to,
-                                             company_id):
+                                             company_id, date_vat_period):
         tax_code_id = [tax_code_record.id]
         tax_tag_name = tax_code_record.tag_ids.name
         uk_tax_scope = tax_code_record.vat_tax_scope
@@ -123,6 +126,7 @@ class VatCalculation(models.Model):
             line_ids.append(record.id)
             credit.append(record.credit)
             debit.append(record.debit)
+            record.write({'date_vat_period': date_vat_period})
 
         sum_debit = sum(debit)
         sum_credit = sum(credit)
@@ -143,9 +147,11 @@ class VatCalculation(models.Model):
                 line_ids,
                 date_from,
                 date_to,
-                company_id)
+                company_id,
+                date_vat_period)
 
-    def calculate_taxes_taxcode_balance(self, tax_code_record, all_account_move_lines, date_from, date_to, company_id):
+    def calculate_taxes_taxcode_balance(self, tax_code_record, all_account_move_lines, date_from, date_to,
+                                        company_id, date_vat_period):
         tax_code_id = [tax_code_record.id]
         tax_tag_name = tax_code_record.tag_ids.name
         uk_tax_scope = tax_code_record.vat_tax_scope
@@ -160,6 +166,7 @@ class VatCalculation(models.Model):
             line_ids.append(record.id)
             credit.append(record.credit)
             debit.append(record.debit)
+            record.write({'date_vat_period': date_vat_period})
 
         sum_debit = sum(debit)
         sum_credit = sum(credit)
@@ -180,10 +187,11 @@ class VatCalculation(models.Model):
                 line_ids,
                 date_from,
                 date_to,
-                company_id)
+                company_id,
+                date_vat_period)
 
     def create_vat_calculation_record(self, originator_name, taxes_name, sum_debit, sum_credit, balance,
-                                      tag_id, line_ids, date_from, date_to, company_id):
+                                      tag_id, line_ids, date_from, date_to, company_id, date_vat_period):
 
         calculation_table_obj = self.env['mtd_vat.vat_calculation_table'].search([('date_from', '=', date_from),
                                                                                   ('date_to', '=', date_to),
@@ -203,7 +211,8 @@ class VatCalculation(models.Model):
                 'move_line_ids': line_ids,
                 'date_from': date_from,
                 'date_to': date_to,
-                'company_id': company_id
+                'company_id': company_id,
+                'date_vat_period': date_vat_period,
             })
         else:
             calculation_table_obj.name = originator_name
@@ -216,3 +225,4 @@ class VatCalculation(models.Model):
             calculation_table_obj.date_from = date_from
             calculation_table_obj.date_to = date_to
             calculation_table_obj.company_id = company_id
+            calculation_table_obj.date_vat_period = date_vat_period
