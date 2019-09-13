@@ -5,11 +5,6 @@ from odoo import models, fields, api, exceptions
 
 _logger = logging.getLogger(__name__)
 
-import sys
-sys.path.append("/mnt/pycharm-debug")
-import pydevd_pycharm
-pydevd_pycharm.settrace('10.10.4.172', port=21348, suspend=False)
-
 
 class VatCalculation(models.Model):
     _name = 'mtd_vat.vat_calculation'
@@ -111,7 +106,7 @@ class VatCalculation(models.Model):
 
         move_lines_for_tax = self.env['account.move.line'].search([
             ('company_id', '=', company_id),
-            ('date', '>=', date_from),
+            ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted),
             ('tax_line_id.id', '=', tax_code_record.id)])
@@ -155,7 +150,7 @@ class VatCalculation(models.Model):
 
         move_lines_for_tax = self.env['account.move.line'].search([
             ('company_id', '=', company_id),
-            ('date', '>=', date_from),
+            ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted),
             ('tax_ids.id', '=', tax_code_record.id)])
