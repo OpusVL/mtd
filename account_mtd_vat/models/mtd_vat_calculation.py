@@ -185,7 +185,8 @@ class VatCalculation(models.Model):
                 line_ids,
                 date_from,
                 date_to,
-                company_id)
+                company_id,
+                date_vat_period)
 
     def create_vat_calculation_record(self, originator_name, taxes_name, sum_debit, sum_credit, balance,
                                       tag_id, line_ids, date_from, date_to, company_id, date_vat_period):
