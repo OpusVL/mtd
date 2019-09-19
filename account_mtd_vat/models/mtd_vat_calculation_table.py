@@ -21,3 +21,4 @@ class VatCalculationTable(models.Model):
     date_from = fields.Date(string='From')
     date_to = fields.Date(string='To')
     company_id = fields.Many2one(comodel_name="res.company", string="Company")
+    date_vat_period = fields.Date(string='Date Vat Period')
