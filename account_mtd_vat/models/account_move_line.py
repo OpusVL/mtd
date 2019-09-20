@@ -4,9 +4,10 @@ import json
 import ast
 import openerp.addons.decimal_precision as dp
 
-from openerp import models, fields, api, _
+from openerp import models, fields, api, workflow, _
 from openerp.osv import fields, osv
 from openerp import exceptions
+import time
 
 
 class account_move_line(osv.osv):
@@ -30,38 +31,6 @@ class account_move_line(osv.osv):
         else:
             self.mtd_tax_amount = 0.00
 
-    def list_partners_to_reconcile(self, cr, uid, context=None, filter_domain=False):
-        # Note this will ignore reconciliation_allowed_on_all_accounts in the
-        # context.  If we need to not ignore it, you need to not include
-        # the is_reconcilable_by_user clause from WHERE if that context is True.
-        line_ids = []
-        if filter_domain:
-            line_ids = self.search(cr, uid, filter_domain, context=context)
-        where_clause = filter_domain and "AND l.id = ANY(%s)" or ""
-        cr.execute(
-             """SELECT partner_id FROM (
-                SELECT l.partner_id, p.last_reconciliation_date, SUM(l.debit) AS debit, SUM(l.credit) AS credit, MAX(l.create_date) AS max_date
-                FROM account_move_line l
-                RIGHT JOIN account_account a ON (a.id = l.account_id)
-                RIGHT JOIN res_partner p ON (l.partner_id = p.id)
-                    WHERE a.is_reconcilable_by_user IS TRUE
-                    AND l.reconcile_id IS NULL
-                    AND l.state <> 'draft'
-                    %s
-                    GROUP BY l.partner_id, p.last_reconciliation_date
-                ) AS s
-                WHERE debit > 0 AND credit > 0 AND (last_reconciliation_date IS NULL OR max_date > last_reconciliation_date)
-                ORDER BY last_reconciliation_date"""
-            % where_clause, (line_ids,))
-        ids = [x[0] for x in cr.fetchall()]
-        if not ids:
-            return []
-
-        # To apply the ir_rules
-        partner_obj = self.pool.get('res.partner')
-        ids = partner_obj.search(cr, uid, [('id', 'in', ids)], context=context)
-        return partner_obj.name_get(cr, uid, ids, context=context)
-
     _columns = {
         'vat': fields.boolean(string="VAT Posted", default=False, readonly=True),
         'vat_submission_id': fields.many2one('mtd_vat.vat_submission_logs', string='VAT Submission Period'),
@@ -80,6 +49,159 @@ class account_move_line(osv.osv):
         )
     }
 
+    # Override of the base function reconcile , removing the control for the account if is field reconciled checked or not
+    def mtd_reconcile(self, cr, uid, ids, type='auto', writeoff_acc_id=False, writeoff_period_id=False, writeoff_journal_id=False, context=None):
+        account_obj = self.pool.get('account.account')
+        move_obj = self.pool.get('account.move')
+        move_rec_obj = self.pool.get('account.move.reconcile')
+        partner_obj = self.pool.get('res.partner')
+        currency_obj = self.pool.get('res.currency')
+        lines = self.browse(cr, uid, ids, context=context)
+        unrec_lines = filter(lambda x: not x['reconcile_id'], lines)
+        credit = debit = 0.0
+        currency = 0.0
+        account_id = False
+        partner_id = False
+        if context is None:
+            context = {}
+        company_list = []
+        for line in lines:
+            if company_list and not line.company_id.id in company_list:
+                raise osv.except_osv(_('Warning!'), _('To reconcile the entries company should be the same for all entries.'))
+            company_list.append(line.company_id.id)
+        for line in unrec_lines:
+            if line.state <> 'valid':
+                raise osv.except_osv(_('Error!'),
+                        _('Entry "%s" is not valid !') % line.name)
+            credit += line['credit']
+            debit += line['debit']
+            currency += line['amount_currency'] or 0.0
+            account_id = line['account_id']['id']
+            partner_id = (line['partner_id'] and line['partner_id']['id']) or False
+        writeoff = debit - credit
+
+        # Ifdate_p in context => take this date
+        if context.has_key('date_p') and context['date_p']:
+            date=context['date_p']
+        else:
+            date = time.strftime('%Y-%m-%d')
+
+        cr.execute('SELECT account_id, reconcile_id '\
+                   'FROM account_move_line '\
+                   'WHERE id IN %s '\
+                   'GROUP BY account_id,reconcile_id',
+                   (tuple(ids), ))
+        r = cr.fetchall()
+        #TODO: move this check to a constraint in the account_move_reconcile object
+        if len(r) != 1:
+            raise osv.except_osv(_('Error'), _('Entries are not of the same account or already reconciled ! '))
+        if not unrec_lines:
+            raise osv.except_osv(_('Error!'), _('Entry is already reconciled.'))
+        account = account_obj.browse(cr, uid, account_id, context=context)
+        if r[0][1] != None:
+            raise osv.except_osv(_('Error!'), _('Some entries are already reconciled.'))
+
+        if (not currency_obj.is_zero(cr, uid, account.company_id.currency_id, writeoff)) or \
+           (account.currency_id and (not currency_obj.is_zero(cr, uid, account.currency_id, currency))):
+            # DO NOT FORWARD PORT
+            if not writeoff_acc_id:
+                if writeoff > 0:
+                    writeoff_acc_id = account.company_id.expense_currency_exchange_account_id.id
+                else:
+                    writeoff_acc_id = account.company_id.income_currency_exchange_account_id.id
+            if not writeoff_acc_id:
+                raise osv.except_osv(_('Warning!'), _('You have to provide an account for the write off/exchange difference entry.'))
+            if writeoff > 0:
+                debit = writeoff
+                credit = 0.0
+                self_credit = writeoff
+                self_debit = 0.0
+            else:
+                debit = 0.0
+                credit = -writeoff
+                self_credit = 0.0
+                self_debit = -writeoff
+            # If comment exist in context, take it
+            if 'comment' in context and context['comment']:
+                libelle = context['comment']
+            else:
+                libelle = _('Write-Off')
+
+            cur_obj = self.pool.get('res.currency')
+            cur_id = False
+            amount_currency_writeoff = 0.0
+            if context.get('company_currency_id',False) != context.get('currency_id',False):
+                cur_id = context.get('currency_id',False)
+                for line in unrec_lines:
+                    if line.currency_id and line.currency_id.id == context.get('currency_id',False):
+                        amount_currency_writeoff += line.amount_currency
+                    else:
+                        tmp_amount = cur_obj.compute(cr, uid, line.account_id.company_id.currency_id.id, context.get('currency_id',False), abs(line.debit-line.credit), context={'date': line.date})
+                        amount_currency_writeoff += (line.debit > 0) and tmp_amount or -tmp_amount
+
+            writeoff_lines = [
+                (0, 0, {
+                    'name': libelle,
+                    'debit': self_debit,
+                    'credit': self_credit,
+                    'account_id': account_id,
+                    'date': date,
+                    'partner_id': partner_id,
+                    'currency_id': cur_id or (account.currency_id.id or False),
+                    'amount_currency': amount_currency_writeoff and -1 * amount_currency_writeoff or (account.currency_id.id and -1 * currency or 0.0)
+                }),
+                (0, 0, {
+                    'name': libelle,
+                    'debit': debit,
+                    'credit': credit,
+                    'account_id': writeoff_acc_id,
+                    'analytic_account_id': context.get('analytic_id', False),
+                    'date': date,
+                    'partner_id': partner_id,
+                    'currency_id': cur_id or (account.currency_id.id or False),
+                    'amount_currency': amount_currency_writeoff and amount_currency_writeoff or (account.currency_id.id and currency or 0.0)
+                })
+            ]
+            # DO NOT FORWARD PORT
+            # In some exceptional situations (partial payment from a bank statement in foreign
+            # currency), a write-off can be introduced at the very last moment due to currency
+            # conversion. We record it on the bank statement account move.
+            if context.get('bs_move_id'):
+                writeoff_move_id = context['bs_move_id']
+                for l in writeoff_lines:
+                    self.create(cr, uid, dict(l[2], move_id=writeoff_move_id), dict(context, novalidate=True))
+                if not move_obj.validate(cr, uid, writeoff_move_id, context=context):
+                    raise osv.except_osv(_('Error!'), _('You cannot validate a non-balanced entry.'))
+            else:
+                writeoff_move_id = move_obj.create(cr, uid, {
+                    'period_id': writeoff_period_id,
+                    'journal_id': writeoff_journal_id,
+                    'date':date,
+                    'state': 'draft',
+                    'line_id': writeoff_lines
+                })
+
+            writeoff_line_ids = self.search(cr, uid, [('move_id', '=', writeoff_move_id), ('account_id', '=', account_id)])
+            if account_id == writeoff_acc_id:
+                writeoff_line_ids = [writeoff_line_ids[1]]
+            ids += writeoff_line_ids
+
+        # marking the lines as reconciled does not change their validity, so there is no need
+        # to revalidate their moves completely.
+        reconcile_context = dict(context, novalidate=True)
+        r_id = move_rec_obj.create(cr, uid, {'type': type}, context=reconcile_context)
+        self.write(cr, uid, ids, {'reconcile_id': r_id, 'reconcile_partial_id': False}, context=reconcile_context)
+
+        # the id of the move.reconcile is written in the move.line (self) by the create method above
+        # because of the way the line_id are defined: (4, x, False)
+        for id in ids:
+            workflow.trg_trigger(uid, 'account.move.line', id, cr)
+
+        if lines and lines[0]:
+            partner_id = lines[0].partner_id and lines[0].partner_id.id or False
+            if partner_id and not partner_obj.has_something_to_reconcile(cr, uid, partner_id, context=context):
+                partner_obj.mark_as_reconciled(cr, uid, [partner_id], context=context)
+        return r_id
 
 class account_tax_chart(osv.osv_memory):
     _inherit = "account.tax.chart"
