@@ -15,6 +15,7 @@
                     <field name="tag_id" string="Tag" />
                     <field name="date_from" string="From" />
                     <field name="date_to" string="To" />
+                    <field name="date_vat_period" string="Date Vat Period" />
                 </tree>
             </field>
         </record>
@@ -35,6 +36,7 @@
                             <field name="tag_id">Tag</field>
                             <field name="date_from">From</field>
                             <field name="date_to">To</field>
+                            <field name="date_vat_period">Date Vat Period</field>
                         </group>
                     </sheet>
                 </form>
