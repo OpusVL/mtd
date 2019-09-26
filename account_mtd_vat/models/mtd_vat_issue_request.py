@@ -586,6 +586,8 @@ class MtdVatIssueRequest(models.Model):
         # 'move_id': account_move_id
         return move_line_id
 
+    # _check_reconcile_validity that checks if account are set as reconciled is outside base function
+    # auto_reconcile_lines and check_full_reconcile, so no need to change the base functions
     def autoreconcile_tax_records(self, account_id, move_line_id, move_lines_for_period):
         move_line_account_id = []
         move_line_account_id.append(move_line_id.id)
@@ -593,13 +595,10 @@ class MtdVatIssueRequest(models.Model):
         for line in move_lines_for_period:
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
-        context = self._context.copy()
-        context['reconciliation_allowed_on_all_accounts'] = True
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
-        line_ids.with_context(context).auto_reconcile_lines()
-        line_ids.with_context(context).check_full_reconcile()
-
+        line_ids.auto_reconcile_lines()
+        line_ids.check_full_reconcile()
 
 
 class RetrievePeriodId(models.Model):

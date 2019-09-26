@@ -14,3 +14,4 @@ class AccountMoveLine(models.Model):
         store=True,
         readonly=True
     )
+    date_vat_period = fields.Date(string='Date Vat Period')
