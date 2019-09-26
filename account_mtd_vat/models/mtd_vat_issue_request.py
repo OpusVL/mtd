@@ -603,20 +603,14 @@ class MtdVatIssueRequest(models.Model):
     def autoreconcile_tax_records(self, account_id, move_line_id, move_lines_for_period, period_id):
 
         account_move_line_obj = self.pool.get('account.move.line')
-        move_line_account_id = []
-        move_line_account_id.append(move_line_id.id)
+        move_line_account_id = [move_line_id.id]
         for line in move_lines_for_period:
             if line.account_id.id == account_id:
                 move_line_account_id.append(line.id)
 
         account_id = False
         journal_id = False
-        context = None
-        context = {}
-        # active_ids are the ones that would have been ticked in the GUI
-        context['active_ids'] = move_line_account_id
-        context['reconciliation_allowed_on_all_accounts'] = True
-        account_move_line_obj.reconcile(self._cr, self._uid, move_line_account_id, 'manual', account_id, period_id, journal_id, context=context)
+        account_move_line_obj.mtd_reconcile(self._cr, self._uid, move_line_account_id, 'manual', account_id, period_id, journal_id)
 
 
 class RetrievePeriodId(models.Model):
