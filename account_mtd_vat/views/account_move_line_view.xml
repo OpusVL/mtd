@@ -11,6 +11,9 @@
                     <field name="vat_submission_id" invisible="1"/>
                     <field name="unique_number"/>
                 </field>
+                <field name="date_maturity" position="after">
+                    <field name="date_vat_period" invisible="1"/>
+                </field>
             </field>
         </record>
 
@@ -24,6 +27,7 @@
                     <field name="vat"/>
                     <field name="unique_number"/>
                     <field name="vat_submission_id"/>
+                    <field name="date_vat_period"/>
                 </field>
             </field>
         </record>

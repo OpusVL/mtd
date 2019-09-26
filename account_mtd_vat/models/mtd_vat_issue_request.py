@@ -297,7 +297,7 @@ class MtdVatIssueRequest(models.Model):
         journal_item_ids = self.env['mtd_vat.vat_endpoints'].get_journal_item_ids_from_calculation_table(
             record.date_from,
             record.date_to,
-            record.company_id
+            record.company_id,
         )
         move_lines_to_copy = self.env['account.move.line'].search([
             ('id', 'in', journal_item_ids)])
@@ -596,8 +596,8 @@ class MtdVatIssueRequest(models.Model):
         context['reconciliation_allowed_on_all_accounts'] = True
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
-        line_ids.with_context(context).reconcile()
-        line_ids.with_context(context).compute_full_after_batch_reconcile()
+        line_ids.mtd_reconcile()
+        line_ids.compute_full_after_batch_reconcile()
 
 
 class RetrievePeriodId(models.Model):
