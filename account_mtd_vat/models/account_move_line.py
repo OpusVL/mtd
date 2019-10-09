@@ -10,11 +10,6 @@ from openerp import exceptions
 import time
 from datetime import datetime
 
-import sys
-sys.path.append("/mnt/pycharm-debug")
-import pydevd_pycharm
-pydevd_pycharm.settrace('10.10.4.172', port=21355, suspend=False)
-
 
 class account_move_line(osv.osv):
     _inherit = "account.move.line"
