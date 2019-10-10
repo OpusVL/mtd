@@ -8,6 +8,7 @@ from openerp import models, fields, api, workflow, _
 from openerp.osv import fields, osv
 from openerp import exceptions
 import time
+from datetime import datetime
 
 
 class account_move_line(osv.osv):
@@ -229,10 +230,7 @@ class account_tax_chart(osv.osv_memory):
         result = super(account_tax_chart, self).account_tax_chart_open_window(cr, uid, ids, context=context)
         # Get the record to access the information provided by the user
         data = self.browse(cr, uid, ids, context=context)[0]
-        period_ids = [data.period_id.id]
-        fiscalyear_ids = [data.period_id.fiscalyear_id.id]
         date_from = data.date_from
-
         if data.previous_period == 'yes':
             cutoff_date_rec = self.pool.get('mtd_vat.hmrc_posting_configuration').search(cr, uid, [
                 ('name', '=', data.period_id.company_id.id)])
@@ -244,16 +242,20 @@ class account_tax_chart(osv.osv_memory):
                     context=context).cutoff_date
             else:
                 raise exceptions.Warning(
-                    "Chart of Taxes can not be generated!\nPlease create HMRC Posting Templae record first \n" +
-                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC " +
+                    "Chart of Taxes can not be generated!\nPlease create HMRC Posting Template record first \n" +
+                    "HMRC Posting Template can be generated from 'Accounting/Configuration/Miscellaneous/HMRC " +
                     "Posting Template' "
                 )
-            fiscalyear_ids = []
-            for period in period_ids:
-                fiscalyear_id = self.pool.get('account.period').browse(cr, uid, period).fiscalyear_id.id
-                if fiscalyear_id not in fiscalyear_ids:
-                    fiscalyear_ids.append(fiscalyear_id)
-
+        period_from = self.pool.get('account.period').find(cr, uid, date_from, context=context)
+        period_from = period_from and period_from[0] or False
+        period_to = self.pool.get('account.period').find(cr, uid, data.date_to, context=context)
+        period_to = period_to and period_to[0] or False
+        period_ids = self.pool.get('account.period').build_ctx_periods(cr, uid, period_from, period_to)
+        fiscalyear_ids = []
+        for period in period_ids:
+            fiscalyear_id = self.pool.get('account.period').browse(cr, uid, period).fiscalyear_id.id
+            if fiscalyear_id not in fiscalyear_ids:
+                fiscalyear_ids.append(fiscalyear_id)
         context = result['context']
         new_context = ast.literal_eval(context)
         new_context['company_id'] = data.company_id.id
@@ -263,7 +265,10 @@ class account_tax_chart(osv.osv_memory):
         new_context['vat'] = data.vat_posted
         new_context['fiscalyear_id'] = fiscalyear_ids
         result['context'] = new_context
-
+        if 'name' in result:
+            result['name'] = 'Chart of Taxes' + ':' \
+                             + datetime.strptime(date_from, '%Y-%m-%d').strftime('%d-%m-%y') + ' - ' +\
+                             datetime.strptime(data.date_to, '%Y-%m-%d').strftime('%d-%m-%y')
         return result
 
 
