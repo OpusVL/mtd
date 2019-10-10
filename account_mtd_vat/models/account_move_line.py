@@ -243,7 +243,7 @@ class account_tax_chart(osv.osv_memory):
             else:
                 raise exceptions.Warning(
                     "Chart of Taxes can not be generated!\nPlease create HMRC Posting Template record first \n" +
-                    "HMRC Posting Tempale can be generated from 'Accounting/Configuration/Miscellaneous/HMRC " +
+                    "HMRC Posting Template can be generated from 'Accounting/Configuration/Miscellaneous/HMRC " +
                     "Posting Template' "
                 )
         period_from = self.pool.get('account.period').find(cr, uid, date_from, context=context)
