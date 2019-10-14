@@ -138,7 +138,10 @@ class MtdVatIssueRequest(models.Model):
             return True
 
     def handle_request_response(self, response, record=None, url=None, api_token_record=None, api_tracker=None):
-        response_token = json.loads(response.text)
+        if response.text:
+            response_token = json.loads(response.text)
+        elif response.status_code == 404:
+            response_token = {}
         if api_tracker:
             action = api_tracker.action
             menu_id = api_tracker.menu_id
@@ -176,7 +179,19 @@ class MtdVatIssueRequest(models.Model):
             #record.show_obligation_link = False
             record.view_vat_flag=False
             return self.env['mtd.refresh_authorisation'].refresh_user_authorisation(record, api_token_record)
-
+        elif response.status_code == 404:
+            response_token['message'] = "The remote endpoint has indicated that no associated data is found"
+            _logger.info(
+                "json_command - code 404 found, user button clicked,  " +
+                "and message was:- {} ".format(response_token['message'])
+            )
+            record.view_vat_flag = False
+            error_message = self.env['mtd.display_message'].construct_error_message_to_display(
+                url=url,
+                code=response.status_code,
+                response_token=response_token
+            )
+            record.response_from_hmrc = error_message
         else:
             #record.show_obligation_link = False
             record.view_vat_flag = False
@@ -193,7 +208,7 @@ class MtdVatIssueRequest(models.Model):
                     "/web#id={id}&view_type=form&model={model}&".format(id=record.id, model=module_name) +
                     '&menu_id={menu}&action={action}'.format(menu=menu_id, action=action)
                 )
-            return True
+        return True
 
     def process_successful_response(self, record=None, api_tracker=None):
         if api_tracker:
