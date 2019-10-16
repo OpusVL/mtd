@@ -150,6 +150,7 @@ class MtdVATEndpoints(models.Model):
 
     # submit vat fields
     submit_vat_flag = fields.Boolean(default=False)
+    submit_vat_ok_response = fields.Boolean(default=False)
     period_key_submit = fields.Char(related='select_vat_obligation.period_key', readonly=True)
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), default=0.00)
     vat_due_acquisitions_submit = fields.Float(
@@ -231,6 +232,7 @@ class MtdVATEndpoints(models.Model):
     def onchange_reset_fields(self):
         self.submit_vat_flag = False
         self.view_vat_flag = False
+        self.submit_vat_ok_response = False
         self.finalise = False
         self.show_response_flag = False
 
@@ -267,6 +269,7 @@ class MtdVATEndpoints(models.Model):
                 raise exceptions.Warning("Please select a vat obligation to submit a return")
 
         self.show_response_flag = False
+        self.submit_vat_ok_response = False
         request_handler = {
             "mtd_vat_obligations_endpoint": "_handle_vat_obligations_endpoint",
             "mtd_vat_liabilities_endpoint": "_handle_vat_liabilities_endpoint",
@@ -296,7 +299,7 @@ class MtdVATEndpoints(models.Model):
             date_to=self.date_to,
             target_move='posted',
             previous_period=self.previous_period,
-            vat_posted='posted' if self.show_response_flag else 'unposted',
+            vat_posted='posted' if self.submit_vat_ok_response else 'unposted',
             company_id=self.company_id.id))
 
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()

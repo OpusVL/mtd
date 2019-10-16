@@ -165,6 +165,7 @@ class MtdVatIssueRequest(models.Model):
                 self.display_view_returns(response, record)
             elif record.endpoint_name == "submit-vat-returns":
                 record.submit_vat_flag=True
+                record.submit_vat_ok_response = True
                 self.notify_submit_vat_returns_success(endpoint_record=record)
                 self.add_submit_vat_returns(response, record)
             return self.process_successful_response(record, api_tracker)
