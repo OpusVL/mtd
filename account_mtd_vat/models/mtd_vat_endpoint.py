@@ -83,8 +83,8 @@ class MtdVATEndpoints(models.Model):
     @api.depends('company_id', 'name')
     def _compute_obligation_status_company(self):
         self.obligation_company = self.company_id.id
-        if self.name in ('View VAT Returns', 'Submit VAT Return'):
-            self.obligation_status = 'O' if self.name == 'Submit VAT Return' else 'F'
+        if self.name in ('View VAT Returns', 'Submit a VAT Return'):
+            self.obligation_status = 'O' if self.name == 'Submit a VAT Return' else 'F'
 
         self.env['mtd_vat.vat_obligations_logs'].search([
             ('status', '=', self.obligation_status),
@@ -150,6 +150,7 @@ class MtdVATEndpoints(models.Model):
 
     # submit vat fields
     submit_vat_flag = fields.Boolean(default=False)
+    submit_vat_ok_response = fields.Boolean(default=False)
     period_key_submit = fields.Char(related='select_vat_obligation.period_key', readonly=True)
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), default=0.00)
     vat_due_acquisitions_submit = fields.Float(
@@ -210,7 +211,7 @@ class MtdVATEndpoints(models.Model):
         readonly=True,
         default=(
             "Please review your VAT summary above. When you are satisfied it is correct, tick 'I confirm and finalise' "
-            + "and then click 'Submit VAT return.")
+            + "and then click 'Submit a VAT Return.")
     )
     finalise = fields.Boolean(string="I confirm and finalise", default=False)
     triggered_onchange = fields.Boolean(string="I confirm and finalise", default=False)
@@ -224,13 +225,14 @@ class MtdVATEndpoints(models.Model):
 
     @api.onchange('company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_vat_obligation(self):
-        if self.name in ("Submit VAt Return", "View VAT Returns"):
+        if self.name in ("Submit a VAT Return", "View VAT Returns"):
             self.select_vat_obligation = ""
 
     @api.onchange('select_vat_obligation', 'company_id', 'gov_test_scenario', 'hmrc_configuration')
     def onchange_reset_fields(self):
         self.submit_vat_flag = False
         self.view_vat_flag = False
+        self.submit_vat_ok_response = False
         self.finalise = False
         self.show_response_flag = False
 
@@ -240,7 +242,7 @@ class MtdVATEndpoints(models.Model):
 
         self.response_from_hmrc = ""
 
-        if self.name == "Submit VAT Return":
+        if self.name == "Submit a VAT Return":
             self.reset_vat_submission_values()
 
         elif self.name == "View VAT Returns":
@@ -254,7 +256,7 @@ class MtdVATEndpoints(models.Model):
             raise exceptions.Warning("Please enter the VRN")
         elif not self.company_id:
             raise exceptions.Warning("Please select a company before continuing!")
-        if self.name in ("Submit VAT Return", "View VAT Returns") and not self.select_vat_obligation:
+        if self.name in ("Submit a VAT Return", "View VAT Returns") and not self.select_vat_obligation:
             raise exceptions.Warning("Please select a VAT Obligation")
 
         endpoint_record = self.env['ir.model.data'].search([
@@ -266,6 +268,8 @@ class MtdVATEndpoints(models.Model):
             if not self.select_vat_obligation:
                 raise exceptions.Warning("Please select a vat obligation to submit a return")
 
+        self.show_response_flag = False
+        self.submit_vat_ok_response = False
         request_handler = {
             "mtd_vat_obligations_endpoint": "_handle_vat_obligations_endpoint",
             "mtd_vat_liabilities_endpoint": "_handle_vat_liabilities_endpoint",
@@ -295,7 +299,7 @@ class MtdVATEndpoints(models.Model):
             date_to=self.date_to,
             target_move='posted',
             previous_period=self.previous_period,
-            vat_posted='unposted',
+            vat_posted='posted' if self.submit_vat_ok_response else 'unposted',
             company_id=self.company_id.id))
 
         chart_of_taxes_view = wizard_rec.account_tax_chart_open_window()
