@@ -13,7 +13,6 @@ class MtdRefreshAuthorisation(models.Model):
     _name = 'mtd.refresh_authorisation'
     _description = "Refreshing user authorisation  step - 4"
 
-    @api.multi
     def refresh_user_authorisation(self, record=None, token_record=None):
 
         api_token = self.env['mtd.api_tokens'].search([

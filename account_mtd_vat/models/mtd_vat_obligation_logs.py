@@ -26,6 +26,5 @@ class MtdVATObligationLogs(models.Model):
         # status after submission
     )
 
-    @api.multi
     def is_fulfilled(self):
         return self.status == 'F'

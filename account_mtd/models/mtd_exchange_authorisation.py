@@ -15,7 +15,6 @@ class MtdExchangeAuthorisation(models.Model):
     _name = 'mtd.exchange_authorisation'
     _description = "Exchange user authorisation step - 2 "
 
-    @api.multi
     def exchange_user_authorisation(self, auth_code, record_id, tracker_id, company_id):
 
         _logger.info("(Step 2) exchange authorisation code")

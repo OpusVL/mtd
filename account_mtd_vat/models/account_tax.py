@@ -16,7 +16,6 @@ class MtdAccountTaxCode(osv.osv):
         ('PTM', 'PTM')
     ], string="UK VAT Scope")
 
-    @api.model
     def _update_vat_tax_scope(self):
         account_tax_obj = self.env['account.tax'].search([])
 

@@ -15,7 +15,6 @@ class AccountMoveLine(models.Model):
     )
     date_vat_period = fields.Date(string='Date Vat Period')
 
-    @api.multi
     def mtd_reconcile(self, writeoff_acc_id=False, writeoff_journal_id=False):
         # Empty self can happen if the user tries to reconcile entries which are already reconciled.
         # The calling method might have filtered out reconciled lines.
