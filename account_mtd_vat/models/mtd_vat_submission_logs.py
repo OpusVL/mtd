@@ -75,7 +75,6 @@ class MtdVATSubmissionLogs(models.Model):
     ])
     md5_integrity_value = fields.Char(string="Checksum", readonly=True)
 
-    @api.multi
     def action_Detailed_submission_Log_view(self, *args):
 
         return {
@@ -87,7 +86,6 @@ class MtdVATSubmissionLogs(models.Model):
              'domain': "[('unique_number', '=', '{}')]".format(self.unique_number)
          }
 
-    @api.one
     @api.depends('response_text')
     def _compute_response_fields(self):
         response = self.response_text

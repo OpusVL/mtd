@@ -260,7 +260,6 @@ class MtdVATEndpoints(models.Model):
         elif self.name == "View VAT Returns":
             self.reset_view_vat_returns_values()
 
-    @api.multi
     def action_vat_connection(self):
         if not self.hmrc_configuration:
             raise exceptions.Warning("Please select HMRC configuration before continuing!")
@@ -295,7 +294,6 @@ class MtdVATEndpoints(models.Model):
         else:
             raise exceptions.Warning("Could not connect to HMRC! \nThis is not a valid HMRC service connection")
 
-    @api.multi
     def action_vat_breakdown(self, *args):
         # get period Ids'
 
@@ -328,7 +326,6 @@ class MtdVATEndpoints(models.Model):
                     journal_ids.append(int(id))
         return journal_ids
 
-    @api.multi
     def action_retrieve_vat(self, *args):
         if not self.company_id:
             raise exceptions.Warning("Please select a company before continuing!")
@@ -479,7 +476,6 @@ class MtdVATEndpoints(models.Model):
         else:
             return self.env['mtd.user_authorisation'].get_user_authorisation(self._name, self)
 
-    @api.one
     def handle_user_authorisation_error(self, record):
         # The user authorisation failed therfore we need to handle the display of the response by setting the flags
         # so that the response is displaed tot he user.

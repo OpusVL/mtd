@@ -26,7 +26,6 @@ class MtdHelloWorld(models.Model):
     company_id = fields.Many2one(comodel_name="res.company", string="Company")
     vrn = fields.Char(related="company_id.vat", string="VAT Number", readonly=True)
 
-    @api.multi
     def action_hello_world_connection(self):
         if not self.hmrc_configuration:
             raise exceptions.Warning("Please select HMRC configuration before continuing!")

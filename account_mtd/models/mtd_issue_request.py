@@ -15,7 +15,6 @@ class MtdIssueRequest(models.Model):
     _name = 'mtd.issue_request'
     _description = "issues connection request step - 3"
 
-    @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
         try:
             record = self.env[module_name].search([('id', '=', record_id)])

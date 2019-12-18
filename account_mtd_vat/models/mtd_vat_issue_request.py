@@ -57,7 +57,6 @@ class MtdVatIssueRequest(models.Model):
     _name = 'mtd_vat.issue_request'
     _description = "VAT issues connection request step - 3"
 
-    @api.multi
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
         # TODO command not used?
         try:
