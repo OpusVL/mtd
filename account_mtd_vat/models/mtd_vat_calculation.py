@@ -102,7 +102,7 @@ class VatCalculation(models.Model):
 
     def calculate_originator_taxcode_balance(self, tax_code_record, date_from, date_to,
                                              company_id, date_vat_period, vat_posted):
-        tax_tag_name = tax_code_record.description.name
+        tax_tag_name = tax_code_record.description
         uk_tax_scope = tax_code_record.vat_tax_scope
 
         move_lines_for_tax = self.env['account.move.line'].search([
@@ -147,7 +147,7 @@ class VatCalculation(models.Model):
     def calculate_taxes_taxcode_balance(self, tax_code_record, date_from, date_to,
                                         company_id, date_vat_period, vat_posted):
 
-        tax_tag_name = tax_code_record.description.name
+        tax_tag_name = tax_code_record.description
         uk_tax_scope = tax_code_record.vat_tax_scope
 
         move_lines_for_tax = self.env['account.move.line'].search([

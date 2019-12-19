@@ -552,7 +552,7 @@ class MtdVatIssueRequest(models.Model):
         move_line_ids.append(liability_move_line.id)
 
         # Validate the account once the journal items have been created.
-        account_move_id._post_validate()
+        account_move_id.action_post()
         # update the state of Journal entry to posted.
         account_move_id.state = 'posted'
 
@@ -597,7 +597,6 @@ class MtdVatIssueRequest(models.Model):
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
         line_ids.mtd_reconcile()
-        line_ids.force_full_reconcile()
 
 
 class RetrievePeriodId(models.Model):
