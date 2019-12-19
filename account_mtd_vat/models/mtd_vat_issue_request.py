@@ -15,41 +15,46 @@ from urllib.parse import urlparse
 _logger = logging.getLogger(__name__)
 
 detailed_submission_list = [
-    'statement_id',
-    'create_date',
-    'company_id',
-    'currency_id',
-    'date_maturity',
-    'partner_id',
-    'reconcile_partial_id',
-    'blocked',
+    'account_move_line_id',
+    'account_id',
+    'account_internal_type',
+    'account_root_id',
+    'amount_currency',
     'analytic_account_id',
+    'blocked',
+    'company_currency_id',
+    'company_id',
+    'country_id',
+    'create_date',
     'create_uid',
     'credit',
-    'centralisation',
-    'journal_id',
-    'reconcile_id',
-    'tax_code_id',
-    'state',
-    'debit',
-    'ref',
-    'account_id',
-    'period_id',
-    'write_date',
-    'date_created',
+    'currency_id',
     'date',
-    'write_uid',
+    'date_maturity',
+    'date_vat_period',
+    'debit',
+    'discount',
+    'display_type',
+    'full_reconcile_id',
+    'journal_id',
     'move_id',
-    'product_id',
-    'reconcile_ref',
+    'move_name',
     'name',
-    'tax_amount',
-    'account_tax_id',
+    'parent_state',
+    'partner_id',
+    'price_unit',
+    'product_id',
     'product_uom_id',
-    'amount_currency',
     'quantity',
-    'unique_number',
-    'account_move_line_id'
+    'ref',
+    'sequence',
+    'tax_audit',
+    'tax_base_amount',
+    'tax_exigible',
+    'tax_line_id',
+    'tax_group_id',
+    'tax_repartition_line_id',
+    'unique_number'
 ]
 
 
@@ -311,7 +316,8 @@ class MtdVatIssueRequest(models.Model):
             for k, v in move_line.items():
                 if type(v) == tuple:
                     amended_move_line[k] = v[0]  # Handle Many2ones
-
+                if k not in storage_model:
+                    del amended_move_line[k]
             stored_record = storage_model.search([('account_move_line_id', '=', move_line.get('id'))])
             if not stored_record:
                 storage_model.create(amended_move_line)
@@ -492,8 +498,9 @@ class MtdVatIssueRequest(models.Model):
         hmrc_posting_config = self.env['mtd_vat.hmrc_posting_configuration'].search([
             ('name', '=', record.company_id.id)])
 
+        seq = self.env['ir.sequence'].next_by_code('account.move.submission') or '/'
         account_move_id = account_move.create({
-            'name': 'HMRC VAT Submission',
+            'name': seq,
             'ref': 'HMRC VAT Submission',
             'date': submission_log.processing_date,
             'journal_id': hmrc_posting_config.journal_id.id

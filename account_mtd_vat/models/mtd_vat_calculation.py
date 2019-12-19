@@ -31,7 +31,7 @@ class VatCalculation(models.Model):
                                                                               ('company_id', '=', company.id)])
 
         # box 1 calculations
-        box1_tag_list = ['ST11', 'ST1']
+        box1_tag_list = ['ST11', 'ST1', 'STM']
         box1_calculation_rows = self.retrieve_calculation_rows(calculation_table, box1_tag_list)
         box1_vat = self.retrieve_sum_value_for_originator_tax(box1_calculation_rows)
 
@@ -52,7 +52,7 @@ class VatCalculation(models.Model):
         box5_vat = (box3_vat - box4_vat)
 
         # box6 calculations
-        box6_tag_list = ['ST11', 'ST2', 'ST1', 'ST0', 'ST4']
+        box6_tag_list = ['ST11', 'ST2', 'ST1', 'ST0', 'ST4', 'STM']
         box6_calculation_rows = self.retrieve_calculation_rows(calculation_table, box6_tag_list)
         box6_vat = self.retrieve_sum_value_for_taxes(box6_calculation_rows)
 
