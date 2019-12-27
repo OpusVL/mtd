@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class VatCalculation(models.Model):
     _name = 'mtd_vat.vat_calculation'
+    _description = 'MTD Vat Calculation Class'
 
     def retrieve_account_move_lines_for_vat_calculation(self, company, date_from, date_to,
                                                         date_vat_period, vat_posted):

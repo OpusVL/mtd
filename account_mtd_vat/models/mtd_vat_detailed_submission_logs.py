@@ -49,7 +49,7 @@ class MtdVATDetailedSubmissionLogs(models.Model):
     partner_id = fields.Many2one('res.partner', string='Partner', readonly=True)
     price_unit = fields.Float(string='Unit Price', digits='Product Price')
     product_id = fields.Many2one('product.product', string='Product', readonly=True)
-    product_uom_id = fields.Many2one('product.uom', string='Unit of Measure', readonly=True)
+    product_uom_id = fields.Many2one('uom.uom', string='Unit of Measure', readonly=True)
     quantity = fields.Float(digits=(16, 2), readonly=True)
     ref = fields.Char(readonly=True)
     sequence = fields.Integer(readonly=True)

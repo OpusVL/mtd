@@ -608,6 +608,7 @@ class MtdVatIssueRequest(models.Model):
 
 class RetrievePeriodId(models.Model):
     _name = 'mtd_vat.retrieve_period_id'
+    _description = 'Retrieve Periods'
 
 
     def retrieve_period(self, record):

@@ -13,6 +13,7 @@ _logger = logging.getLogger(__name__)
 
 class GovTestScenario(models.Model):
     _name = 'gov.test.scenario'
+    _description = 'Test Scenario'
 
     name = fields.Char()
     mtd_vat_obligations_endpoint = fields.Boolean()
