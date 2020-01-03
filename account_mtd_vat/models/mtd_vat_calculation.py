@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 
 class VatCalculation(models.Model):
     _name = 'mtd_vat.vat_calculation'
+    _description = 'MTD Vat Calculation Class'
 
     def retrieve_account_move_lines_for_vat_calculation(self, company, date_from, date_to,
                                                         date_vat_period, vat_posted):
@@ -31,7 +32,7 @@ class VatCalculation(models.Model):
                                                                               ('company_id', '=', company.id)])
 
         # box 1 calculations
-        box1_tag_list = ['ST11', 'ST1']
+        box1_tag_list = ['ST11', 'ST1', 'STM']
         box1_calculation_rows = self.retrieve_calculation_rows(calculation_table, box1_tag_list)
         box1_vat = self.retrieve_sum_value_for_originator_tax(box1_calculation_rows)
 
@@ -52,7 +53,7 @@ class VatCalculation(models.Model):
         box5_vat = (box3_vat - box4_vat)
 
         # box6 calculations
-        box6_tag_list = ['ST11', 'ST2', 'ST1', 'ST0', 'ST4']
+        box6_tag_list = ['ST11', 'ST2', 'ST1', 'ST0', 'ST4', 'STM']
         box6_calculation_rows = self.retrieve_calculation_rows(calculation_table, box6_tag_list)
         box6_vat = self.retrieve_sum_value_for_taxes(box6_calculation_rows)
 
@@ -102,7 +103,7 @@ class VatCalculation(models.Model):
 
     def calculate_originator_taxcode_balance(self, tax_code_record, date_from, date_to,
                                              company_id, date_vat_period, vat_posted):
-        tax_tag_name = tax_code_record.description.name
+        tax_tag_name = tax_code_record.description
         uk_tax_scope = tax_code_record.vat_tax_scope
 
         move_lines_for_tax = self.env['account.move.line'].search([
@@ -147,7 +148,7 @@ class VatCalculation(models.Model):
     def calculate_taxes_taxcode_balance(self, tax_code_record, date_from, date_to,
                                         company_id, date_vat_period, vat_posted):
 
-        tax_tag_name = tax_code_record.description.name
+        tax_tag_name = tax_code_record.description
         uk_tax_scope = tax_code_record.vat_tax_scope
 
         move_lines_for_tax = self.env['account.move.line'].search([

@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 class VatCalculationTable(models.Model):
     _name = 'mtd_vat.vat_calculation_table'
+    _description = 'MTD Vat Calculation Table'
 
     name = fields.Char(string="Originator Tax Display Name")
     taxes = fields.Char(string="Taxes Display Name")

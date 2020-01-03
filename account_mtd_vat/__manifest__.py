@@ -38,6 +38,7 @@
     'data': [
         'data/account_tax_scope.xml',
         'data/vat_api_scope.xml',
+        'data/ir_sequence_data.xml',
 
         'security/groups.xml',
         'security/ir.model.access.csv',
