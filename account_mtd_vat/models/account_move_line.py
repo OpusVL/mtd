@@ -21,7 +21,7 @@ class AccountMoveLine(models.Model):
         # Empty self can happen if the user tries to reconcile entries which are already reconciled.
         # The calling method might have filtered out reconciled lines.
         if not self:
-            return
+            return False
         #reconcile everything that can be
         remaining_moves = self.auto_reconcile_lines()
 
