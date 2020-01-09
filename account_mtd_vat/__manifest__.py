@@ -33,7 +33,6 @@
     ],
     'depends': [
         'account_mtd',
-        'l10n_uk',
     ],
     'data': [
         'data/account_tax_scope.xml',
