@@ -45,7 +45,7 @@ class VatCalculation(models.Model):
         box3_vat = (box1_vat + box2_vat)
 
         # box 4 calculations
-        box4_tag_list = ['PT11', 'PT5', 'PT1', 'PT8R']
+        box4_tag_list = ['PT11', 'PT5', 'PT1', 'PT8R', 'PT8M']
         box4_calculation_rows = self.retrieve_calculation_rows(calculation_table, box4_tag_list)
         box4_vat = self.retrieve_sum_value_for_originator_tax(box4_calculation_rows)
 
@@ -58,7 +58,7 @@ class VatCalculation(models.Model):
         box6_vat = self.retrieve_sum_value_for_taxes(box6_calculation_rows)
 
         # box7 calculations
-        box7_tag_list = ['PT11', 'PT5', 'PT2', 'PT1', 'PT0', 'PT7', 'PT8']
+        box7_tag_list = ['PT11', 'PT5', 'PT2', 'PT1', 'PT0', 'PT7', 'PT8', 'PT8M']
         box7_calculation_rows = self.retrieve_calculation_rows(calculation_table, box7_tag_list)
         box7_vat = self.retrieve_sum_value_for_taxes(box7_calculation_rows)
 
@@ -68,7 +68,7 @@ class VatCalculation(models.Model):
         box8_vat = self.retrieve_sum_value_for_taxes(box8_calculation_rows)
 
         # box9 calculations
-        box9_tag_list = ['PT7', 'PT8']
+        box9_tag_list = ['PT7', 'PT8', 'PT8M']
         box9_calculation_rows = self.retrieve_calculation_rows(calculation_table, box9_tag_list)
         box9_vat = self.retrieve_sum_value_for_taxes(box9_calculation_rows)
 
@@ -111,20 +111,26 @@ class VatCalculation(models.Model):
             ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted),
-            ('tax_line_id.id', '=', tax_code_record.id)])
+            ('parent_state', '=', 'posted'),
+            ('tax_line_id', '=', tax_code_record.id)])
 
         line_ids = []
-        credit = []
-        debit = []
+        credits = []
+        debits = []
         for record in move_lines_for_tax:
-
+            if tax_tag_name == 'PT8M':
+                if record.move_id.type == 'in_refund':
+                    credits.append(record.credit)
+                else:
+                    debits.append(record.debit)
+            else:
+                credits.append(record.credit)
+                debits.append(record.debit)
             line_ids.append(record.id)
-            credit.append(record.credit)
-            debit.append(record.debit)
             record.write({'date_vat_period': date_vat_period})
 
-        sum_debit = sum(debit)
-        sum_credit = sum(credit)
+        sum_debit = sum(debits)
+        sum_credit = sum(credits)
         balance = 0
         if uk_tax_scope in ['ST', 'PTR']:
             balance = (sum_credit - sum_debit)
@@ -155,20 +161,21 @@ class VatCalculation(models.Model):
             ('company_id', '=', company_id),
             ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
+            ('parent_state', '=', 'posted'),
             ('vat', '=', vat_posted),
-            ('tax_ids.id', '=', tax_code_record.id)])
+            ('tax_ids', '=', tax_code_record.id)])
 
         line_ids = []
-        credit = []
-        debit = []
+        credits = []
+        debits = []
         for record in move_lines_for_tax:
             line_ids.append(record.id)
-            credit.append(record.credit)
-            debit.append(record.debit)
+            credits.append(record.credit)
+            debits.append(record.debit)
             record.write({'date_vat_period': date_vat_period})
 
-        sum_debit = sum(debit)
-        sum_credit = sum(credit)
+        sum_debit = sum(debits)
+        sum_credit = sum(credits)
         balance = 0
         if uk_tax_scope in ['ST', 'PTR']:
             balance = (sum_credit - sum_debit)
