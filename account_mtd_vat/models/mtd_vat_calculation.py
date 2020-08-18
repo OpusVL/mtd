@@ -115,22 +115,22 @@ class VatCalculation(models.Model):
             ('tax_line_id', '=', tax_code_record.id)])
 
         line_ids = []
-        credit = []
-        debit = []
+        credits = []
+        debits = []
         for record in move_lines_for_tax:
             if tax_tag_name == 'PT8M':
                 if record.move_id.type == 'in_refund':
-                    credit.append(record.credit)
+                    credits.append(record.credit)
                 else:
-                    debit.append(record.debit)
+                    debits.append(record.debit)
             else:
-                credit.append(record.credit)
-                debit.append(record.debit)
+                credits.append(record.credit)
+                debits.append(record.debit)
             line_ids.append(record.id)
             record.write({'date_vat_period': date_vat_period})
 
-        sum_debit = sum(debit)
-        sum_credit = sum(credit)
+        sum_debit = sum(debits)
+        sum_credit = sum(credits)
         balance = 0
         if uk_tax_scope in ['ST', 'PTR']:
             balance = (sum_credit - sum_debit)
@@ -166,16 +166,16 @@ class VatCalculation(models.Model):
             ('tax_ids', '=', tax_code_record.id)])
 
         line_ids = []
-        credit = []
-        debit = []
+        credits = []
+        debits = []
         for record in move_lines_for_tax:
             line_ids.append(record.id)
-            credit.append(record.credit)
-            debit.append(record.debit)
+            credits.append(record.credit)
+            debits.append(record.debit)
             record.write({'date_vat_period': date_vat_period})
 
-        sum_debit = sum(debit)
-        sum_credit = sum(credit)
+        sum_debit = sum(debits)
+        sum_credit = sum(credits)
         balance = 0
         if uk_tax_scope in ['ST', 'PTR']:
             balance = (sum_credit - sum_debit)
