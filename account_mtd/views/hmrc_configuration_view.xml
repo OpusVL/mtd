@@ -12,7 +12,6 @@
                         <group>
                             <field name="name" />
                             <field name="environment" widget="radio" />
-                            <field name="server_token"/>
                             <field name="client_id" />
                             <field name="client_secret" />
                             <field name="hmrc_url" />
