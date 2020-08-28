@@ -55,6 +55,7 @@
 
     ],
     'demo': [
+        'demo/account_invoice.xml',
     ],
     'test': [
     ],

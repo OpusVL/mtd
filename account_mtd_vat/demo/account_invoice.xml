@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<openerp>
+    <data noupdate="1">
+
+        <!-- Customer Invoice 1 with 50% discount-->
+        <record id="customer_invoice_1" model="account.invoice">
+            <field name="partner_id" ref="base.res_partner_8"/>
+            <field name="date_invoice">2017-02-01</field>
+            <field name="journal_id" model="account.journal" search="[('code', '=', 'SAJ')]"/>
+            <field name="account_id" model="account.account" search="[('code', '=', '110000')]"/>
+            <field name="date_due">2017-02-01</field>
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="type">out_invoice</field>
+            <field name="state">draft</field>
+        </record>
+        <record id="customer_invoice_1_line_1" model="account.invoice.line">
+            <field name="invoice_id" ref="customer_invoice_1"/>
+            <field name="account_id" model="account.account" search="[('code', '=', '400000')]"/>
+            <field name="uos_id" ref="product.product_uom_unit"/>
+            <field name="quantity" eval="1.0" />
+            <field name="price_unit" eval="320.0" />
+            <field name="price_subtotal" eval="320.0" />
+            <field name="discount" eval="50"/>
+            <field name="name">iPad Mini</field>
+            <field name="product_id" ref="product.product_product_6"/>
+            <field name="invoice_line_tax_id" model="account.tax" search="[('description', '=', 'ST11')]"/>
+        </record>
+        <workflow action="invoice_open" model="account.invoice" ref="customer_invoice_1"/>
+        <!-- /Customer Invoice 1 -->
+
+        <!-- Customer Invoice 2 with 100% discount-->
+        <record id="customer_invoice_2" model="account.invoice">
+            <field name="partner_id" ref="base.res_partner_8"/>
+            <field name="date_invoice">2017-03-01</field>
+            <field name="journal_id" model="account.journal" search="[('code', '=', 'SAJ')]"/>
+            <field name="account_id" model="account.account" search="[('code', '=', '110000')]"/>
+            <field name="date_due">2017-03-01</field>
+            <field name="user_id" ref="base.user_demo"/>
+            <field name="company_id" ref="base.main_company"/>
+            <field name="type">out_invoice</field>
+            <field name="state">draft</field>
+        </record>
+        <record id="customer_invoice_2_line_1" model="account.invoice.line">
+            <field name="invoice_id" ref="customer_invoice_2"/>
+            <field name="account_id" model="account.account" search="[('code', '=', '400000')]"/>
+            <field name="uos_id" ref="product.product_uom_unit"/>
+            <field name="quantity" eval="1.0" />
+            <field name="price_unit" eval="79.0" />
+            <field name="price_subtotal" eval="79.0" />
+            <field name="discount" eval="100"/>
+            <field name="name">Apple In-Ear Headphones</field>
+            <field name="product_id" ref="product.product_product_7"/>
+            <field name="invoice_line_tax_id" model="account.tax" search="[('description', '=', 'ST11')]"/>
+        </record>
+        <workflow action="invoice_open" model="account.invoice" ref="customer_invoice_2"/>
+        <!-- /Customer Invoice 1 -->
+
+    </data>
+</openerp>
