@@ -14,6 +14,13 @@ The purchase price of the VAT module includes the following services for a singl
 - Inclusive of any upgrades or improvements
 - Access keys will be provided directly by OpusVL after purchase (please allow 2 working days for delivery).
 
+## Demo Data
+1. Create new database with demo data
+2. Install 'account' module. Set Fiscal Year to 2017.
+3. Install 'sale' module.
+4. Edit user to have 'Technical Settings' and 'Discount on lines'
+
+
 # Copyright and License
 
 Copyright (C) 2019 OpusVL
