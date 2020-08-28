@@ -8,7 +8,6 @@ class MtdHmrcConfiguration(models.Model):
     _description = "user parameters to connect to HMRC's MTD API's"
 
     name = fields.Char(required=True)
-    server_token = fields.Char(required=True)
     client_id = fields.Char(required=True)
     client_secret = fields.Char(required=True)
     environment = fields.Selection([
