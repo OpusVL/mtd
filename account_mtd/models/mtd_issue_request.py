@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import requests
 import json
 import logging
 import werkzeug
-
 from odoo import models, fields, api, exceptions
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil import tz
 
 _logger = logging.getLogger(__name__)
 
@@ -15,7 +14,22 @@ class MtdIssueRequest(models.Model):
     _name = 'mtd.issue_request'
     _description = "issues connection request step - 3"
 
-    def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
+    def _get_utc_difference(self):
+        """
+        Returns the difference between the users timezone and utc in the format
+        'UTC+01:00'
+        :return: <str>
+        """
+        user_tz = self.env.user.tz
+        tz_string = tz.gettz(user_tz)
+        now = datetime.now(tz=tz_string)
+        diff = now.utcoffset() / timedelta(hours=1)
+        return "UTC{modifier}{hours}:00".format(
+            modifier='-' if diff < 0 else '+' ,
+            hours=str(int(diff)).zfill(2)
+        )
+
+    def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=5):
         try:
             record = self.env[module_name].search([('id', '=', record_id)])
             _logger.info(
@@ -29,9 +43,26 @@ class MtdIssueRequest(models.Model):
             # may not newed next line of code will need to look into this further while testing.
             # refresh_token = token_record.refresh_token if token_record else ""
 
-            header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
+            header_items = {
+                "Accept": "application/vnd.hmrc.1.0+json",
+                "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
+                # TODO: Speak to infrastructure about the empty values
+                "Gov-Client-Public-IP": "",  # TODO:
+                "Gov-Client-Public-Port": "",  # TODO:
+                "Gov-Client-Device-ID": "",  # TODO: Generate a UUID and store it in the database
+                "Gov-Client-User-IDs": "Odoo - UK Open Source ERP by OpusVL=",  # TODO:
+                "Gov-Client-Timezone": self._get_utc_difference(),
+                "Gov-Client-Local-IPs": ""  # TODO:
+            }
             if record.endpoint_name == "application":
-                header_items["authorization"] = ("Bearer " + record.hmrc_configuration.server_token)
+                token = record.hmrc_configuration.get_access_token()
+                if isinstance(token, list) and len(token) == 1:
+                    token = token[0]
+                elif isinstance(token, str):
+                    pass
+                else:
+                    raise exceptions.Warning('Invalid token format')
+                header_items["authorization"] = ("Bearer " + token)
             elif record.endpoint_name == "user":
                 # need to first check if the user has any accessToken and refreshtoken
                 # If not we need to proceed to the first and second step and then come to this step.
