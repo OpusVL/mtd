@@ -33,7 +33,7 @@ class MtdHmrcConfiguration(models.Model):
         """
         client_id = self.client_id
         client_secret = self.client_secret
-        url = '{prefix}/oauth/tokenx'.format(
+        url = '{prefix}/oauth/token'.format(
             prefix=self.hmrc_url.rstrip('/')
         )
         headers = {'content-type': 'application/x-www-form-urlencoded'}
