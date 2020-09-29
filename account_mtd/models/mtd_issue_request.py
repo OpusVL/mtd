@@ -1,11 +1,9 @@
 # -*- coding: utf-8 -*-
-
 import requests
 import json
 import logging
 import werkzeug
-
-from odoo import models, fields, api, exceptions
+from odoo import models, exceptions
 from datetime import datetime
 
 _logger = logging.getLogger(__name__)
@@ -15,7 +13,7 @@ class MtdIssueRequest(models.Model):
     _name = 'mtd.issue_request'
     _description = "issues connection request step - 3"
 
-    def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=3):
+    def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=5):
         try:
             record = self.env[module_name].search([('id', '=', record_id)])
             _logger.info(
@@ -29,9 +27,18 @@ class MtdIssueRequest(models.Model):
             # may not newed next line of code will need to look into this further while testing.
             # refresh_token = token_record.refresh_token if token_record else ""
 
-            header_items = {"Accept": "application/vnd.hmrc.1.0+json"}
+            header_items = {
+                "Accept": "application/vnd.hmrc.1.0+json",
+            }
             if record.endpoint_name == "application":
-                header_items["authorization"] = ("Bearer " + record.hmrc_configuration.server_token)
+                token = record.hmrc_configuration.get_access_token()
+                if isinstance(token, list) and len(token) == 1:
+                    token = token[0]
+                elif isinstance(token, str):
+                    pass
+                else:
+                    raise exceptions.Warning('Invalid token format')
+                header_items["authorization"] = ("Bearer " + token)
             elif record.endpoint_name == "user":
                 # need to first check if the user has any accessToken and refreshtoken
                 # If not we need to proceed to the first and second step and then come to this step.
