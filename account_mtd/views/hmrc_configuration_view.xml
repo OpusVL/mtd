@@ -10,7 +10,6 @@
                 <sheet>
                     <group>
                         <field name="name"/>
-                        <field name="server_token"/>
                         <field name="client_id"/>
                         <field name="client_secret"/>
                         <field name="environment" widget="radio" options="{'horizontal': true}"/>
