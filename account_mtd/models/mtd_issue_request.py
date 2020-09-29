@@ -13,21 +13,6 @@ class MtdIssueRequest(models.Model):
     _name = 'mtd.issue_request'
     _description = "issues connection request step - 3"
 
-    def _get_utc_difference(self):
-        """
-        Returns the difference between the users timezone and utc in the format
-        'UTC+01:00'
-        :return: <str>
-        """
-        user_tz = self.env.user.tz
-        tz_string = tz.gettz(user_tz)
-        now = datetime.now(tz=tz_string)
-        diff = now.utcoffset() / timedelta(hours=1)
-        return "UTC{modifier}{hours}:00".format(
-            modifier='-' if diff < 0 else '+' ,
-            hours=str(int(diff)).zfill(2)
-        )
-
     def json_command(self, command, module_name=None, record_id=None, api_tracker=None, timeout=5):
         try:
             record = self.env[module_name].search([('id', '=', record_id)])
@@ -44,14 +29,6 @@ class MtdIssueRequest(models.Model):
 
             header_items = {
                 "Accept": "application/vnd.hmrc.1.0+json",
-                "Gov-Client-Connection-Method": "WEB_APP_VIA_SERVER",
-                # TODO: Speak to infrastructure about the empty values
-                "Gov-Client-Public-IP": "",  # TODO:
-                "Gov-Client-Public-Port": "",  # TODO:
-                "Gov-Client-Device-ID": "",  # TODO: Generate a UUID and store it in the database
-                "Gov-Client-User-IDs": "Odoo - UK Open Source ERP by OpusVL=",  # TODO:
-                "Gov-Client-Timezone": self._get_utc_difference(),
-                "Gov-Client-Local-IPs": ""  # TODO:
             }
             if record.endpoint_name == "application":
                 token = record.hmrc_configuration.get_access_token()
