@@ -388,7 +388,7 @@ class MtdVATEndpoints(models.Model):
 
     def _handle_vat_returns_view_endpoint(self):
         vrn = self.get_vrn(self.vrn)
-        period_key = urllib.parse.quote_plus(self.select_vat_obligation.period_key)
+        period_key = self.select_vat_obligation.period_key
         self.path = "/organisations/vat/{vrn}/returns/{key}".format(vrn=vrn, key=period_key)
         self.endpoint_name = "view-vat-returns"
 
