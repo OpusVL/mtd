@@ -110,6 +110,7 @@ class VatCalculation(models.Model):
             ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted),
+            ('parent_state', '=', 'posted'),
             ('tax_line_id.id', '=', tax_code_record.id)])
 
         line_ids = []
@@ -154,6 +155,7 @@ class VatCalculation(models.Model):
             ('date', '>=', date_vat_period),
             ('date', '<=', date_to),
             ('vat', '=', vat_posted),
+            ('parent_state', '=', 'posted'),
             ('tax_ids.id', '=', tax_code_record.id)])
 
         line_ids = []
