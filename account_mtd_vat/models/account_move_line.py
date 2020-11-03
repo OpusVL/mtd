@@ -15,6 +15,13 @@ class AccountMoveLine(models.Model):
         readonly=True
     )
     date_vat_period = fields.Date(string='Date Vat Period')
+    parent_state = fields.Char(compute="_compute_parent_state",
+                               help="State of the parent account.move")
+
+    @api.depends('move_id')
+    def _compute_parent_state(self):
+        for record in self.filtered('move_id'):
+            record.parent_state = record.move_id.state
 
     # Creating a copy of base reconcile function renamed mtd_reconcile ,
     # removing the reconcile flag control for tax reconcile
