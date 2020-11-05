@@ -5,13 +5,10 @@ import textwrap
 import json
 import logging
 import werkzeug
-import urllib
 import hashlib
 
 from odoo import models, fields, api, exceptions
 from datetime import datetime
-from urllib.parse import urlparse
-
 
 _logger = logging.getLogger(__name__)
 
