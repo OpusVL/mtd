@@ -12,11 +12,6 @@ from odoo import models, fields, api, exceptions
 from datetime import datetime
 from urllib.parse import urlparse
 
-import sys
-sys.path.append("/mnt/pycharm-debug")
-import pydevd_pycharm
-pydevd_pycharm.settrace('10.10.4.172', port=21348, suspend=False)
-
 
 _logger = logging.getLogger(__name__)
 
