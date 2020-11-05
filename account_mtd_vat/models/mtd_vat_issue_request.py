@@ -12,6 +12,12 @@ from odoo import models, fields, api, exceptions
 from datetime import datetime
 from urllib.parse import urlparse
 
+import sys
+sys.path.append("/mnt/pycharm-debug")
+import pydevd_pycharm
+pydevd_pycharm.settrace('10.10.4.172', port=21348, suspend=False)
+
+
 _logger = logging.getLogger(__name__)
 
 detailed_submission_list = [
@@ -439,7 +445,7 @@ class MtdVatIssueRequest(models.Model):
 
     def build_submit_vat_params(self, record):
         return {
-            "periodKey": urllib.parse.quote_plus(record.period_key_submit),
+            "periodKey": record.period_key_submit,
             "vatDueSales": record.vat_due_sales_submit,
             "vatDueAcquisitions": record.vat_due_acquisitions_submit,
             "totalVatDue": record.total_vat_due_submit,
