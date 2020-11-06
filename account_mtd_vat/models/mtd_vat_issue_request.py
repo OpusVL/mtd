@@ -5,7 +5,6 @@ import textwrap
 import json
 import logging
 import werkzeug
-import urllib
 import hashlib
 
 from odoo import models, fields, api, exceptions
@@ -433,7 +432,7 @@ class MtdVatIssueRequest(models.Model):
 
     def build_submit_vat_params(self, record):
         return {
-            "periodKey": urllib.quote_plus(record.period_key_submit),
+            "periodKey": record.period_key_submit,
             "vatDueSales": record.vat_due_sales_submit,
             "vatDueAcquisitions": record.vat_due_acquisitions_submit,
             "totalVatDue": record.total_vat_due_submit,
