@@ -32,7 +32,7 @@ class VatCalculation(models.Model):
                                                                               ('company_id', '=', company.id)])
 
         # box 1 calculations
-        box1_tag_list = ['ST11', 'ST1', 'STM']
+        box1_tag_list = ['ST11', 'ST1', 'STM', 'PT8BR']
         box1_calculation_rows = self.retrieve_calculation_rows(calculation_table, box1_tag_list)
         box1_vat = self.retrieve_sum_value_for_originator_tax(box1_calculation_rows)
 
@@ -45,7 +45,7 @@ class VatCalculation(models.Model):
         box3_vat = (box1_vat + box2_vat)
 
         # box 4 calculations
-        box4_tag_list = ['PT11', 'PT5', 'PT1', 'PT8R', 'PT8']
+        box4_tag_list = ['PT11', 'PT5', 'PT1', 'PT8R', 'PT8', 'PT8BR']
         box4_calculation_rows = self.retrieve_calculation_rows(calculation_table, box4_tag_list)
         box4_vat = self.retrieve_sum_value_for_originator_tax(box4_calculation_rows)
 
@@ -58,7 +58,8 @@ class VatCalculation(models.Model):
         box6_vat = self.retrieve_sum_value_for_taxes(box6_calculation_rows)
 
         # box7 calculations
-        box7_tag_list = ['PT11', 'PT5', 'PT2', 'PT1', 'PT0', 'PT7', 'PT8']
+        box7_tag_list = ['PT11', 'PT5', 'PT2', 'PT1', 'PT0',
+                         'PT7', 'PT8', 'PT8BR']
         box7_calculation_rows = self.retrieve_calculation_rows(calculation_table, box7_tag_list)
         box7_vat = self.retrieve_sum_value_for_taxes(box7_calculation_rows)
 
@@ -118,7 +119,7 @@ class VatCalculation(models.Model):
         credits = []
         debits = []
         for record in move_lines_for_tax:
-            if tax_tag_name == 'PT8':
+            if tax_tag_name in ('PT8', 'PT8BR'):
                 if record.move_id.type == 'in_refund':
                     credits.append(record.credit)
                 else:
