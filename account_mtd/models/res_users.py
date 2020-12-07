@@ -73,8 +73,8 @@ class ResUsers(models.Model):
         return {
             "Gov-vendor-version":'Odoo%20SA=13.0&servercode=Python3.0',
             'Gov-vendor-license-ids': urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
-            "Gov-vendor-public-ip": vendor_ip,
-            "Gov-vendor-forwarded":'by='+vendor_ip+'&for='+self.client_ip,
+            "Gov-vendor-public-ip": str(vendor_ip),
+            "Gov-vendor-forwarded":'by='+str(vendor_ip)+'&for='+str(self.client_ip),
         }
 
     def _get_client_headers(self, company):
