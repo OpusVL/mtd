@@ -24,7 +24,16 @@
                         <button name="action_hello_world_connection"
                                 type="object"
                                 string="Connect to HMRC"
-                                class="oe_highlight"/>
+                                class="oe_highlight"
+                                attrs="{'invisible':[('endpoint_name','=','header')]}"/>
+                    </group>
+                    <group>
+                        <button name="action_hello_world_connection"
+                                type="object"
+                                string="Connect to HMRC"
+                                class="oe_highlight"
+                                id="header_js_event"
+                                attrs="{'invisible':[('endpoint_name','!=','header')]}"/>
                     </group>
                     <div>
                         <div>

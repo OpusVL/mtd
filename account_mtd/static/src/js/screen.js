@@ -12,20 +12,18 @@ odoo.define('account_mtd.screen', function(require) {
     }) 
 
 	FormView.include({
-	    _onButtonClicked: function (event) {
-	        // stop the event's propagation as a form controller might have other
-	        // form controllers in its descendants (e.g. in a FormViewDialog)
-	        event.stopPropagation();
-	        var self = this;
-	        var def;
-	        var d = $.Deferred();
-	        var attrs = event.data.attrs;
-	        var record = event.data.record;
-	        var clientinfo = window.clientInformation;
-	        var plugins = [];
-	        var dnt_res = 'false';
-	        
-	        if (this.modelName == 'mtd.hello_world' && record && record.data && record.data.endpoint_name == 'header'){
+		_onButtonClicked: function (event) {
+			event.stopPropagation();
+			var self = this;
+			var def;
+			var d = $.Deferred();
+			var attrs = event.data.attrs;
+			var record = event.data.record;
+			var clientinfo = window.clientInformation || window.navigator;
+			var plugins = ['NoPlugins'];
+			var dnt_res = 'false';
+
+		    if (event.data.attrs && 'id' in event.data.attrs && event.data.attrs.id === 'header_js_event') {
 	            var dnt = (typeof navigator.doNotTrack !== 'undefined')   ? navigator.doNotTrack
 	                    : (typeof window.doNotTrack !== 'undefined')      ? window.doNotTrack
 	                    : (typeof navigator.msDoNotTrack !== 'undefined') ? navigator.msDoNotTrack
@@ -34,7 +32,8 @@ odoo.define('account_mtd.screen', function(require) {
 	            	dnt_res = 'true'
 	            }
 	            for(var i=0;i<clientinfo.plugins.length;i++){
-	              plugins.push(encodeURIComponent(clientinfo.plugins[i].name))
+	            	plugins = []
+	              	plugins.push(encodeURIComponent(clientinfo.plugins[i].name))
 	            }
 
 	            var data_dict = {
@@ -63,11 +62,10 @@ odoo.define('account_mtd.screen', function(require) {
                 	});
                 });
 	            def = d.promise();
-
-	        }else{ 
-	            return this._super.apply(this, arguments);
-	        }
-	    },
+		    } else {
+		        this._super.apply(this, arguments);
+		    }
+		},
 	});
 
 });
