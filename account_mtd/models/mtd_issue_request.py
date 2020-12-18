@@ -89,6 +89,14 @@ class MtdIssueRequest(models.Model):
                     + "Response Received: \n{message}".format(message=response_token['message'])
             )
             record.response_from_hmrc = success_message
+            if record.endpoint_name == "header" and 'errors' in response_token:
+                error_message = self.env['mtd.display_message'].construct_error_message_to_display(
+                    url=url,
+                    code=response.status_code,
+                    response_token=response_token
+                )
+                _logger.info("json_command - other error found:- {error} ".format(error=error_message))
+                record.response_from_hmrc = error_message
             if api_tracker:
                 _logger.info(
                     "json_command - response received ok we have record id so we " +
