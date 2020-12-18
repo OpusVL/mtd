@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <data noupdate="1">
+
+        <record id="PT8BR" model="account.tax">
+            <field name="description">PT8BR</field>
+            <field name="type_tax_use">purchase</field>
+            <field name="name">Standard rated purchases from EC (After Brexit)</field>
+            <field name="amount_type">group</field>
+            <field name="amount">0</field>
+            <field name="tag_ids" eval="[(4, ref('l10n_uk.tag_pt8'))]"/>
+            <field name="children_tax_ids" eval="[(5,0,0),
+                (0,0, {
+                    'description': 'PT8MBR',
+                    'name': 'Standard rated purchases from EC (After Brexit)',
+                    'type_tax_use': 'none',
+                    'amount_type': 'percent',
+                    'amount': 17.5,
+                    'account_id': ref('l10n_uk.2201'),
+                    'refund_account_id': ref('l10n_uk.2201'),
+                    'tag_ids': [(4, ref('l10n_uk.tag_pt8m'))],
+                }),
+                (0,0, {
+                    'description': 'PT8RBR',
+                    'name': 'Reverse EC Purchase VAT (After Brexit)',
+                    'type_tax_use': 'none',
+                    'amount_type': 'percent',
+                    'amount': -17.5,
+                    'account_id': ref('l10n_uk.2201'),
+                    'refund_account_id': ref('l10n_uk.2201'),
+                    'tag_ids': [(4, ref('l10n_uk.tag_pt8r'))],
+                })
+            ]"/>
+        </record>
+
+    </data>
+
+</odoo>
