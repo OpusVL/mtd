@@ -3,6 +3,17 @@
 
     <data noupdate="1">
 
+        <record id="tag_pt8mbr" model="account.account.tag">
+            <field name="name">PT8MBR</field>
+            <field name="applicability">taxes</field>
+        </record>
+
+        <record id="tag_pt8rbr" model="account.account.tag">
+            <field name="name">PT8RBR</field>
+            <field name="applicability">taxes</field>
+        </record>
+
+
         <record id="PT8BR" model="account.tax">
             <field name="description">PT8BR</field>
             <field name="type_tax_use">purchase</field>
@@ -20,7 +31,7 @@
                     'amount': 17.5,
                     'account_id': ref('l10n_uk.2201'),
                     'refund_account_id': ref('l10n_uk.2201'),
-                    'tag_ids': [(4, ref('l10n_uk.tag_pt8m'))],
+                    'tag_ids': [(4, ref('tag_pt8mbr'))],
                     'tax_group_id': ref('l10n_uk.tax_group_0'),
                 }),
                 (0,0, {
@@ -31,7 +42,7 @@
                     'amount': -17.5,
                     'account_id': ref('l10n_uk.2201'),
                     'refund_account_id': ref('l10n_uk.2201'),
-                    'tag_ids': [(4, ref('l10n_uk.tag_pt8r'))],
+                    'tag_ids': [(4, ref('tag_pt8rbr'))],
                     'tax_group_id': ref('l10n_uk.tax_group_0'),
                 })
             ]"/>
