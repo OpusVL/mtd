@@ -62,7 +62,7 @@
                             <field name="submit_vat_flag" invisible="1"/>
                             <!--<field name="period_key_submit" invisible="1"/>-->
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_due_sales_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -70,7 +70,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_due_acquisitions_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -78,7 +78,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_vat_due_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -86,7 +86,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_reclaimed_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -94,7 +94,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="net_vat_due_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -102,7 +102,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_sales_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -110,7 +110,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_purchase_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -118,7 +118,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_goods_supplied_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -126,7 +126,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_acquisitions_submit" readonly="1"/>
                                 </td>
                                 <td>
@@ -184,7 +184,7 @@
                         <field name="view_vat_flag" invisible="1"/>
                         <table col="1" attrs="{'invisible':[('view_vat_flag', '=', False)]}">
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_due_sales" readonly="1"/>
                                 </td>
                                 <td>
@@ -192,7 +192,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_due_acquisitions" readonly="1"/>
                                 </td>
                                 <td>
@@ -200,7 +200,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_vat_due" readonly="1"/>
                                 </td>
                                 <td>
@@ -208,7 +208,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="vat_due_acquisitions" readonly="1"/>
                                 </td>
                                 <td>
@@ -216,7 +216,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="net_vat_due" readonly="1"/>
                                 </td>
                                 <td>
@@ -224,7 +224,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_sales" readonly="1"/>
                                 </td>
                                 <td>
@@ -232,7 +232,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_purchase" readonly="1"/>
                                 </td>
                                 <td>
@@ -240,7 +240,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_value_goods_supplied" readonly="1"/>
                                 </td>
                                 <td>
@@ -248,7 +248,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td width="700">
+                                <td width="820">
                                     <label for="total_acquisitions" readonly="1"/>
                                 </td>
                                 <td>
