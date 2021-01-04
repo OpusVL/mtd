@@ -97,14 +97,14 @@ class MtdVATEndpoints(models.Model):
         default=0.00
     )
     vat_due_acquisitions = fields.Float(
-        "2. VAT due in this period on acquisitions from other EC Member States",
+        "2. VAT due in the period on acquisitions of goods made in Northern Ireland from EU Member States",
         (13, 2),
         readonly=True,
         default=0.00
     )
     total_vat_due = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2), readonly=True, default=0.00)
     vat_reclaimed = fields.Float(
-        "4. VAT reclaimed in this period on purchases and other inputs (including acquisitions from the EC)",
+        "4. VAT reclaimed in the period on purchases and other inputs (including acquisitions in Northern Ireland from EU member states)",
         (13, 2),
         readonly=True,
         default=0.00
@@ -128,13 +128,13 @@ class MtdVATEndpoints(models.Model):
         default=0
     )
     total_value_goods_supplied = fields.Float(
-        "8. Total value of all supplies of goods and related costs, excluding any VAT, to other EC Member States",
+        "8. Total value of dispatches of goods and related costs (excluding VAT) from Northern Ireland to EU Member States",
         (13, 0),
         readonly=True,
         default=0
     )
     total_acquisitions = fields.Float(
-        "9. Total value of all acquisitions of goods and related costs, excluding any VAT, from other EC Member States",
+        "9. Total value of acquisitions of goods and related costs (excluding VAT) made in Northern Ireland from EU Member States",
         (13, 0),
         readonly=True,
         default=0
@@ -145,13 +145,13 @@ class MtdVATEndpoints(models.Model):
     period_key_submit = fields.Char(related='select_vat_obligation.period_key', readonly=True)
     vat_due_sales_submit = fields.Float("1. VAT due in this period on sales and other outputs", (13, 2), default=0.00)
     vat_due_acquisitions_submit = fields.Float(
-        "2. VAT due in this period on acquisitions from other EC Member States",
+        "2. VAT due in the period on acquisitions of goods made in Northern Ireland from EU Member States",
         (13, 2),
         default=0.00
     )
     total_vat_due_submit = fields.Float("3. Total VAT due (the sum of boxes 1 and 2)", (13, 2), default=0.00)
     vat_reclaimed_submit = fields.Float(
-        "4. VAT reclaimed in this period on purchases and other inputs (including acquisitions from the EC)",
+        "4. VAT reclaimed in the period on purchases and other inputs (including acquisitions in Northern Ireland from EU member states)",
         (13, 2),
         default=0.00
     )
@@ -171,12 +171,12 @@ class MtdVATEndpoints(models.Model):
         default=0
     )
     total_value_goods_supplied_submit = fields.Float(
-        "8. Total value of all supplies of goods and related costs, excluding any VAT, to other EC Member States",
+        "8. Total value of dispatches of goods and related costs (excluding VAT) from Northern Ireland to EU Member States",
         (13, 0),
         default=0
     )
     total_acquisitions_submit = fields.Float(
-        "9. Total value of all acquisitions of goods and related costs, excluding any VAT, from other EC Member States",
+        "9. Total value of acquisitions of goods and related costs (excluding VAT) made in Northern Ireland from EU Member States",
         (13, 0),
         default=0
     )
