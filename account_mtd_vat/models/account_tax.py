@@ -26,7 +26,7 @@ class MtdAccountTaxCode(osv.osv):
                 record.vat_tax_scope = 'PTM'
             elif record.tag_ids.name == 'PT8R':
                 record.vat_tax_scope = 'PTR'
-            if record.tag_ids.name == 'PT8MBR':
+            elif record.tag_ids.name == 'PT8MBR':
                 record.vat_tax_scope = 'PTM'
             elif record.tag_ids.name == 'PT8RBR':
                 record.vat_tax_scope = 'PTR'
