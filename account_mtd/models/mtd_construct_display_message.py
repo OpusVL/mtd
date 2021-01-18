@@ -18,6 +18,8 @@ class MtdUserAuthorisation(models.Model):
         if 'error' in response_token.keys():
             resp_error = response_token['error']
         resp_error_message = ""
+        if 'warnings' in response_token.keys():
+            resp_error = response_token['warnings']
         if 'errors' in response_token.keys():
             respo_errors = response_token['errors']
             for error in respo_errors:
