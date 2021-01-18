@@ -89,7 +89,7 @@ class MtdIssueRequest(models.Model):
                     + "Response Received: \n{message}".format(message=response_token['message'])
             )
             record.response_from_hmrc = success_message
-            if record.endpoint_name == "header" and 'errors' in response_token:
+            if record.endpoint_name == "header" and 'errors' in response_token or 'warnings' in response_token: 
                 error_message = self.env['mtd.display_message'].construct_error_message_to_display(
                     url=url,
                     code=response.status_code,
