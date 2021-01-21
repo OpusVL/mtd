@@ -178,6 +178,8 @@ class account_tax(osv.osv):
             ('description', '=', 'PT8BR')], limit=1)
         account_tax_code_2_obj = self.pool['account.tax.code'].search(cr, uid, [
             ('code', '=', '2')], limit=1)
+        account_tax_code_9_obj = self.pool['account.tax.code'].search(cr, uid, [
+            ('code', '=', '9')], limit=1)
         account_tax_code_1_obj = self.pool['account.tax.code'].search(cr, uid, [
             ('code', '=', '1')], limit=1)
         account_tax_code_4_obj = self.pool['account.tax.code'].search(cr, uid, [
@@ -185,6 +187,8 @@ class account_tax(osv.osv):
         tax_code_2 = account_tax_code_2_obj and account_tax_code_2_obj[
             0] or False
         tax_code_1 = account_tax_code_1_obj and account_tax_code_1_obj[
+            0] or False
+        tax_code_9 = account_tax_code_9_obj and account_tax_code_9_obj[
             0] or False
         tax_code_4 = account_tax_code_4_obj and account_tax_code_4_obj[
             0] or False
@@ -204,6 +208,8 @@ class account_tax(osv.osv):
             pt8br_tax_rec = self.pool['account.tax'].browse(cr, uid, pt8br_tax)
             pt8br_tax_rec.tax_code_id = tax_code_4
             pt8br_tax_rec.ref_tax_code_id = tax_code_4
+            pt8br_tax_rec.base_code_id = tax_code_9
+            pt8br_tax_rec.ref_base_code_id = tax_code_9
             for child_tax in pt8br_tax_rec.child_ids:
                 child_tax.tax_code_id = tax_code_1
                 child_tax.ref_tax_code_id = tax_code_1
