@@ -4,5 +4,9 @@
         <function id="update_existing_box_9_acount_tax_code_record"
               model="account.tax.code"
               name="_update_box_9_tax_code_scope"/>
+
+        <function id="update_existing_tax_configuration"
+              model="account.tax"
+              name="_update_tax_configuration"/>
     </data>
 </openerp>

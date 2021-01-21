@@ -166,3 +166,45 @@ class mtd_account_tax_code(osv.osv):
         'sum': fields.function(_sum_year, string="Year Sum"),
         'sum_period': fields.function(_sum_period, string="Period Sum")
     }
+
+
+class account_tax(osv.osv):
+    _inherit="account.tax"
+
+    def _update_tax_configuration(self, cr, uid):
+        account_tax_pt8_obj = self.pool['account.tax'].search(cr, uid, [
+            ('description', '=', 'PT8')], limit=1)
+        account_tax_pt8br_obj = self.pool['account.tax'].search(cr, uid, [
+            ('description', '=', 'PT8BR')], limit=1)
+        account_tax_code_2_obj = self.pool['account.tax.code'].search(cr, uid, [
+            ('code', '=', '2')], limit=1)
+        account_tax_code_1_obj = self.pool['account.tax.code'].search(cr, uid, [
+            ('code', '=', '1')], limit=1)
+        account_tax_code_4_obj = self.pool['account.tax.code'].search(cr, uid, [
+            ('code', '=', '4')], limit=1)
+        tax_code_2 = account_tax_code_2_obj and account_tax_code_2_obj[
+            0] or False
+        tax_code_1 = account_tax_code_1_obj and account_tax_code_1_obj[
+            0] or False
+        tax_code_4 = account_tax_code_4_obj and account_tax_code_4_obj[
+            0] or False
+        pt8_tax = account_tax_pt8_obj and account_tax_pt8_obj[
+            0] or False
+        pt8br_tax = account_tax_pt8br_obj and account_tax_pt8br_obj[
+            0] or False
+        if tax_code_2 and tax_code_4 and pt8_tax:
+            pt8_tax_rec = self.pool['account.tax'].browse(cr, uid, pt8_tax)
+            pt8_tax_rec.tax_code_id = tax_code_4
+            pt8_tax_rec.ref_tax_code_id = tax_code_4
+            for child_tax in pt8_tax_rec.child_ids:
+                child_tax.tax_code_id = tax_code_2
+                child_tax.ref_tax_code_id = tax_code_2
+                child_tax.ref_base_code_id = False
+        if tax_code_1 and tax_code_4 and pt8br_tax:
+            pt8br_tax_rec = self.pool['account.tax'].browse(cr, uid, pt8br_tax)
+            pt8br_tax_rec.tax_code_id = tax_code_4
+            pt8br_tax_rec.ref_tax_code_id = tax_code_4
+            for child_tax in pt8br_tax_rec.child_ids:
+                child_tax.tax_code_id = tax_code_1
+                child_tax.ref_tax_code_id = tax_code_1
+                child_tax.ref_base_code_id = False
