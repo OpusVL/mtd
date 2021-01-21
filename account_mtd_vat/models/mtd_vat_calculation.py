@@ -68,7 +68,7 @@ class VatCalculation(models.Model):
         box8_vat = self.retrieve_sum_value_for_taxes(box8_calculation_rows)
 
         # box9 calculations
-        box9_tag_list = ['PT7', 'PT8']
+        box9_tag_list = ['PT7', 'PT8', 'PT8BR']
         box9_calculation_rows = self.retrieve_calculation_rows(calculation_table, box9_tag_list)
         box9_vat = self.retrieve_sum_value_for_taxes(box9_calculation_rows)
 
