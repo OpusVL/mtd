@@ -46,9 +46,9 @@ class MtdIssueRequest(models.Model):
 
             if record.endpoint_name == 'header':
                 header_items["authorization"] = ("Bearer " + str(access_token))
-                header_items.update(self.env.user._get_client_headers(record.company_id))
-                header_items.update(self.env.user._get_vendor_headers(record.hmrc_configuration.vendor_public_ip))
-                header_items.update(self.env.user._get_users_headers())
+            header_items.update(self.env.user._get_client_headers(record.company_id))
+            header_items.update(self.env.user._get_vendor_headers(record.hmrc_configuration.vendor_public_ip))
+            header_items.update(self.env.user._get_users_headers())
 
             hmrc_connection_url = "{}{}".format(record.hmrc_configuration.hmrc_url, record.path)
             _logger.info(
