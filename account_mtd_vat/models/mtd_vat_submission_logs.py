@@ -87,16 +87,17 @@ class MtdVATSubmissionLogs(models.Model):
 
     @api.depends('response_text')
     def _compute_response_fields(self):
-        response = self.response_text
-        parsed_response = json.loads(response) if response else dict()
-        self.unique_number = parsed_response.get('formBundleNumber', False)
-        self.payment_indicator = parsed_response.get('paymentIndicator', False)
-        self.charge_ref_number = \
-            parsed_response.get('chargeRefNumber', 'No Data Found')
-        self.raw_processing_date = parsed_response.get('processingDate', False)
-        self.processing_date = \
-            self.raw_processing_date and datetime_iso2odoo(
-                self.raw_processing_date)
+        for logentry in self:
+            response = logentry.response_text
+            parsed_response = json.loads(response) if response else dict()
+            logentry.unique_number = parsed_response.get('formBundleNumber', False)
+            logentry.payment_indicator = parsed_response.get('paymentIndicator', False)
+            logentry.charge_ref_number = \
+                parsed_response.get('chargeRefNumber', 'No Data Found')
+            logentry.raw_processing_date = parsed_response.get('processingDate', False)
+            logentry.processing_date = \
+                logentry.raw_processing_date and datetime_iso2odoo(
+                    logentry.raw_processing_date)
 
 
 def datetime_iso2odoo(iso_string):
