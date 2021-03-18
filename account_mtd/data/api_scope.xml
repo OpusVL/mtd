@@ -25,10 +25,6 @@
             <field name="name">User Authentication Test</field>
             <field name="api_id" ref="mtd_api_hello_world"/>
         </record>
-        <record model="mtd.hello_world" id="mtd_fraud_prevention_headers_endpoint">
-            <field name="name">Fraud Prevention Headers Test</field>
-            <field name="api_id" ref="mtd_api_hello_world"/>
-        </record>
     </data>
     <!--/ Hello World End points -->
 </odoo>
