@@ -53,11 +53,12 @@ class ResUsers(models.Model):
 
     def _get_users_headers(self):
         return {
-            "Gov-client-screens" : 'width={screen_width}&height={screen_height}&scaling-factor={screen_scale}&colour-depth={screen_depth}'.format(screen_width=self.screen_width, screen_height=self.screen_height, screen_scale=self.screen_scale, screen_depth=self.screen_depth),
-            "Gov-client-window-size" : 'width={screen_width}&height={screen_height}'.format(screen_width=self.screen_width, screen_height=self.screen_height),
-            "Gov-Client-Browser-Plugins" : '{browserplugin}'.format(browserplugin= self.browser_plugin),
-            "Gov-Client-Browser-JS-User-Agent" : '{useragent}'.format(useragent=self.user_agent),
-            "Gov-Client-Browser-Do-Not-Track" : '{browserdnt}'.format(browserdnt=self.browser_dnt).lower(),
+            "Gov-client-screens" : 'width='+ str(self.screen_width) +'&height='+ str(self.screen_height) +
+                    '&scaling-factor='+ str(self.screen_scale) +'&colour-depth='+ str(self.screen_depth),
+            "Gov-client-window-size" : 'width='+str(self.screen_width)+'&height='+ str(self.screen_height),
+            "Gov-Client-Browser-Plugins" : str(self.browser_plugin),
+            "Gov-Client-Browser-JS-User-Agent" : str(self.user_agent),
+            "Gov-Client-Browser-Do-Not-Track" : str(self.browser_dnt).lower(),
         }
 
     def ip4_addresses(self):
@@ -72,8 +73,8 @@ class ResUsers(models.Model):
         return {
             "Gov-vendor-version":'Odoo%20SA=13.0&servercode=Python3.0',
             'Gov-vendor-license-ids': urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
-            "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_ip),
-            "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_ip, clientip=self.client_ip),
+            "Gov-vendor-public-ip": str(vendor_ip),
+            "Gov-vendor-forwarded":'by='+str(vendor_ip)+'&for='+str(self.client_ip),
         }
 
     def _get_client_headers(self, company):
@@ -93,9 +94,9 @@ class ResUsers(models.Model):
         return {
             "Gov-Client-Connection-Method": 'WEB_APP_VIA_SERVER',
             "Gov-Client-Public-IP": self.client_ip,
-            "Gov-Client-Public-Port": '{remoteport}'.format(remoteport=request.httprequest.environ['REMOTE_PORT']),
-            "Gov-Client-Device-Id": '{uuid1}'.format(uuid1=uuid.uuid1()),
-            "Gov-Client-User-Ids": 'Odoo=opusvl{username}'.format(username=company.hmrc_username),
+            "Gov-Client-Public-Port": str(request.httprequest.environ['REMOTE_PORT']),
+            "Gov-Client-Device-Id": str(uuid.uuid1()),
+            "Gov-Client-User-Ids": 'Odoo=opusvl'+ str(company.hmrc_username),
             "Gov-Client-Timezone": now[:-2] + ':' + now[-2:],
             "Gov-client-local-ips": ','.join(ip for ip in self.ip4_addresses()),
             "Gov-client-multi-factor": urllib.parse.urlencode(multi_factor),
