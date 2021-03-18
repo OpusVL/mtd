@@ -20,7 +20,7 @@ odoo.define('account_mtd.screen', function(require) {
 			var attrs = event.data.attrs;
 			var record = event.data.record;
 			var clientinfo = window.clientInformation || window.navigator;
-			var plugins = [];
+			var plugins = ['NoPlugins'];
 			var dnt_res = 'false';
 
 		    if (event.data.attrs && 'id' in event.data.attrs && event.data.attrs.id === 'header_js_event') {
@@ -32,6 +32,7 @@ odoo.define('account_mtd.screen', function(require) {
 	            	dnt_res = 'true'
 	            }
 	            for(var i=0;i<clientinfo.plugins.length;i++){
+	            	plugins = []
 	              	plugins.push(encodeURIComponent(clientinfo.plugins[i].name))
 	            }
 
@@ -41,7 +42,7 @@ odoo.define('account_mtd.screen', function(require) {
 	            	'screen_depth': screen.colorDepth,
 	            	'screen_scale': window.devicePixelRatio,
 	            	'user_agent': clientinfo.userAgent,
-	            	'browser_plugin': (plugins.length !== 0) ? plugins.join(',') : 'NoPlugins',
+	            	'browser_plugin': plugins.join(','),
 	            	'browser_dnt': dnt_res,
 	            	'client_ip': clientIp,
 	            }
