@@ -74,13 +74,11 @@ class ResUsers(models.Model):
             'Gov-vendor-license-ids': urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
             "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_ip),
             "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_ip, clientip=self.client_ip),
-            "Gov-Vendor-Product-Name": 'Product%20Odoo',
         }
 
     def _get_client_headers(self, company):
         now = str(datetime.now(pytz.timezone('UTC')).strftime('%Z%z'))
         multi_factor_now = str(datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%MZ'))
-        iptime_now = str(datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%M:%S.%f'))[:-3]
         if not self.client_factor_ref:
             self.write({'client_factor_ref': uuid.uuid4().hex[:13]})
 
@@ -100,8 +98,6 @@ class ResUsers(models.Model):
             "Gov-Client-User-Ids": 'Odoo=opusvl{username}'.format(username=company.hmrc_username),
             "Gov-Client-Timezone": now[:-2] + ':' + now[-2:],
             "Gov-client-local-ips": ','.join(ip for ip in self.ip4_addresses()),
-            "Gov-Client-Local-IPs-Timestamp": str(iptime_now)+ 'Z',
-            "Gov-Client-Public-IP-Timestamp": str(iptime_now)+ 'Z',
             "Gov-client-multi-factor": urllib.parse.urlencode(multi_factor),
         }
 
