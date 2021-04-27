@@ -7,7 +7,7 @@ import logging
 import werkzeug
 import hashlib
 
-from odoo import models, fields, api, exceptions
+from odoo import models, fields, api, exceptions, SUPERUSER_ID
 from datetime import datetime
 
 _logger = logging.getLogger(__name__)
@@ -256,9 +256,9 @@ class MtdVatIssueRequest(models.Model):
     def _success_message(self, submission_log_entry, current_time):
         template = """
             Date {date}     Time {time}
-            
+
             Congratulations ! The submission has been made successfully to HMRC.
-            
+
             Period: {log.start} - {log.end}
             Unique number: {log.unique_number}
             Payment indicator: {log.payment_indicator}
@@ -557,7 +557,7 @@ class MtdVatIssueRequest(models.Model):
         move_line_ids.append(liability_move_line.id)
 
         # Validate the account once the journal items have been created.
-        account_move_id.action_post()
+        account_move_id.with_user(SUPERUSER_ID).action_post()
         # update the state of Journal entry to posted.
         account_move_id.state = 'posted'
 
