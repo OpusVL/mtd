@@ -18,15 +18,6 @@ class MtdUserAuthorisation(models.Model):
         if 'error' in response_token.keys():
             resp_error = response_token['error']
         resp_error_message = ""
-        if 'warnings' in response_token.keys():
-            resp_error = response_token['warnings']
-            for warning in resp_error:
-                error_code = warning["code"]
-                error_message = warning["message"]
-                if 'headers' in warning.keys():
-                    resp_error_message += "\n\nError Code: \n{}\nHeaders:\n{}\nError Message: \n{}".format(error_code, warning['headers'], error_message)
-                else:
-                    resp_error_message += "\n\nError Code: \n{}\nError Message: \n{}".format(error_code, error_message)
         if 'errors' in response_token.keys():
             respo_errors = response_token['errors']
             for error in respo_errors:

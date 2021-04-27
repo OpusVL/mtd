@@ -37,8 +37,7 @@
     ],
     'data': [
         'data/api_scope.xml',
-        'views/res_company_view.xml',
-        'views/webclient_templates.xml',
+
         'views/mtd_menu.xml',
         'views/hmrc_configuration_view.xml',
         'views/hello_world_view.xml',
