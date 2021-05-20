@@ -4,12 +4,7 @@ odoo.define('account_mtd.screen', function(require) {
     var FormView = require('web.FormController');
     var core = require('web.core');
     var Dialog = require('web.Dialog');
-    var _t = core._t;
-    var clientIp = ''
-
-    $.getJSON("https://api.ipify.org?format=json", function(data) { 
-    	clientIp = data.ip
-    }) 
+    var _t = core._t;    
 
 	FormView.include({
 		_onButtonClicked: function (event) {
@@ -43,7 +38,6 @@ odoo.define('account_mtd.screen', function(require) {
 	            	'user_agent': clientinfo.userAgent,
 	            	'browser_plugin': (plugins.length !== 0) ? plugins.join(',') : 'NoPlugins',
 	            	'browser_dnt': dnt_res,
-	            	'client_ip': clientIp,
 	            }
 	            self._rpc({
 	                model: 'res.users',
