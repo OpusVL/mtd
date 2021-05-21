@@ -31,6 +31,8 @@ class MtdUserAuthorisation(models.Model):
             respo_errors = response_token['errors']
             for error in respo_errors:
                 error_code = error["code"]
+                if 'headers' in error:
+                    error_code += ': '+ str(error['headers'])
                 error_message = error["message"]
 
                 resp_error_message += "\n\nError Code: \n{}\nError Message: \n{}".format(error_code, error_message)

@@ -2,17 +2,11 @@
 
 from odoo import models, fields, api, exceptions
 import urllib
-import socket
 import pytz
 import uuid
-from uuid import getnode as get_mac
 from odoo.http import request
 from netifaces import interfaces, ifaddresses, AF_INET
 from datetime import datetime
-from odoo.tools import detect_ip_addr
-import socket
-import logging
-_logger = logging.getLogger(__name__)
 
 class ResUsers(models.Model):
     _inherit = 'res.users'
@@ -71,14 +65,11 @@ class ResUsers(models.Model):
         return ip_list
 
     def _get_vendor_headers(self, vendor_ip):
-        hostname = socket.gethostname()
-        vendor_address = socket.gethostbyname(hostname)
-        _logger.info('Vendor IP Address from misc.py --- > {detect} \n vendor ip address from socker - {va}'.format(detect=detect_ip_addr(),va=vendor_address))
         return {
             "Gov-vendor-version":'Odoo%20SA=13.0&servercode=Python3.0',
             'Gov-vendor-license-ids': urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
-            "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_address),
-            "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_address, clientip=self.client_ip),
+            "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_ip),
+            "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_ip, clientip=self.client_ip),
             "Gov-Vendor-Product-Name": 'Product%20Odoo',
         }
 

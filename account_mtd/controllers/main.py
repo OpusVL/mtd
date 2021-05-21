@@ -18,9 +18,13 @@ class LoginHome(Home):
         res = super(LoginHome, self).web_client(s_action, **kw)
         # Get Client Ip Address
         if request.session.uid:
+            client_ip = request.httprequest.remote_addr
             user = request.env['res.users'].sudo().browse(request.session.uid)
+            if 'X-Real-Ip' in request.httprequest.headers:
+                client_ip = request.httprequest.headers.get('X-Real-Ip')
+            elif 'X-Forwarded-For' in request.httprequest.headers:
+                client_ip = request.httprequest.headers.get('X-Forwarded-For')
             user.sudo().write({'client_ip': request.httprequest.remote_addr})
-            _logger.info("/Web.....------> {add} - {res}".format(add=request.httprequest.remote_addr,res=user.client_ip))
         return res
 
 
