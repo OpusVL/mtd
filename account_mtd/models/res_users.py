@@ -46,6 +46,14 @@ class ResUsers(models.Model):
         string='Client Factor Reference',
         readonly=True
     )
+    client_device_id = fields.Char(
+        string='Client Device ID'
+    )
+
+    def get_user_uuid4(self):
+        uuid = uuid.uuid4()
+        self.write({'client_device_id': uuid})
+        return uuid
 
     def _get_users_headers(self):
         return {
@@ -54,6 +62,7 @@ class ResUsers(models.Model):
             "Gov-Client-Browser-Plugins" : '{browserplugin}'.format(browserplugin= self.browser_plugin),
             "Gov-Client-Browser-JS-User-Agent" : '{useragent}'.format(useragent=self.user_agent),
             "Gov-Client-Browser-Do-Not-Track" : '{browserdnt}'.format(browserdnt=self.browser_dnt).lower(),
+            "Gov-Client-Device-Id": '{uuid1}'.format(uuid1=self.client_device_id),
         }
 
     def ip4_addresses(self):
@@ -65,8 +74,9 @@ class ResUsers(models.Model):
         return ip_list
 
     def _get_vendor_headers(self, vendor_ip):
+        mtd_module = self.env['ir.module.module'].search([('name','=','account_mtd')], limit=1)
         return {
-            "Gov-vendor-version":'Odoo%20SA=13.0&servercode=Python3.0',
+            "Gov-vendor-version":'Odoo%20SA=13.0&moduleversion={version}'.format(version=mtd_module.installed_version),
             'Gov-vendor-license-ids': urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
             "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_ip),
             "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_ip, clientip=self.client_ip),
@@ -92,7 +102,6 @@ class ResUsers(models.Model):
             "Gov-Client-Connection-Method": 'WEB_APP_VIA_SERVER',
             "Gov-Client-Public-IP": self.client_ip,
             "Gov-Client-Public-Port": '{remoteport}'.format(remoteport=request.httprequest.environ['REMOTE_PORT']),
-            "Gov-Client-Device-Id": '{uuid1}'.format(uuid1=uuid.uuid1()),
             "Gov-Client-User-Ids": 'Odoo=opusvl{username}'.format(username=company.hmrc_username),
             "Gov-Client-Timezone": now[:-2] + ':' + now[-2:],
             "Gov-client-local-ips": ','.join(ip for ip in self.ip4_addresses()),
