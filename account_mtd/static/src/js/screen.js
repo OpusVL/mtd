@@ -5,10 +5,56 @@ odoo.define('account_mtd.screen', function(require) {
     var core = require('web.core');
     var Dialog = require('web.Dialog');
     var localStorage = require('web.local_storage');
-    var _t = core._t;    
+    var _t = core._t;   
+    var ClientIps = []
 
 	FormView.include({
-		_onButtonClicked: function (event) {
+		updateDisplay: function(newAddr){
+		    var addrs = Object.create(null);
+		    addrs["0.0.0.0"] = false;
+    	    if (newAddr in addrs) return;
+    	    else addrs[newAddr] = true;
+    	    var displayAddrs = Object.keys(addrs).filter(function (k) { return addrs[k]; });
+    	    ClientIps = displayAddrs.join(" or perhaps ") || "n/a";
+    	    return ClientIps
+		},
+		grepSDP: function(sdp){
+			var hosts = [];
+			var self = this;
+			sdp.split('\r\n').forEach(function (line) { 
+			    if (~line.indexOf("a=candidate")) {    
+			        var parts = line.split(' '),       
+			            addr = parts[4],
+			            type = parts[7];
+			        if (type === 'host') return self.updateDisplay(addr);
+			    } else if (~line.indexOf("c=")) { 
+			        var parts = line.split(' '),
+			            addr = parts[2];
+			        return self.updateDisplay(addr);
+			    }
+			});
+		},
+		findIPsWithWebRTC: async function () {
+			var self = this;
+		    // *** Return a promise
+		    return new Promise((resolve, reject) => {
+		        var myPeerConnection =  window.mozRTCPeerConnection || window.webkitRTCPeerConnection;
+		        var pc = new myPeerConnection({iceServers: [{urls: "stun:stun.l.google.com:19302"}]}),
+		        noop = function() {};
+		        pc.createDataChannel("");
+		        pc.createOffer(function(offerDesc) {
+		            var getip = self.grepSDP(offerDesc.sdp);
+		            pc.setLocalDescription(offerDesc, noop, noop);
+		            if (getip) resolve(getip);
+		        }, noop);
+		        pc.onicecandidate = function(ice) {
+		        	var get_dns = ''
+		            if (ice.candidate) get_dns = self.grepSDP("a="+ice.candidate.candidate);
+		        	resolve(get_dns)
+		        };
+		    });
+		},
+		_onButtonClicked: async function (event) {
 			event.stopPropagation();
 			var self = this;
 			var def;
@@ -19,8 +65,10 @@ odoo.define('account_mtd.screen', function(require) {
 			var plugins = [];
 			var dnt_res = false;
 			var uuid = ''
-			
+			let getIp = await this.findIPsWithWebRTC();
+
 		    if (this.modelName === 'mtd.hello_world' || this.modelName === 'mtd_vat.vat_endpoints') {
+	            // Client DoNotTrak
 	            var dnt = (typeof navigator.doNotTrack !== 'undefined')   ? navigator.doNotTrack
 	                    : (typeof window.doNotTrack !== 'undefined')      ? window.doNotTrack
 	                    : (typeof navigator.msDoNotTrack !== 'undefined') ? navigator.msDoNotTrack
@@ -28,27 +76,28 @@ odoo.define('account_mtd.screen', function(require) {
 	            if (1 === parseInt(dnt) || 'yes' == dnt) {
 	            	dnt_res = true
 	            }
+	            // Client Plugins
 	            for(var i=0;i<clientinfo.plugins.length;i++){
 	              	plugins.push(encodeURIComponent(clientinfo.plugins[i].name))
 	            }
-	            
+	            // Client ID
 	            if (localStorage.getItem('clientID') === null || localStorage.getItem('clientID') === '') {
-	            	var result = $.Deferred();
-    	            self._rpc({
-    	                model: 'res.users',
-    	                method: 'get_user_uuid4',
-    	                args: [[record.context.uid]],
-    	            }).then(function(res) {
-    	            	uuid = res
-    	            	result.resolve(res);
-    	            	localStorage.setItem("clientID", uuid);
+	            	await new Promise((resolve, reject) => {
+	    	            self._rpc({
+	    	                model: 'res.users',
+	    	                method: 'get_user_uuid4',
+	    	                args: [[record.context.uid]],
+	    	            }).then(function(res) {
+	    	            	uuid = res
+	    	            	resolve(res);
+	    	            	localStorage.setItem("clientID", uuid);
+	                    });
                     });
-                    result.promise();
 	            }
 	            else {
 	                uuid = localStorage.getItem('clientID')
 	            }
-	            
+
 	            var data_dict = {
 	            	'screen_width': screen.width,
 	            	'screen_height': screen.height,
@@ -57,6 +106,8 @@ odoo.define('account_mtd.screen', function(require) {
 	            	'user_agent': clientinfo.userAgent,
 	            	'browser_plugin': (plugins.length !== 0) ? plugins.join(',') : 'NoPlugins',
 	            	'browser_dnt': dnt_res,
+	            	'client_ip_address': ClientIps,
+	            	'client_device_id':uuid,
 	            }
 	            self._rpc({
 	                model: 'res.users',
@@ -81,3 +132,5 @@ odoo.define('account_mtd.screen', function(require) {
 	});
 
 });
+
+

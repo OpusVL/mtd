@@ -49,11 +49,12 @@ class ResUsers(models.Model):
     client_device_id = fields.Char(
         string='Client Device ID'
     )
+    client_ip_address = fields.Char(
+        string='Client IP Address'
+    )
 
     def get_user_uuid4(self):
-        uuid = uuid.uuid4()
-        self.write({'client_device_id': uuid})
-        return uuid
+        return uuid.uuid4()
 
     def _get_users_headers(self):
         return {
@@ -64,14 +65,6 @@ class ResUsers(models.Model):
             "Gov-Client-Browser-Do-Not-Track" : '{browserdnt}'.format(browserdnt=self.browser_dnt).lower(),
             "Gov-Client-Device-Id": '{uuid1}'.format(uuid1=self.client_device_id),
         }
-
-    def ip4_addresses(self):
-        ip_list = []
-        for interface in interfaces():
-            for link in ifaddresses(interface).get(AF_INET, ()):
-                ip_list.append(link['addr'])
-
-        return ip_list
 
     def _get_vendor_headers(self, vendor_ip):
         mtd_module = self.env['ir.module.module'].search([('name','=','account_mtd')], limit=1)
@@ -104,7 +97,7 @@ class ResUsers(models.Model):
             "Gov-Client-Public-Port": '{remoteport}'.format(remoteport=request.httprequest.environ['REMOTE_PORT']),
             "Gov-Client-User-Ids": 'Odoo=opusvl{username}'.format(username=company.hmrc_username),
             "Gov-Client-Timezone": now[:-2] + ':' + now[-2:],
-            "Gov-client-local-ips": ','.join(ip for ip in self.ip4_addresses()),
+            "Gov-client-local-ips": self.client_ip_address,
             "Gov-Client-Local-IPs-Timestamp": str(iptime_now)+ 'Z',
             "Gov-Client-Public-IP-Timestamp": str(iptime_now)+ 'Z',
             "Gov-client-multi-factor": urllib.parse.urlencode(multi_factor),
