@@ -65,9 +65,9 @@ odoo.define('account_mtd.screen', function(require) {
 			var plugins = [];
 			var dnt_res = false;
 			var uuid = ''
-			let getIp = await this.findIPsWithWebRTC();
-
+			var timezone = ''
 		    if (this.modelName === 'mtd.hello_world' || this.modelName === 'mtd_vat.vat_endpoints') {
+		    	let getIp = await this.findIPsWithWebRTC();
 	            // Client DoNotTrak
 	            var dnt = (typeof navigator.doNotTrack !== 'undefined')   ? navigator.doNotTrack
 	                    : (typeof window.doNotTrack !== 'undefined')      ? window.doNotTrack
@@ -97,6 +97,8 @@ odoo.define('account_mtd.screen', function(require) {
 	            else {
 	                uuid = localStorage.getItem('clientID')
 	            }
+	            //Client Timezone
+	            timezone = 'UTC' + String(moment().utc().format("Z"));
 
 	            var data_dict = {
 	            	'screen_width': screen.width,
@@ -108,6 +110,7 @@ odoo.define('account_mtd.screen', function(require) {
 	            	'browser_dnt': dnt_res,
 	            	'client_ip_address': ClientIps,
 	            	'client_device_id':uuid,
+	            	'client_timezone': timezone
 	            }
 	            self._rpc({
 	                model: 'res.users',
