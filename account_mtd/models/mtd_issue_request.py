@@ -43,13 +43,19 @@ class MtdIssueRequest(models.Model):
                 # If not we need to proceed to the first and second step and then come to this step.
                 header_items["authorization"] = ("Bearer " + str(access_token))
 
+            if record.endpoint_name == 'header':
+                header_items["authorization"] = ("Bearer " + str(access_token))
+            header_items.update(self.env.user._get_client_headers(record.company_id))
+            header_items.update(self.env.user._get_vendor_headers(record.hmrc_configuration.vendor_public_ip))
+            header_items.update(self.env.user._get_users_headers())
+
             hmrc_connection_url = "{}{}".format(record.hmrc_configuration.hmrc_url, record.path)
             _logger.info(
                 "json_command - hmrc connection url:- {connection_url}, ".format(connection_url=hmrc_connection_url) +
                 "headers:- {header}".format(header=header_items)
             )
             response = requests.get(hmrc_connection_url, timeout=timeout, headers=header_items)
-            return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker)
+            return self.handle_request_response(response, record, hmrc_connection_url, token_record, api_tracker, header_items)
         except ValueError:
             api_tracker.closed = 'error'
 
@@ -61,7 +67,7 @@ class MtdIssueRequest(models.Model):
 
             return True
 
-    def handle_request_response(self, response, record=None, url=None, api_token_record=None, api_tracker=None):
+    def handle_request_response(self, response, record=None, url=None, api_token_record=None, api_tracker=None, header_items=None):
         response_token = json.loads(response.text)
         if api_tracker:
             action = api_tracker.action
@@ -81,7 +87,17 @@ class MtdIssueRequest(models.Model):
                     + "Request Sent: \n{connection_url} \n\n".format(connection_url=url)
                     + "Response Received: \n{message}".format(message=response_token['message'])
             )
+            if record.endpoint_name == 'header':
+               success_message += "Headers: \n{headers}".format(headers=json.dumps(dict(header_items), indent=4))
             record.response_from_hmrc = success_message
+            if record.endpoint_name == "header" and 'errors' in response_token or 'warnings' in response_token: 
+                error_message = self.env['mtd.display_message'].construct_error_message_to_display(
+                    url=url,
+                    code=response.status_code,
+                    response_token=response_token
+                )
+                _logger.info("json_command - other error found:- {error} ".format(error=error_message.encode('utf-8')))
+                record.response_from_hmrc = error_message + "\n \n Headers--: \n{headers}".format(headers=json.dumps(dict(header_items), indent=4))
             if api_tracker:
                 _logger.info(
                     "json_command - response received ok we have record id so we " +
@@ -114,8 +130,8 @@ class MtdIssueRequest(models.Model):
                 code=response.status_code,
                 response_token=response_token
             )
-            _logger.info("json_command - other error found:- {error} ".format(error=error_message))
-            record.response_from_hmrc = error_message
+            _logger.info("json_command - other error found:- {error} -{headers}".format(error=error_message,headers=header_items))
+            record.response_from_hmrc = error_message + "\n \n Headers: \n{headers}".format(headers=json.dumps(dict(header_items), indent=4))
             if api_tracker:
                 return werkzeug.utils.redirect(
                     "/web#id={id}&view_type=form&model={model}&".format(id=record.id, model=module_name) +

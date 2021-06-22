@@ -21,6 +21,11 @@ class MtdHmrcConfiguration(models.Model):
         required=True)
     hmrc_url = fields.Char('HMRC URL', required=True)
     redirect_url = fields.Char('Redirect URL', required=True)
+    vendor_public_ip = fields.Char(
+        string='Redirect URL IP Address (Odoo Server)', 
+        required=True, 
+        help="The public IP address of the server that the originating device sent their requests to."
+    )
     access_token = fields.Char()
     refresh_token = fields.Char()
     state = fields.Char()
