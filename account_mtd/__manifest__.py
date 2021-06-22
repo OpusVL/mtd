@@ -23,7 +23,7 @@
 
 {
     'name': 'UK HMRC MTD - Connector',
-    'version': '0.7',
+    'version': '0.8',
     'author': 'OpusVL',
     'website': 'https://opusvl.com/',
     'summary': 'This module enables Odoo Community and Enterprise to establish an authenticated connection to the HMRC’s Making Tax Digital platform.',
@@ -37,7 +37,8 @@
     ],
     'data': [
         'data/api_scope.xml',
-
+        'views/res_company_view.xml',
+        'views/webclient_templates.xml',
         'views/mtd_menu.xml',
         'views/hmrc_configuration_view.xml',
         'views/hello_world_view.xml',
