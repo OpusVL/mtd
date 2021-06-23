@@ -3,12 +3,33 @@ import logging
 from odoo import http, exceptions
 from datetime import datetime, timedelta
 from werkzeug.utils import redirect
-
+from odoo.http import request
 _logger = logging.getLogger(__name__)
+from odoo.addons.web.controllers.main import Home, Session
+
+
+#----------------------------------------------------------
+# Odoo Web web Controllers
+#----------------------------------------------------------
+class LoginHome(Home):
+
+    @http.route('/web', type='http', auth="none")
+    def web_client(self, s_action=None, **kw):
+        res = super(LoginHome, self).web_client(s_action, **kw)
+        # Get Client Ip Address
+        if request.session.uid:
+            client_ip = request.httprequest.remote_addr
+            user = request.env['res.users'].sudo().browse(request.session.uid)
+            if 'X-Real-Ip' in request.httprequest.headers:
+                client_ip = request.httprequest.headers.get('X-Real-Ip')
+            elif 'X-Forwarded-For' in request.httprequest.headers:
+                client_ip = request.httprequest.headers.get('X-Forwarded-For')
+            user.sudo().write({'client_ip': request.httprequest.remote_addr})
+        return res
 
 
 class Authorize(http.Controller):
-
+    
     @http.route('/auth-redirect', type='http', methods=['GET'])
     def get_user_authorization(self, **args):
 
