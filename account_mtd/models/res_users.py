@@ -5,7 +5,6 @@ import urllib
 import pytz
 import uuid
 from odoo.http import request
-from netifaces import interfaces, ifaddresses, AF_INET
 from datetime import datetime
 
 class ResUsers(models.Model):
@@ -42,10 +41,10 @@ class ResUsers(models.Model):
     client_ip = fields.Char(
         string='Client Ip',
     )
-    client_factor_ref = fields.Char(
-        string='Client Factor Reference',
-        readonly=True
-    )
+    # client_factor_ref = fields.Char(
+    #     string='Client Factor Reference',
+    #     readonly=True
+    # )
     client_device_id = fields.Char(
         string='Client Device ID'
     )
@@ -75,7 +74,7 @@ class ResUsers(models.Model):
         mtd_module = self.env['ir.module.module'].search([('name','=','account_mtd')], limit=1)
         return {
             "Gov-vendor-version":'Odoo%20SA=13.0&moduleversion={version}'.format(version=mtd_module.installed_version),
-            "Gov-vendor-license-ids": urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
+            # "Gov-vendor-license-ids": urllib.parse.urlencode({'Odoo':'13.0-20201006-community-edition'}),
             "Gov-vendor-public-ip": '{vendorip}'.format(vendorip=vendor_ip),
             "Gov-vendor-forwarded":'by={vendorip}&for={clientip}'.format(vendorip=vendor_ip, clientip=self.client_ip),
             "Gov-Vendor-Product-Name": 'Product%20Odoo',
@@ -83,18 +82,18 @@ class ResUsers(models.Model):
 
     def _get_client_headers(self, company):
         iptime_now = str(datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%M:%S.%f'))[:-3]
-        if not self.client_factor_ref:
-            self.write({'client_factor_ref': uuid.uuid4().hex[:13]})
-
         if not company.hmrc_username:
             raise exceptions.Warning('HMRC UserID Mandatory in Company')
             
-        multi_factor_now = str(datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%MZ'))
-        multi_factor = {
-            'type': 'TOTP',
-            'timestamp': str(multi_factor_now),
-            'unique-reference': self.client_factor_ref,
-        }
+        # Multi Factor No need To send in the header
+        # if not self.client_factor_ref:
+        #     self.write({'client_factor_ref': uuid.uuid4().hex[:13]})
+        # multi_factor_now = str(datetime.now(pytz.timezone('UTC')).strftime('%Y-%m-%dT%H:%MZ'))
+        # multi_factor = {
+        #     'type': 'TOTP',
+        #     'timestamp': str(multi_factor_now),
+        #     'unique-reference': self.client_factor_ref,
+        # }
         return {
             "Gov-Client-Connection-Method": 'WEB_APP_VIA_SERVER',
             "Gov-Client-Public-IP": self.client_ip,
@@ -102,6 +101,6 @@ class ResUsers(models.Model):
             "Gov-Client-User-Ids": 'Odoo=opusvl{username}'.format(username=company.hmrc_username),
             "Gov-Client-Local-IPs-Timestamp": str(iptime_now)+ 'Z',
             "Gov-Client-Public-IP-Timestamp": str(iptime_now)+ 'Z',
-            "Gov-client-multi-factor": urllib.parse.urlencode(multi_factor),
+            # "Gov-client-multi-factor": urllib.parse.urlencode(multi_factor),
         }
 
