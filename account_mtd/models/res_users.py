@@ -41,10 +41,10 @@ class ResUsers(models.Model):
     client_ip = fields.Char(
         string='Client Ip',
     )
-    client_factor_ref = fields.Char(
-        string='Client Factor Reference',
-        readonly=True
-    )
+    # client_factor_ref = fields.Char(
+    #     string='Client Factor Reference',
+    #     readonly=True
+    # )
     client_device_id = fields.Char(
         string='Client Device ID'
     )
