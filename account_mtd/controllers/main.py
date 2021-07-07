@@ -24,7 +24,7 @@ class LoginHome(Home):
                 client_ip = request.httprequest.headers.get('X-Real-Ip')
             elif 'X-Forwarded-For' in request.httprequest.headers:
                 client_ip = request.httprequest.headers.get('X-Forwarded-For')
-            user.sudo().write({'client_ip': request.httprequest.remote_addr})
+            user.sudo().write({'client_ip': client_ip})
         return res
 
 
