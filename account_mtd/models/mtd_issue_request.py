@@ -87,19 +87,16 @@ class MtdIssueRequest(models.Model):
                     + "Please check the log below for details. \n\n"
                     + "Connection Status Details: \n"
                     + "Request Sent: \n{connection_url} \n\n".format(connection_url=url)
-                    + "Response Received: \n{message}".format(message=response_token['message'])
             )
-            if record.endpoint_name == 'header':
-                success_message += "Headers: \n{headers}".format(headers=json.dumps(dict(header_items), indent=4))
             record.response_from_hmrc = success_message
-            if record.endpoint_name == "header" and 'errors' in response_token or 'warnings' in response_token: 
+            if record.endpoint_name == "header": 
                 error_message = self.env['mtd.display_message'].construct_error_message_to_display(
                     url=url,
                     code=response.status_code,
                     response_token=response_token
                 )
                 _logger.info("json_command - other error found:- {error} ".format(error=error_message))
-                record.response_from_hmrc = error_message + "\n \n Headers--: \n{headers}".format(headers=json.dumps(dict(header_items), indent=4))
+                record.response_from_hmrc = error_message + "\n\nHeaders Current Value:\n{headers} \n".format(headers=json.dumps(dict(header_items), indent=4))
             if api_tracker:
                 _logger.info(
                     "json_command - response received ok we have record id so we " +
