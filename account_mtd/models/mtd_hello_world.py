@@ -64,7 +64,7 @@ class MtdHelloWorld(models.Model):
 
     def _mtd_fraud_prevention_headers_endpoint(self):
         self.endpoint_name = "header"
-        self.path = '/test/fraud-prevention-headers/validate'
+        self.path = '/test/fraud-prevention-headers/vat-mtd/validation-feedback'
         version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
         _logger.info(self.connection_button_clicked_log_message())
         return version
