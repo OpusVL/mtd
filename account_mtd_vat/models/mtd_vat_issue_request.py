@@ -82,6 +82,10 @@ class MtdVatIssueRequest(models.Model):
             header_items["authorization"] = ("Bearer " + str(access_token))
             header_items["scope"] = record.scope
             header_items["Content-Type"] = "application/json"
+
+            header_items.update(self.env.user._get_client_headers(record.company_id))
+            header_items.update(self.env.user._get_vendor_headers(record.hmrc_configuration.vendor_public_ip))
+            header_items.update(self.env.user._get_users_headers())
             # if record.endpoint_name == "view-vat-returns":
             #     header_items["scope"] = record.scope
 
