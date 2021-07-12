@@ -35,6 +35,7 @@ class MtdHelloWorld(models.Model):
             "mtd_hello_world_endpoint": "_handle_mtd_hello_world_endpoint",
             "mtd_hello_application_endpoint": "_handle_mtd_hello_application_endpoint",
             "mtd_hello_user_endpoint": "_handle_mtd_hello_user_endpoint",
+            "mtd_fraud_prevention_headers_endpoint": "_mtd_fraud_prevention_headers_endpoint",
         }
         handler_name = request_handler.get(endpoint_record.name)
         if handler_name:
@@ -53,6 +54,13 @@ class MtdHelloWorld(models.Model):
     def _handle_mtd_hello_application_endpoint(self):
         self.endpoint_name = "application"
         self.path = "/hello/application"
+        version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
+        _logger.info(self.connection_button_clicked_log_message())
+        return version
+
+    def _mtd_fraud_prevention_headers_endpoint(self):
+        self.endpoint_name = "header"
+        self.path = '/test/fraud-prevention-headers/vat-mtd/validation-feedback'
         version = self.env['mtd.issue_request'].json_command('version', self._name, self.id)
         _logger.info(self.connection_button_clicked_log_message())
         return version

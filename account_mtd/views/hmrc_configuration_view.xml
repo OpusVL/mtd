@@ -16,6 +16,7 @@
                             <field name="client_secret" />
                             <field name="hmrc_url" />
                             <field name="redirect_url"/>
+                            <field name="vendor_public_ip"/>
                             <field name="access_token" invisible="1"/>
                             <field name="refresh_token" invisible="1"/>
                             <field name="state" invisible="1"/>
