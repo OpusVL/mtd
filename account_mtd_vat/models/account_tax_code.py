@@ -157,6 +157,8 @@ class mtd_account_tax_code(osv.osv):
         return move_line_ids
 
     def _move_line_ids_for_chart_of_taxes_rows(self, cr, uid, ids, context):
+        if not context.get('state'):
+            return []
         return frozenset().union(*[
             self._move_line_ids_for_chart_of_taxes_row(
                 cr, uid, tax_code_id, context=context)
