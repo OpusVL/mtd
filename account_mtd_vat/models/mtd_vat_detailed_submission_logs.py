@@ -25,7 +25,7 @@ class MtdVATDetailedSubmissionLogs(models.Model):
     company_currency_id = fields.Many2one(string='Company Currency', readonly=True,
                                           related='account_move_line_id.company_currency_id')
     company_id = fields.Many2one('res.company', string="Company", readonly=True)
-    country_id = fields.Many2one(comodel_name='res.country', related='account_move_line_id.country_id')
+    country_id = fields.Many2one(comodel_name='res.country', related="move_id.partner_id.country_id")
     create_date = fields.Date(string='Creation date', readonly=True)
     create_uid = fields.Char(readonly=True)
     credit = fields.Float(readonly=True)
