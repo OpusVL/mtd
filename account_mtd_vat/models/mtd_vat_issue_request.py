@@ -154,7 +154,7 @@ class MtdVatIssueRequest(models.Model):
         if response.ok:
             record.view_vat_flag = False
             if record.endpoint_name == "vat-obligation":
-                self.show_log_button = True
+                # self.show_log_button = True
                 self.add_obligation_logs(response, record)
             elif record.endpoint_name == "vat-liabilities":
                 self.add_liabilities_logs(response, record)
