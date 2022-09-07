@@ -364,8 +364,8 @@ class MtdVatIssueRequest(models.Model):
     def add_obligation_logs(self, response=None, record=None):
 
         # retrieve action and menu id so we can provide a link to the obligation view.
-        record.obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log')
-        record.obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log')
+        # record.obligation_log_action = self.env.ref('account_mtd_vat.action_mtd_vat_obligation_log')
+        # record.obligation_log_menu = self.env.ref('account_mtd_vat.submenu_mtd_vat_obligation_log')
 
         response_logs = json.loads(response.text)
         logs = response_logs['obligations']
@@ -400,7 +400,7 @@ class MtdVatIssueRequest(models.Model):
 
         record.response_from_hmrc = success_message
         record.show_response_flag = True
-        record.obligation_log_link = "Please check the VAT logs here"
+        # record.obligation_log_link = "Please check the VAT logs here"
 
     def update_write_obligation(self, log, received, obligation_logs, record):
         if obligation_logs:
@@ -605,7 +605,7 @@ class MtdVatIssueRequest(models.Model):
                 move_line_account_id.append(line.id)
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
-        line_ids.mtd_reconcile()
+        line_ids.reconcile()
 
 
 class RetrievePeriodId(models.Model):
