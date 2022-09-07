@@ -120,7 +120,7 @@ class VatCalculation(models.Model):
         debits = []
         for record in move_lines_for_tax:
             if tax_tag_name in ('PT8', 'PT8BR'):
-                if record.move_id.type == 'in_refund':
+                if record.move_id.move_type == 'in_refund':
                     credits.append(record.credit)
                 else:
                     debits.append(record.debit)
