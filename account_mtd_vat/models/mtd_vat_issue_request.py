@@ -605,7 +605,7 @@ class MtdVatIssueRequest(models.Model):
                 move_line_account_id.append(line.id)
         account_move_line_obj = self.env['account.move.line']
         line_ids = account_move_line_obj.search([('id', 'in', move_line_account_id)])
-        line_ids.reconcile()
+        # line_ids.reconcile()
 
 
 class RetrievePeriodId(models.Model):
