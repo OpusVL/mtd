@@ -56,6 +56,11 @@
         #'views/webclient_templates.xml',
 
     ],
+    # 'assets': {
+    # 'web.assets_backend': [
+    #     '/account_mtd_vat/static/src/js/views/view_tree.js',
+    # ],
+    # },
     'demo': [
     ],
     'test': [

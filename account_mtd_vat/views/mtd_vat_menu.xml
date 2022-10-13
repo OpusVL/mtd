@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-        <record id="action_mtd_vat_endpoints"
+<act_window id="action_mtd_vat_endpoints"
             name="VAT Management"
             res_model="mtd_vat.vat_endpoints"
             view_mode="tree,form" />
-        <record id="action_mtd_vat_obligation_log"
+        <act_window id="action_mtd_vat_obligation_log"
             name="VAT Period History"
             res_model="mtd_vat.vat_obligations_logs"
             view_mode="tree,form" />
-        <record id="action_mtd_vat_submission_log"
+        <act_window id="action_mtd_vat_submission_log"
             name="VAT Submission Log"
             res_model="mtd_vat.vat_submission_logs"
             view_mode="tree,form" />
-        <record id="action_mtd_vat_calculation"
+        <act_window id="action_mtd_vat_calculation"
             name="VAT Calculation"
             res_model="mtd_vat.vat_calculation_table"
             view_mode="tree,form" />
@@ -28,7 +28,7 @@
             <field name="view_mode">tree,form</field>
             <field name="context">{'group_by':['company_id', 'unique_number']}</field>
         </record>
-        <record id="action_hmrc_posting_template"
+        <act_window id="action_hmrc_posting_template"
             name="Accounting Set-up"
             res_model="mtd_vat.hmrc_posting_configuration"
             view_mode="tree,form" />
@@ -74,6 +74,5 @@
             parent="account_mtd.submenu_mtd_hmrc_services"
             name="Accounting Set-up"
             sequence="30"/>
-
     </data>
 </odoo>
