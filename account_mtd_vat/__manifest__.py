@@ -23,7 +23,7 @@
 
 {
     'name': 'UK HMRC MTD - VAT',
-    'version': '0.7',
+    'version': '0.15',
     'author': 'OpusVL',
     'website': 'https://opusvl.com/',
     'summary': 'This module enables the collation and transmission of VAT data from Odoo to HMRC in line with Making Tax Digital requirements. From your sales and purchases in Odoo, your VAT liability is automatically calculated and submitted to HMRC.',
@@ -38,11 +38,8 @@
         'data/account_tax_scope.xml',
         'data/vat_api_scope.xml',
         'data/ir_sequence_data.xml',
-
         'security/groups.xml',
         'security/ir.model.access.csv',
-        # 'security/user_access_rules.xml',
-
         'views/account_move_line_view.xml',
         'views/account_tax.xml',
         'views/hmrc_posting_configuration_view.xml',
@@ -53,14 +50,7 @@
         'views/mtd_vat_obligation_logs_list_view.xml',
         'views/mtd_vat_submission_logs_view.xml',
         'views/res_company_view.xml',
-        #'views/webclient_templates.xml',
-
     ],
-    # 'assets': {
-    # 'web.assets_backend': [
-    #     '/account_mtd_vat/static/src/js/views/view_tree.js',
-    # ],
-    # },
     'demo': [
     ],
     'test': [
